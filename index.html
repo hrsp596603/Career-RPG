@@ -600,6 +600,74 @@
     line-height: 1.7;
   }
 
+  /* Dual-column Hero Layout */
+  .hero-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* 改為頂部對齊，以便對齊上緣 */
+    gap: 40px;
+    min-height: 50vh;
+  }
+
+  /* Left Hero (Postcard) */
+  .hero-left {
+    flex: 1.2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    margin-top: -20px; /* 手動微調上移幅度，可依視覺調整 */
+  }
+  .hero-left img {
+    width: 100%;
+    height: auto;
+    max-width: 650px;
+    object-fit: contain;
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.05));
+    transition: transform 0.3s ease;
+  }
+  
+  /* Right Hero (Scrap Paper Grid) */
+  .hero-right {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .scrap-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+  
+  .scrap-card:hover {
+    transform: scale(1.05) rotate(1.5deg);
+    filter: brightness(1.03);
+    z-index: 2;
+  }
+
+  .scrap-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.06));
+  }
+  
+  @media (max-width: 900px) {
+    .hero-container {
+      flex-direction: column;
+    }
+    .hero-left { margin-bottom: 40px; }
+  }
+
 </style>
 </head>
 <body>
@@ -621,7 +689,33 @@
   <p class="sub">這不是要替你做決定。是讓你在點菜之前，先知道這道菜大概的輪廓、地雷在哪、廚房的邏輯是什麼。</p>
 </div>
 
-
+<!-- HERO LAYOUT -->
+<div class="hero-container">
+  <!-- 左側：明信片區塊 -->
+  <div class="hero-left">
+    <!-- 加入花草與明信片佔位 -->
+    <img src="postcard-removebg-preview.webp" alt="Career RPG Postcard">
+  </div>
+  
+  <!-- 右側：便條紙區塊 (6格) -->
+  <div class="hero-right">
+    <!-- 第一排 -->
+    <div class="scrap-card" title="01 · 職涯諮詢師">
+      <img src="scrapper1-removebg-preview.webp" alt="職涯諮詢師 便條紙">
+    </div>
+    <div class="scrap-card" title="02 · 資優班老師">
+      <img src="scrapper2-removebg-preview.webp" alt="資優班老師 便條紙">
+    </div>
+    
+    <!-- 第二排 -->
+    <div class="scrap-card" title="03 · 心理諮商師">
+      <img src="scrapper3-removebg-preview.webp" alt="心理諮商師 便條紙">
+    </div>
+    <div class="scrap-card" style="cursor: default;">
+      <img src="scrapper1-removebg-preview.webp" alt=" Scrap Paper">
+    </div>
+  </div>
+</div>
 
 <div class="footer">
   Career RPG · 職涯模擬系統 · v0.1 · 這不是標準答案，是讓你帶著更好的問題去點菜。
