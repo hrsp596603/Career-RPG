@@ -1,0 +1,9 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# AI Memory and temporary files
+.agents/brain/
+.gemini/
+temp_content.md
