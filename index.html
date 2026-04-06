@@ -1,751 +1,1201 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>職涯圖鑑 — Career RPG</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;900&family=Space+Mono:wght@400;700&display=swap');
-
-  :root {
-    --ink: #12151a;
-    --paper: #f4f2ee;
-    --muted: #8a8278;
-    --light: #e8e4dc;
-    --warn: #9a3a3a;
-
-    /* Job colors */
-    --j1: #4a5a9a;   /* 職涯諮詢師 — blue */
-    --j1bg: rgba(74,90,154,0.04);
-    --j2: #3a6b4a;   /* 資優班老師 — green */
-    --j2bg: rgba(58,107,74,0.04);
-    --j3: #7a3a7a;   /* 心理諮商師 — purple */
-    --j3bg: rgba(122,58,122,0.04);
-
-    --gold: #8a7a3a;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Noto Serif TC', serif;
-    min-height: 100vh;
-    padding: 0 0 80px;
-  }
-
-  /* ── NAV ── */
-  .nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--ink);
-    color: var(--paper);
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 0 24px;
-    height: 48px;
-    overflow-x: auto;
-  }
-
-  .nav-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    opacity: 0.5;
-    white-space: nowrap;
-    margin-right: 24px;
-    flex-shrink: 0;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 0;
-    flex-shrink: 0;
-  }
-
-  .nav-link {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 0 16px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s, border-bottom 0.2s;
-    text-decoration: none;
-    color: var(--paper);
-    white-space: nowrap;
-    border-bottom: 2px solid transparent;
-  }
-
-  .nav-link:hover { opacity: 1; }
-  .nav-link.j1 { border-bottom-color: var(--j1); opacity: 1; }
-  .nav-link.j2 { border-bottom-color: var(--j2); opacity: 1; }
-  .nav-link.j3 { border-bottom-color: var(--j3); opacity: 1; }
-
-  /* ── PAGE HEADER ── */
-  .page-header {
-    padding: 56px 24px 40px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .page-header .label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--muted);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 10px;
-  }
-
-  .page-header h1 {
-    font-size: clamp(32px, 6vw, 58px);
-    font-weight: 900;
-    letter-spacing: -2px;
-    line-height: 1.05;
-    margin-bottom: 16px;
-  }
-
-  .page-header .sub {
-    font-size: 14px;
-    color: var(--muted);
-    line-height: 1.8;
-    max-width: 520px;
-  }
-
-  /* ── JOB SECTION ── */
-  .job-section {
-    padding: 60px 24px 80px;
-    max-width: 900px;
-    margin: 0 auto;
-    border-top: 2px solid var(--ink);
-    scroll-margin-top: 48px;
-  }
-
-  .job-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 40px;
-    padding-bottom: 28px;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-  }
-
-  .job-color-bar {
-    width: 4px;
-    height: 80px;
-    flex-shrink: 0;
-    margin-top: 4px;
-  }
-
-  .job-header-text {}
-
-  .job-number {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    display: block;
-  }
-
-  .job-title {
-    font-size: clamp(28px, 5vw, 46px);
-    font-weight: 900;
-    letter-spacing: -1.5px;
-    line-height: 1.05;
-    margin-bottom: 8px;
-  }
-
-  .job-en {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  /* ── CARD ── */
-  .card {
-    background: white;
-    border: 1.5px solid var(--ink);
-    margin-bottom: 24px;
-    position: relative;
-  }
-
-  .card::after {
-    content: '';
-    position: absolute;
-    top: 4px; left: 4px; right: -4px; bottom: -4px;
-    border: 1.5px solid var(--ink);
-    z-index: -1;
-  }
-
-  .card-header {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 12px 22px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .card-header h2 {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-
-  .card-header .sub {
-    margin-left: auto;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    opacity: 0.4;
-    letter-spacing: 1px;
-  }
-
-  /* 擴增收合相關控制樣式 */
-  .card-header {
-    cursor: pointer;
-    user-select: none;
-    transition: filter 0.2s ease;
-  }
-  .card-header:hover {
-    filter: brightness(1.2);
-  }
-  .card-header::after {
-    content: '▼';
-    margin-left: 14px;
-    font-size: 10px;
-    font-weight: 700;
-    opacity: 0.6;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .card.open .card-header::after {
-    transform: rotate(-180deg);
-  }
-  .card-body-wrapper {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .card.open .card-body-wrapper {
-    grid-template-rows: 1fr;
-  }
-  .card-body-inner {
-    overflow: hidden;
-  }
-
-  .card-body { padding: 24px; }
-
-  /* ── OVERVIEW ── */
-  .overview-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 28px;
-  }
-
-  @media (max-width: 600px) { .overview-grid { grid-template-columns: 1fr; } }
-
-  .overview-desc {
-    font-size: 14px;
-    line-height: 1.9;
-    color: #2a2530;
-  }
-
-  .overview-note {
-    margin-top: 14px;
-    padding: 11px 14px;
-    font-size: 12px;
-    line-height: 1.8;
-  }
-
-  .stats { display: flex; flex-direction: column; gap: 12px; }
-
-  .stat-row { display: flex; flex-direction: column; gap: 3px; }
-
-  .stat-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .stat-label .val { font-weight: 700; }
-
-  .stat-bar {
-    height: 5px;
-    background: var(--light);
-    border: 1px solid rgba(0,0,0,0.07);
-    overflow: hidden;
-  }
-
-  .stat-fill { height: 100%; }
-
-  /* ── SKILLS ── */
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 14px;
-  }
-
-  .skill {
-    border: 1px solid var(--ink);
-    padding: 14px;
-    position: relative;
-  }
-
-  .skill.core {}
-  .skill.burden { border-color: var(--warn); background: rgba(154,58,58,0.02); }
-  .skill.self {}
-
-  .skill-name { font-weight: 600; font-size: 13px; margin-bottom: 5px; }
-  .skill-desc { font-size: 11px; color: var(--muted); line-height: 1.7; }
-
-  .skill-lv {
-    position: absolute;
-    top: 10px; right: 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    font-weight: 700;
-  }
-
-  /* ── ROUTES ── */
-  .route { border: 1.5px solid var(--ink); margin-bottom: 18px; }
-  .route:last-child { margin-bottom: 0; }
-
-  .route-header {
-    padding: 12px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    border-bottom: 1px solid var(--ink);
-  }
-
-  .rbadge {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
-    padding: 2px 7px;
-    border: 1px solid currentColor;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .route-name { font-weight: 600; font-size: 14px; }
-
-  .route-ceil {
-    margin-left: auto;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    text-align: right;
-    line-height: 1.6;
-  }
-
-  .route-body { padding: 18px; }
-
-  .stages { display: flex; flex-direction: column; position: relative; }
-
-  .stages::before {
-    content: '';
-    position: absolute;
-    left: 13px; top: 26px; bottom: 26px;
-    width: 1px;
-    background: var(--ink);
-    opacity: 0.12;
-  }
-
-  .stage { display: flex; gap: 18px; padding: 10px 0; }
-
-  .dot {
-    width: 26px; height: 26px;
-    border: 2px solid var(--ink);
-    background: var(--paper);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px; font-weight: 700;
-    flex-shrink: 0; z-index: 1;
-  }
-
-  .dot.filled { background: var(--ink); color: var(--paper); }
-  .dot.col { color: white; }
-
-  .stage-content { flex: 1; padding-top: 3px; }
-  .stage-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
-  .stage-desc { font-size: 11px; color: var(--muted); line-height: 1.8; margin-bottom: 7px; }
-
-  .tags { display: flex; flex-wrap: wrap; gap: 5px; }
-
-  .tag {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    padding: 1px 7px;
-    background: var(--light);
-    border: 1px solid rgba(0,0,0,0.09);
-  }
-
-  .tag.gate { background: rgba(74,90,154,0.08); border-color: rgba(74,90,154,0.2); color: var(--j1); }
-  .tag.warn { background: rgba(154,58,58,0.07); border-color: rgba(154,58,58,0.18); color: var(--warn); }
-
-  /* ── CROSSROADS ── */
-  .crossroad {
-    border: 1.5px solid;
-    padding: 18px;
-    margin-bottom: 14px;
-    position: relative;
-  }
-
-  .crossroad::before {
-    content: '⚑';
-    position: absolute;
-    top: -10px; left: 18px;
-    background: white;
-    padding: 0 5px;
-    font-size: 13px;
-  }
-
-  .crossroad:last-child { margin-bottom: 0; }
-
-  .cq { font-weight: 600; font-size: 14px; margin-bottom: 12px; }
-
-  .copts {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  @media (max-width: 500px) { .copts { grid-template-columns: 1fr; } }
-
-  .copt { border: 1px solid var(--ink); padding: 11px; }
-  .copt-lbl { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; display: block; }
-  .copt-name { font-weight: 600; font-size: 12px; margin-bottom: 5px; }
-  .copt-desc { font-size: 11px; color: var(--muted); line-height: 1.7; }
-
-  /* ── BOSSES ── */
-  .boss-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .boss {
-    display: flex; gap: 14px; align-items: flex-start;
-    padding: 12px; border: 1px solid rgba(0,0,0,0.09);
-  }
-
-  .boss-icon { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; padding-top: 1px; }
-  .boss-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
-  .boss-desc { font-size: 11px; color: var(--muted); line-height: 1.7; }
-
-  /* ── COMPARE ── */
-  .compare-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    border: 1px solid var(--ink);
-  }
-
-  @media (max-width: 560px) { .compare-grid { grid-template-columns: 1fr; } }
-
-  .compare-col { padding: 18px; }
-  .compare-col:first-child { border-right: 1px solid var(--ink); }
-
-  .compare-col-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    padding-bottom: 7px;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-    font-weight: 700;
-  }
-
-  .compare-item {
-    font-size: 11px;
-    line-height: 1.8;
-    color: var(--muted);
-    padding: 5px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-  }
-
-  .compare-item:last-child { border-bottom: none; }
-  .compare-item strong { color: var(--ink); font-weight: 600; display: block; font-size: 11px; }
-
-  /* ── HIDDEN ── */
-  .hidden-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .hidden {
-    border: 1px dashed var(--gold);
-    padding: 14px 18px;
-    background: rgba(138,122,58,0.03);
-  }
-
-  .hidden-lbl {
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 5px;
-    display: block;
-  }
-
-  .hidden-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
-  .hidden-desc { font-size: 11px; color: var(--muted); line-height: 1.8; }
-
-  /* ── DIVIDER ── */
-  .divider {
-    display: flex; align-items: center; gap: 10px;
-    margin: 6px 0 18px;
-  }
-
-  .divider::before, .divider::after {
-    content: ''; flex: 1; height: 1px;
-    background: var(--ink); opacity: 0.1;
-  }
-
-  .divider span {
-    font-family: 'Space Mono', monospace;
-    font-size: 8px; letter-spacing: 3px;
-    color: var(--muted); text-transform: uppercase;
-  }
-
-  /* ── FOOTER ── */
-  .footer {
-    text-align: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    padding: 28px 24px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  /* ── INDEX CARD ── */
-  .index {
-    padding: 40px 24px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .index-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  @media (max-width: 600px) { .index-grid { grid-template-columns: 1fr; } }
-
-  .index-card {
-    border: 1.5px solid var(--ink);
-    padding: 20px;
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--ink);
-    display: block;
-    position: relative;
-    transition: transform 0.15s;
-  }
-
-  .index-card:hover { transform: translate(-2px, -2px); }
-
-  .index-card::after {
-    content: '';
-    position: absolute;
-    top: 4px; left: 4px; right: -4px; bottom: -4px;
-    border: 1.5px solid var(--ink);
-    z-index: -1;
-  }
-
-  .index-card .ic-num {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  .index-card .ic-title {
-    font-size: 20px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    margin-bottom: 6px;
-    line-height: 1.2;
-  }
-
-  .index-card .ic-bar {
-    height: 3px;
-    margin-bottom: 12px;
-  }
-
-  .index-card .ic-q {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-
-  /* Dual-column Hero Layout */
-  .hero-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* 改為頂部對齊，以便對齊上緣 */
-    gap: 40px;
-    min-height: 50vh;
-  }
-
-  /* Left Hero (Postcard) */
-  .hero-left {
-    flex: 1.2;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; 
-    margin-top: -20px; /* 手動微調上移幅度，可依視覺調整 */
-  }
-  .hero-left img {
-    width: 100%;
-    height: auto;
-    max-width: 650px;
-    object-fit: contain;
-    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.05));
-    transition: transform 0.3s ease;
-  }
-  
-  /* Right Hero (Scrap Paper Grid) */
-  .hero-right {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-
-  .scrap-card {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1.1 / 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s ease, filter 0.2s ease;
-  }
-  
-  .scrap-card:hover {
-    transform: scale(1.05) rotate(1.5deg);
-    filter: brightness(1.03);
-    z-index: 2;
-  }
-
-  .scrap-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.06));
-  }
-  
-  @media (max-width: 900px) {
-    .hero-container {
-      flex-direction: column;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>職涯圖鑑 — Career RPG</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;900&family=Space+Mono:wght@400;700&display=swap');
+
+    :root {
+      --ink: #12151a;
+      --paper: #f4f2ee;
+      --muted: #8a8278;
+      --light: #e8e4dc;
+      --warn: #9a3a3a;
+
+      /* Job colors */
+      --j1: #4a5a9a;
+      /* 職涯諮詢師 — blue */
+      --j1bg: rgba(74, 90, 154, 0.04);
+      --j2: #3a6b4a;
+      /* 資優班老師 — green */
+      --j2bg: rgba(58, 107, 74, 0.04);
+      --j3: #7a3a7a;
+      /* 心理諮商師 — purple */
+      --j3bg: rgba(122, 58, 122, 0.04);
+
+      --gold: #8a7a3a;
     }
-    .hero-left { margin-bottom: 40px; }
-  }
 
-</style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Noto Serif TC', serif;
+      min-height: 100vh;
+      padding: 0 0 80px;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--ink);
+      color: var(--paper);
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 24px;
+      height: 48px;
+      overflow-x: auto;
+    }
+
+    .nav-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.5;
+      white-space: nowrap;
+      margin-right: 24px;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      flex-shrink: 0;
+    }
+
+    .nav-link {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0 16px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s, border-bottom 0.2s;
+      text-decoration: none;
+      color: var(--paper);
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .nav-link:hover {
+      opacity: 1;
+    }
+
+    .nav-link.j1 {
+      border-bottom-color: var(--j1);
+      opacity: 1;
+    }
+
+    .nav-link.j2 {
+      border-bottom-color: var(--j2);
+      opacity: 1;
+    }
+
+    .nav-link.j3 {
+      border-bottom-color: var(--j3);
+      opacity: 1;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 56px 24px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .page-header .label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .page-header h1 {
+      font-size: clamp(32px, 6vw, 58px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .page-header .sub {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 520px;
+    }
+
+    /* ── JOB SECTION ── */
+    .job-section {
+      padding: 60px 24px 80px;
+      max-width: 900px;
+      margin: 0 auto;
+      border-top: 2px solid var(--ink);
+      scroll-margin-top: 48px;
+    }
+
+    .job-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 40px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .job-color-bar {
+      width: 4px;
+      height: 80px;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .job-header-text {}
+
+    .job-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .job-title {
+      font-size: clamp(28px, 5vw, 46px);
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      line-height: 1.05;
+      margin-bottom: 8px;
+    }
+
+    .job-en {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: white;
+      border: 1.5px solid var(--ink);
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      right: -4px;
+      bottom: -4px;
+      border: 1.5px solid var(--ink);
+      z-index: -1;
+    }
+
+    .card-header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-header h2 {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .card-header .sub {
+      margin-left: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      opacity: 0.4;
+      letter-spacing: 1px;
+    }
+
+    /* 擴增收合相關控制樣式 */
+    .card-header {
+      cursor: pointer;
+      user-select: none;
+      transition: filter 0.2s ease;
+    }
+
+    .card-header:hover {
+      filter: brightness(1.2);
+    }
+
+    .card-header::after {
+      content: '▼';
+      margin-left: 14px;
+      font-size: 10px;
+      font-weight: 700;
+      opacity: 0.6;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card.open .card-header::after {
+      transform: rotate(-180deg);
+    }
+
+    .card-body-wrapper {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card.open .card-body-wrapper {
+      grid-template-rows: 1fr;
+    }
+
+    .card-body-inner {
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* ── OVERVIEW ── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    @media (max-width: 600px) {
+      .overview-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .overview-desc {
+      font-size: 14px;
+      line-height: 1.9;
+      color: #2a2530;
+    }
+
+    .overview-note {
+      margin-top: 14px;
+      padding: 11px 14px;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .stats {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stat-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stat-label .val {
+      font-weight: 700;
+    }
+
+    .stat-bar {
+      height: 5px;
+      background: var(--light);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+    }
+
+    /* ── SKILLS ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+
+    .skill {
+      border: 1px solid var(--ink);
+      padding: 14px;
+      position: relative;
+    }
+
+    .skill.core {}
+
+    .skill.burden {
+      border-color: var(--warn);
+      background: rgba(154, 58, 58, 0.02);
+    }
+
+    .skill.self {}
+
+    .skill-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .skill-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .skill-lv {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    /* ── ROUTES ── */
+    .route {
+      border: 1.5px solid var(--ink);
+      margin-bottom: 18px;
+    }
+
+    .route:last-child {
+      margin-bottom: 0;
+    }
+
+    .route-header {
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .rbadge {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 2px 7px;
+      border: 1px solid currentColor;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .route-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .route-ceil {
+      margin-left: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--muted);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    .route-body {
+      padding: 18px;
+    }
+
+    .stages {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .stages::before {
+      content: '';
+      position: absolute;
+      left: 13px;
+      top: 26px;
+      bottom: 26px;
+      width: 1px;
+      background: var(--ink);
+      opacity: 0.12;
+    }
+
+    .stage {
+      display: flex;
+      gap: 18px;
+      padding: 10px 0;
+    }
+
+    .dot {
+      width: 26px;
+      height: 26px;
+      border: 2px solid var(--ink);
+      background: var(--paper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .dot.filled {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .dot.col {
+      color: white;
+    }
+
+    .stage-content {
+      flex: 1;
+      padding-top: 3px;
+    }
+
+    .stage-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .stage-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 7px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      padding: 1px 7px;
+      background: var(--light);
+      border: 1px solid rgba(0, 0, 0, 0.09);
+    }
+
+    .tag.gate {
+      background: rgba(74, 90, 154, 0.08);
+      border-color: rgba(74, 90, 154, 0.2);
+      color: var(--j1);
+    }
+
+    .tag.warn {
+      background: rgba(154, 58, 58, 0.07);
+      border-color: rgba(154, 58, 58, 0.18);
+      color: var(--warn);
+    }
+
+    /* ── CROSSROADS ── */
+    .crossroad {
+      border: 1.5px solid;
+      padding: 18px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .crossroad::before {
+      content: '⚑';
+      position: absolute;
+      top: -10px;
+      left: 18px;
+      background: white;
+      padding: 0 5px;
+      font-size: 13px;
+    }
+
+    .crossroad:last-child {
+      margin-bottom: 0;
+    }
+
+    .cq {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .copts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .copts {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .copt {
+      border: 1px solid var(--ink);
+      padding: 11px;
+    }
+
+    .copt-lbl {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    .copt-name {
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .copt-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── BOSSES ── */
+    .boss-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .boss {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.09);
+    }
+
+    .boss-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      width: 32px;
+      text-align: center;
+      padding-top: 1px;
+    }
+
+    .boss-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .boss-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── COMPARE ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--ink);
+    }
+
+    @media (max-width: 560px) {
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .compare-col {
+      padding: 18px;
+    }
+
+    .compare-col:first-child {
+      border-right: 1px solid var(--ink);
+    }
+
+    .compare-col-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      font-weight: 700;
+    }
+
+    .compare-item {
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--muted);
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .compare-item:last-child {
+      border-bottom: none;
+    }
+
+    .compare-item strong {
+      color: var(--ink);
+      font-weight: 600;
+      display: block;
+      font-size: 11px;
+    }
+
+    /* ── HIDDEN ── */
+    .hidden-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .hidden {
+      border: 1px dashed var(--gold);
+      padding: 14px 18px;
+      background: rgba(138, 122, 58, 0.03);
+    }
+
+    .hidden-lbl {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .hidden-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .hidden-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 18px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--ink);
+      opacity: 0.1;
+    }
+
+    .divider span {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      padding: 28px 24px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── INDEX CARD ── */
+    .index {
+      padding: 40px 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .index-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .index-card {
+      border: 1.5px solid var(--ink);
+      padding: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--ink);
+      display: block;
+      position: relative;
+      transition: transform 0.15s;
+    }
+
+    .index-card:hover {
+      transform: translate(-2px, -2px);
+    }
+
+    .index-card::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      right: -4px;
+      bottom: -4px;
+      border: 1.5px solid var(--ink);
+      z-index: -1;
+    }
+
+    .index-card .ic-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .index-card .ic-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .index-card .ic-bar {
+      height: 3px;
+      margin-bottom: 12px;
+    }
+
+    .index-card .ic-q {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* Dual-column Hero Layout */
+    .hero-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      /* 改為頂部對齊，以便對齊上緣 */
+      gap: 40px;
+      min-height: 50vh;
+    }
+
+    /* Left Hero (Postcard) */
+    .hero-left {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top: -20px;
+      /* 手動微調上移幅度，可依視覺調整 */
+    }
+
+    .hero-left img {
+      width: 100%;
+      height: auto;
+      max-width: 650px;
+      object-fit: contain;
+      filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.05));
+      transition: transform 0.3s ease;
+    }
+
+    /* Right Hero (Scrap Paper Grid) */
+    .hero-right {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    /* Text placeholder in scrap notes */
+    .scrap-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 15% 10%;
+      pointer-events: none;
+      font-family: 'Space Mono', 'Noto Sans TC', sans-serif;
+      color: var(--ink);
+      font-size: 16px;
+      z-index: 5;
+      /* slight tilt to match paper feeling */
+      transform: rotate(-1.5deg);
+    }
+
+    /* Experience Input Area */
+    .career-input-area {
+      margin-top: -80px;
+      /* 向上移動，疊覆在明信片圖片的下方區域 */
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 580px;
+      /* 稍微縮小寬度以符合綠色紙張視覺 */
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .career-input-area textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 16px;
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+      font-size: 15px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(5px);
+      resize: vertical;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .career-input-area textarea:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .career-input-area button {
+      align-self: center;
+      /* 改為置中對齊 */
+      background: var(--ink);
+      color: var(--paper); /* 修正為正確的變數 paper */
+      border: none;
+      padding: 12px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+      margin-top: -10px;
+      /* 按鈕往上微調貼近對話框 */
+    }
+
+    .career-input-area button:hover {
+      transform: translate(-1px, -1px);
+      opacity: 0.9;
+    }
+
+    .career-input-area button:active {
+      transform: translate(1px, 1px);
+    }
+
+    .scrap-card {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1.1 / 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .scrap-card:hover {
+      transform: scale(1.05) rotate(1.5deg);
+      filter: brightness(1.03);
+      z-index: 2;
+    }
+
+    .scrap-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.06));
+    }
+
+    @media (max-width: 900px) {
+      .hero-container {
+        flex-direction: column;
+      }
+
+      .hero-left {
+        margin-bottom: 40px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <span class="nav-title" style="cursor: pointer;" onclick="window.location.href='index.html'" title="回到首頁">Career RPG</span>
-  <div class="nav-links">
-    <a href="subpages.html#j1" class="nav-link j1" style="border-bottom-color:var(--j1)">01 · 職涯諮詢師</a>
-    <a href="subpages.html#j2" class="nav-link j2" style="border-bottom-color:var(--j2)">02 · 資優班老師</a>
-    <a href="subpages.html#j3" class="nav-link j3" style="border-bottom-color:var(--j3)">03 · 心理諮商師</a>
-  </div>
-</nav>
+  <!-- NAV -->
+  <nav class="nav">
+    <span class="nav-title" style="cursor: pointer;" onclick="window.location.href='index.html'" title="回到首頁">Career
+      RPG</span>
+    <div class="nav-links">
+      <a href="subpages.html#j1" class="nav-link j1" style="border-bottom-color:var(--j1)">01 · 職涯諮詢師</a>
+      <a href="subpages.html#j2" class="nav-link j2" style="border-bottom-color:var(--j2)">02 · 資優班老師</a>
+      <a href="subpages.html#j3" class="nav-link j3" style="border-bottom-color:var(--j3)">03 · 心理諮商師</a>
+    </div>
+  </nav>
 
-<!-- PAGE HEADER -->
-<div class="page-header">
-  <span class="label">Career RPG · 職涯模擬系統 · v0.1</span>
-  <h1>職涯圖鑑</h1>
-  <p class="sub">這不是要替你做決定。是讓你在點菜之前，先知道這道菜大概的輪廓、地雷在哪、廚房的邏輯是什麼。</p>
-</div>
-
-<!-- HERO LAYOUT -->
-<div class="hero-container">
-  <!-- 左側：明信片區塊 -->
-  <div class="hero-left">
-    <!-- 加入花草與明信片佔位 -->
-    <img src="postcard-removebg-preview.webp" alt="Career RPG Postcard">
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <span class="label">Career RPG · 職涯模擬系統 · v0.1</span>
+    <h1>職涯圖鑑</h1>
+    <p class="sub">這不是要替你做決定。是讓你在點菜之前，先知道這道菜大概的輪廓、地雷在哪、廚房的邏輯是什麼。</p>
   </div>
+
+  <!-- HERO LAYOUT -->
+  <div class="hero-container">
+    <!-- 左側：明信片區塊 -->
+    <div class="hero-left">
+      <!-- 加入花草與明信片佔位 -->
+      <img src="postcard-removebg-preview.webp" alt="Career RPG Postcard">
+
+      <!-- 職涯經歷輸入對話框 -->
+      <div class="career-input-area">
+        <textarea id="career-desc" placeholder="請描述你目前的工作經歷、遇到的困難或挑戰... \n(例如：我每天都要跟不同部門溝通協調，處理很多突發狀況，壓力很大)"></textarea>
+        <button id="analyze-btn">送出</button>
+      </div>
+    </div>
+
+    <!-- 右側：便條紙區塊 (6格) -->
+    <div class="hero-right">
+      <!-- 第一排 -->
+      <div class="scrap-card" title="標籤框 1">
+        <img src="scrapper1-removebg-preview.webp" alt="Scrap Paper 1">
+        <div class="scrap-text"></div>
+      </div>
+      <div class="scrap-card" title="標籤框 2">
+        <img src="scrapper2-removebg-preview.webp" alt="Scrap Paper 2">
+        <div class="scrap-text"></div>
+      </div>
+
+      <!-- 第二排 -->
+      <div class="scrap-card" title="標籤框 3">
+        <img src="scrapper3-removebg-preview.webp" alt="Scrap Paper 3">
+        <div class="scrap-text"></div>
+      </div>
+      <div class="scrap-card" title="標籤框 4">
+        <img src="scrapper1-removebg-preview.webp" alt="Scrap Paper 4">
+        <div class="scrap-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Career RPG · 職涯模擬系統 · v0.1 · 這不是標準答案，是讓你帶著更好的問題去點菜。
+  </div>
+
+  <script>
+    /* ======== 前端標籤辨識模擬邏輯 (Mock) ======== */
+    // Mock 字典檔 (擷取自 tag-system.md)
+    const tagDictionary = {
+      "C01": "高度專業資訊轉譯",
+      "C02": "非結構化需求釐清",
+      "C07": "跨部門與多方共識斡旋",
+      "E01": "高強度情緒勞動承載",
+      "E03": "目標高頻變動之適應力",
+      "S01": "口語表達與即時溝通",
+      "S04": "通用數位工具整合應用"
+    };
+
+    // Mock 關鍵字判斷規則
+    const mockKeywords = [
+      { words: ["溝通", "講話", "表達", "說服"], tag: "S01" },
+      { words: ["跨部門", "不同部門", "橋樑", "協調"], tag: "C07" },
+      { words: ["設計", "專業", "轉譯", "說明", "解釋"], tag: "C01" },
+      { words: ["壓力", "情緒", "脾氣", "抱怨", "不滿"], tag: "E01" },
+      { words: ["變動", "改來改去", "突發", "隨機", "變化"], tag: "E03" },
+      { words: ["需求", "模糊", "不清楚", "釐清", "問清楚"], tag: "C02" },
+      { words: ["工具", "系統", "軟體", "操作", "電腦"], tag: "S04" },
+    ];
+
+    // 方案2：關鍵字模擬辨識
+    function analyzeTextMock(text) {
+      if (!text || text.trim() === '') return [];
+      let foundTags = [];
+      mockKeywords.forEach(rule => {
+        rule.words.forEach(w => {
+          if (text.includes(w) && !foundTags.some(t => t.id === rule.tag)) {
+            foundTags.push({ id: rule.tag, name: tagDictionary[rule.tag] });
+          }
+        });
+      });
+      return foundTags.slice(0, 4); // 限制回傳最多 4 筆
+    }
+
+    /* 
+    // 方案1：真實使用 Gemini API (保留架構，未來需使用時解開註解並填入 API_KEY)
+    async function analyzeTextReal(text) {
+      const API_KEY = "YOUR_API_KEY_HERE";
+      // 提示詞注入你提供的 rules/career.md 與 tag-system.md 系統規則
+      const prompt = `你是一個職涯標籤辨識系統。你的任務是：根據使用者輸入的經歷描述，從標籤庫中選出最符合的 2 至 4 個標籤。
+      每個標籤必須有描述中的明確證據支撐。若描述不足回傳空陣列。
+      請嚴格使用 JSON 格式回傳，結構如：{"tags": ["C01", "E03"]}
+      使用者經歷：\n"${text}"`;
   
-  <!-- 右側：便條紙區塊 (6格) -->
-  <div class="hero-right">
-    <!-- 第一排 -->
-    <div class="scrap-card" title="01 · 職涯諮詢師">
-      <img src="scrapper1-removebg-preview.webp" alt="職涯諮詢師 便條紙">
-    </div>
-    <div class="scrap-card" title="02 · 資優班老師">
-      <img src="scrapper2-removebg-preview.webp" alt="資優班老師 便條紙">
-    </div>
-    
-    <!-- 第二排 -->
-    <div class="scrap-card" title="03 · 心理諮商師">
-      <img src="scrapper3-removebg-preview.webp" alt="心理諮商師 便條紙">
-    </div>
-    <div class="scrap-card" style="cursor: default;">
-      <img src="scrapper1-removebg-preview.webp" alt=" Scrap Paper">
-    </div>
-  </div>
-</div>
+      try {
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        const data = await response.json();
+        if(data.candidates && data.candidates.length > 0) {
+          const rawText = data.candidates[0].content.parts[0].text;
+          // 在真實場景中需要處理 JSON parse 與回傳對應的字典檔
+          console.log("Raw JSON:", rawText);
+          return []; 
+        }
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+    */
 
-<div class="footer">
-  Career RPG · 職涯模擬系統 · v0.1 · 這不是標準答案，是讓你帶著更好的問題去點菜。
-</div>
+    document.addEventListener('DOMContentLoaded', () => {
+      // ---- 標籤辨識 UI 互動邏輯 ----
+      const analyzeBtn = document.getElementById('analyze-btn');
+      const careerDesc = document.getElementById('career-desc');
+      const textContainers = document.querySelectorAll('.hero-right .scrap-text');
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.card').forEach(card => {
-      const header = card.querySelector('.card-header');
-      const body = card.querySelector('.card-body');
-      
-      if (header && body) {
-        // Create an animated wrapper to hold the body
-        const wrapper = document.createElement('div');
-        wrapper.className = 'card-body-wrapper';
-        const inner = document.createElement('div');
-        inner.className = 'card-body-inner';
-        
-        // Wrap the card-body
-        card.insertBefore(wrapper, body);
-        wrapper.appendChild(inner);
-        inner.appendChild(body);
+      if (analyzeBtn && careerDesc) {
+        analyzeBtn.addEventListener('click', () => {
+          const text = careerDesc.value;
 
-        header.addEventListener('click', () => {
-          card.classList.toggle('open');
+          // 1. 初始化狀態與清空舊結果
+          textContainers.forEach(container => {
+            container.innerHTML = '';
+            container.parentElement.style.opacity = '0.5'; // 透明度降低，表示載入中
+            container.parentElement.style.transform = 'scale(0.98)';
+          });
+
+          // 顯示分析中狀態
+          analyzeBtn.innerText = "正在分析經歷...";
+          analyzeBtn.disabled = true;
+
+          // 2. 為了展現思考的動態感，用 setTimeout 延遲模擬網路等待時間 (800ms)
+          setTimeout(() => {
+            // 恢復 UI 狀態
+            textContainers.forEach(container => {
+              container.parentElement.style.opacity = '1';
+              container.parentElement.style.transform = '';
+            });
+            
+            // 保持按鈕文字為「送出」
+            analyzeBtn.innerText = "送出";
+            analyzeBtn.disabled = false;
+
+            // ==== 依據方案選擇切換 ==== //
+            const results = analyzeTextMock(text); // 若未來套用API，在此改為 await analyzeTextReal(text)
+
+            // 3. 渲染結果
+            if (!results || results.length === 0) {
+              // 判斷不出來，寫在左上角 (第一格) 
+              textContainers[0].innerHTML = `<strong style="font-size: 20px;">無法辨識</strong>`;
+            } else {
+              // 依序寫入便條紙
+              results.forEach((tagItem, idx) => {
+                if (idx < 4) {
+                  textContainers[idx].innerHTML = `
+                   <span style="font-size:12px;opacity:0.6;display:block;margin-bottom:4px;">${tagItem.id}</span>
+                   <strong style="font-size:16px;">${tagItem.name}</strong>
+                 `;
+                }
+              });
+            }
+          }, 800);
         });
       }
+
+      // ---- 保留的 Card 舊版折疊處理 ----
+      document.querySelectorAll('.card').forEach(card => {
+        const header = card.querySelector('.card-header');
+        const body = card.querySelector('.card-body');
+
+        if (header && body) {
+          // Create an animated wrapper to hold the body
+          const wrapper = document.createElement('div');
+          wrapper.className = 'card-body-wrapper';
+          const inner = document.createElement('div');
+          inner.className = 'card-body-inner';
+
+          // Wrap the card-body
+          card.insertBefore(wrapper, body);
+          wrapper.appendChild(inner);
+          inner.appendChild(body);
+
+          header.addEventListener('click', () => {
+            card.classList.toggle('open');
+          });
+        }
+      });
     });
-  });
-</script>
+  </script>
 
 </body>
+
 </html>
