@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Match - 流程頁面</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
+
+    @font-face {
+      font-family: 'Iansui';
+      src: url('assets/Iansui-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #f4f2ee;
+      font-family: 'Iansui', 'Noto Serif TC', serif;
+      color: #12151a;
+      overflow-x: hidden;
+    }
+
+    /* 左上角 Icon */
+    .site-icon {
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      width: 80px;
+      height: auto;
+      z-index: 60;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .site-icon:hover {
+      transform: scale(1.05);
+    }
+
+    /* 頁面容器 */
+    .page-container {
+      width: 100%;
+      height: 100%;
+      display: none;
+      /* 預設隱藏 */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .page-container.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    h2.page-title {
+      font-size: 4rem;
+      font-weight: 600;
+      margin-bottom: 40px;
+      letter-spacing: 15px;
+      margin-right: -15px;
+      text-align: center;
+    }
+
+    .sub-title {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+      color: #555;
+    }
+
+    /* 按鈕樣式 */
+    .action-buttons {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 800px;
+    }
+
+    .action-btn {
+      padding: 14px 28px;
+      font-size: 18px;
+      font-weight: 600;
+      font-family: 'Iansui', serif;
+      background: #c3eef5;
+      color: #0c3340;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .action-btn:hover {
+      background: #99ddea;
+      transform: translateY(-2px);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .action-btn:disabled:hover {
+      background: #c3eef5;
+      transform: translateY(0);
+    }
+
+    /* 表單與輸入區塊 */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-group label {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 1.1rem;
+      font-family: 'Iansui', serif;
+      border: 1.5px solid #12151a;
+      border-radius: 8px;
+      background: transparent;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    textarea.text-input {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* 標籤樣式 */
+    .tags-container {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .tag {
+      padding: 8px 20px;
+      border: 1px solid #12151a;
+      border-radius: 20px;
+      font-size: 1.1rem;
+      background: #fff;
+    }
+
+    /* 網格選項 (方向選擇 A B C D) */
+    .grid-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 700px;
+      width: 90%;
+    }
+
+    .grid-card {
+      background: #fff;
+      border: 2px solid #12151a;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+    }
+
+    .grid-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 4px 4px 0 #12151a;
+    }
+
+    .grid-letter {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: #0c3340;
+    }
+
+    .grid-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .grid-desc {
+      font-size: 1.1rem;
+      color: #555;
+    }
+
+    /* 測試用導覽列 (方便切換頁面) */
+    .debug-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      z-index: 999;
+    }
+
+    .debug-nav button {
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 左上角 Icon -->
+  <img src="assets/icon.png" class="site-icon" alt="Career Match Icon" style="cursor: pointer;"
+    onclick="window.location.href='cloud-intro-sample.html'">
+
+  <!-- 1. 想不想 分流 -->
+  <div id="page-want-or-not" class="page-container active">
+    <h2 class="page-title">想不想</h2>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-questions')">我不太確定 有點迷路</button>
+      <button class="action-btn" onclick="goTo('page-can-or-not')">我有想去的地方 / 想嘗試的方向</button>
+    </div>
+  </div>
+
+  <!-- 2. 問卷 (Q1, Q2, Q3) -->
+  <div id="page-questions" class="page-container">
+    <div class="form-group">
+      <label>Q1. 志趣 / 職能</label>
+      <input type="text" class="text-input" placeholder="...">
+    </div>
+    <div class="form-group">
+      <label>Q2. 薪資</label>
+      <input type="text" class="text-input" placeholder="...">
+    </div>
+    <div class="form-group">
+      <label>Q3. 具體條件</label>
+      <input type="text" class="text-input" placeholder="...">
+    </div>
+    <div class="action-buttons" style="margin-top: 20px;">
+      <button class="action-btn" onclick="goTo('page-can-or-not')">送出</button>
+    </div>
+  </div>
+
+  <!-- 3. 能不能 -->
+  <div id="page-can-or-not" class="page-container">
+    <h2 class="page-title">能不能</h2>
+    <div class="form-group" style="max-width: 600px;">
+      <textarea class="text-input" placeholder="事件描述框 (概述提示...)"></textarea>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-event-summary')">enter</button>
+    </div>
+  </div>
+
+  <!-- 4. 事件簡述 1 -->
+  <div id="page-event-summary" class="page-container">
+    <h2 class="page-title">事件簡述</h2>
+    <div class="tags-container">
+      <div class="tag">標籤 1</div>
+      <div class="tag">標籤 2</div>
+      <div class="tag">標籤 3</div>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-professions')">符合 / 沒問題</button>
+      <button class="action-btn" onclick="goTo('page-adjust')">不太對，調整描述</button>
+    </div>
+  </div>
+
+  <!-- 5. 調整向度 -->
+  <div id="page-adjust" class="page-container">
+    <h2 class="page-title" style="font-size: 3rem;">調整向度 / 增加細節</h2>
+    <div class="sub-title">(其他條件不變)</div>
+    <div class="form-group" style="max-width: 600px;">
+      <textarea class="text-input" placeholder="重新描述同一事件"></textarea>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-event-summary-2')">enter</button>
+    </div>
+  </div>
+
+  <!-- 6. 事件簡述 2 -->
+  <div id="page-event-summary-2" class="page-container">
+    <h2 class="page-title">事件簡述</h2>
+    <div class="tags-container">
+      <div class="tag">標籤 1</div>
+      <div class="tag">標籤 2</div>
+      <div class="tag">標籤 3</div>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-professions')">先試試看吧~</button>
+    </div>
+  </div>
+
+  <!-- 7. 職業圖 (結果) -->
+  <div id="page-professions" class="page-container">
+    <div class="action-buttons">
+      <button class="action-btn" onclick="window.location.href='subpages.html'">職業 A</button>
+      <button class="action-btn" onclick="window.location.href='subpages.html'">職業 B</button>
+    </div>
+  </div>
+
+  <!-- 8. 方向選擇 (A, B, C, D) -->
+  <div id="page-menu" class="page-container">
+    <div class="grid-options">
+      <div class="grid-card">
+        <div class="grid-letter">A</div>
+        <div class="grid-title">挑吃 / 微型任務</div>
+        <div class="grid-desc">熱門職業群，潛力發展建議</div>
+      </div>
+      <div class="grid-card">
+        <div class="grid-letter">B</div>
+        <div class="grid-title">特製</div>
+      </div>
+      <div class="grid-card">
+        <div class="grid-letter">C</div>
+        <div class="grid-title">私廚</div>
+      </div>
+      <div class="grid-card">
+        <div class="grid-letter">D</div>
+        <div class="grid-title">無菜單</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 開發測試用導覽列 -->
+  <div class="debug-nav">
+    <span style="color:white; line-height:26px; font-family:sans-serif; font-size:12px; margin-right:10px;">快速導覽:</span>
+    <button onclick="goTo('page-want-or-not')">想不想</button>
+    <button onclick="goTo('page-questions')">Q1-Q3問卷</button>
+    <button onclick="goTo('page-can-or-not')">能不能</button>
+    <button onclick="goTo('page-event-summary')">事件簡述1</button>
+    <button onclick="goTo('page-adjust')">調整向度</button>
+    <button onclick="goTo('page-event-summary-2')">事件簡述2</button>
+    <button onclick="goTo('page-professions')">職業結果</button>
+    <button onclick="goTo('page-menu')">ABCD選擇</button>
+  </div>
+
+  <script>
+    function setupValidation() {
+      // 針對有輸入框的頁面進行驗證
+      document.querySelectorAll('.page-container').forEach(page => {
+        const inputs = page.querySelectorAll('.text-input');
+        // 找到該頁面的主要動作按鈕
+        const actionBtns = page.querySelectorAll('.action-btn');
+        
+        if (inputs.length > 0 && actionBtns.length > 0) {
+          // 初始化時禁用按鈕
+          actionBtns.forEach(btn => btn.disabled = true);
+
+          const checkInputs = () => {
+            let allValid = true;
+            // 該頁面的所有輸入框都必須大於等於兩個字
+            inputs.forEach(input => {
+              if (input.value.trim().length < 2) {
+                allValid = false;
+              }
+            });
+            // 根據驗證結果啟用或禁用按鈕
+            actionBtns.forEach(btn => btn.disabled = !allValid);
+          };
+
+          // 綁定輸入事件
+          inputs.forEach(input => {
+            input.addEventListener('input', checkInputs);
+          });
+        }
+      });
+    }
+
+    function goTo(pageId) {
+      // 隱藏所有頁面
+      document.querySelectorAll('.page-container').forEach(page => {
+        page.classList.remove('active');
+      });
+      // 顯示目標頁面
+      const target = document.getElementById(pageId);
+      if (target) {
+        target.classList.add('active');
+      }
+    }
+
+    // 當頁面載入時，檢查 URL 參數決定顯示哪一頁，並設定驗證邏輯
+    window.addEventListener('load', () => {
+      setupValidation();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const step = urlParams.get('step');
+      if (step) {
+        goTo(step);
+      }
+    });
+  </script>
+
+</body>
+
+</html>
