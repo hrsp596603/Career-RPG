@@ -242,7 +242,7 @@
 
   <!-- 左上角 Icon -->
   <img src="assets/icon.png" class="site-icon" alt="Career Match Icon" style="cursor: pointer;"
-    onclick="window.location.href='cloud-intro-sample.html'">
+    onclick="window.location.href='index.html'">
 
   <!-- 1. 想不想 分流 -->
   <div id="page-want-or-not" class="page-container active">
@@ -256,16 +256,16 @@
   <!-- 2. 問卷 (Q1, Q2, Q3) -->
   <div id="page-questions" class="page-container">
     <div class="form-group">
-      <label>Q1. 志趣 / 職能</label>
-      <input type="text" class="text-input" placeholder="...">
+      <label>Q1. 充電 / 耗能</label>
+      <input id="input-q1" type="text" class="text-input" placeholder="...">
     </div>
     <div class="form-group">
-      <label>Q2. 薪資</label>
-      <input type="text" class="text-input" placeholder="...">
+      <label>Q2. 動機</label>
+      <input id="input-q2" type="text" class="text-input" placeholder="...">
     </div>
     <div class="form-group">
-      <label>Q3. 具體條件</label>
-      <input type="text" class="text-input" placeholder="...">
+      <label>Q3. 具體事件</label>
+      <input id="input-q3" type="text" class="text-input" placeholder="...">
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
       <button class="action-btn" onclick="goTo('page-can-or-not')">送出</button>
@@ -276,7 +276,7 @@
   <div id="page-can-or-not" class="page-container">
     <h2 class="page-title">能不能</h2>
     <div class="form-group" style="max-width: 600px;">
-      <textarea class="text-input" placeholder="事件描述框 (概述提示...)"></textarea>
+      <textarea id="input-can-or-not" class="text-input" placeholder="事件描述框 (概述提示...)"></textarea>
     </div>
     <div class="action-buttons">
       <button class="action-btn" onclick="goTo('page-event-summary')">enter</button>
@@ -286,6 +286,7 @@
   <!-- 4. 事件簡述 1 -->
   <div id="page-event-summary" class="page-container">
     <h2 class="page-title">事件簡述</h2>
+    <div class="sub-title" id="display-event-1" style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
     <div class="tags-container">
       <div class="tag">標籤 1</div>
       <div class="tag">標籤 2</div>
@@ -299,10 +300,10 @@
 
   <!-- 5. 調整向度 -->
   <div id="page-adjust" class="page-container">
-    <h2 class="page-title" style="font-size: 3rem;">調整向度 / 增加細節</h2>
-    <div class="sub-title">(其他條件不變)</div>
+    <h2 class="page-title" style="font-size: 3rem;">增減細節</h2>
+    <div class="sub-title">請確認你的輸入內容足夠完整，這是你的最後一次機會。</div>
     <div class="form-group" style="max-width: 600px;">
-      <textarea class="text-input" placeholder="重新描述同一事件"></textarea>
+      <textarea id="input-adjust" class="text-input" placeholder="重新描述同一事件"></textarea>
     </div>
     <div class="action-buttons">
       <button class="action-btn" onclick="goTo('page-event-summary-2')">enter</button>
@@ -312,6 +313,7 @@
   <!-- 6. 事件簡述 2 -->
   <div id="page-event-summary-2" class="page-container">
     <h2 class="page-title">事件簡述</h2>
+    <div class="sub-title" id="display-event-2" style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
     <div class="tags-container">
       <div class="tag">標籤 1</div>
       <div class="tag">標籤 2</div>
@@ -360,7 +362,7 @@
     <button onclick="goTo('page-questions')">Q1-Q3問卷</button>
     <button onclick="goTo('page-can-or-not')">能不能</button>
     <button onclick="goTo('page-event-summary')">事件簡述1</button>
-    <button onclick="goTo('page-adjust')">調整向度</button>
+    <button onclick="goTo('page-adjust')">增減細節</button>
     <button onclick="goTo('page-event-summary-2')">事件簡述2</button>
     <button onclick="goTo('page-professions')">職業結果</button>
     <button onclick="goTo('page-menu')">ABCD選擇</button>
@@ -373,7 +375,7 @@
         const inputs = page.querySelectorAll('.text-input');
         // 找到該頁面的主要動作按鈕
         const actionBtns = page.querySelectorAll('.action-btn');
-        
+
         if (inputs.length > 0 && actionBtns.length > 0) {
           // 初始化時禁用按鈕
           actionBtns.forEach(btn => btn.disabled = true);
@@ -398,7 +400,36 @@
       });
     }
 
+    // 用來儲存使用者在各流程中輸入的資料
+    let userProgressData = {};
+
     function goTo(pageId) {
+      // 在離開當前頁面前，記錄該頁面的輸入內容
+      const currentPage = document.querySelector('.page-container.active');
+      if (currentPage) {
+        const inputs = currentPage.querySelectorAll('.text-input');
+        if (inputs.length > 0) {
+          inputs.forEach(input => {
+            if (input.id) {
+              userProgressData[input.id] = input.value;
+              
+              // 雙向綁定邏輯：保持「能不能」與「增減細節」的文字同步
+              if (input.id === 'input-can-or-not') {
+                userProgressData['input-adjust'] = input.value;
+                const adjustInput = document.getElementById('input-adjust');
+                if (adjustInput) adjustInput.value = input.value;
+              } else if (input.id === 'input-adjust') {
+                userProgressData['input-can-or-not'] = input.value;
+                const canOrNotInput = document.getElementById('input-can-or-not');
+                if (canOrNotInput) canOrNotInput.value = input.value;
+              }
+            }
+          });
+          localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+          console.log('系統訊息：資料已記錄並存入快取', userProgressData);
+        }
+      }
+
       // 隱藏所有頁面
       document.querySelectorAll('.page-container').forEach(page => {
         page.classList.remove('active');
@@ -406,13 +437,53 @@
       // 顯示目標頁面
       const target = document.getElementById(pageId);
       if (target) {
+        // 如果前往「事件簡述 1」，把記錄的文字顯示出來
+        if (pageId === 'page-event-summary') {
+          const display1 = document.getElementById('display-event-1');
+          if (display1) {
+            display1.textContent = `「${userProgressData['input-can-or-not'] || '無輸入內容'}」`;
+          }
+        }
+
+        // 如果前往「事件簡述 2」，把記錄的文字顯示出來 (優先顯示增減細節的版本)
+        if (pageId === 'page-event-summary-2') {
+          const display2 = document.getElementById('display-event-2');
+          if (display2) {
+            display2.textContent = `「${userProgressData['input-adjust'] || userProgressData['input-can-or-not'] || '無輸入內容'}」`;
+          }
+        }
+        
         target.classList.add('active');
       }
     }
 
-    // 當頁面載入時，檢查 URL 參數決定顯示哪一頁，並設定驗證邏輯
+    // 當頁面載入時，檢查 URL 參數決定顯示哪一頁，並設定驗證與自動填入邏輯
     window.addEventListener('load', () => {
+      // 1. 讀取 LocalStorage 歷史紀錄
+      const savedData = localStorage.getItem('careerRPG_data');
+      if (savedData) {
+        try {
+          userProgressData = JSON.parse(savedData);
+          // 2. 自動將資料填回對應的輸入框
+          document.querySelectorAll('.text-input').forEach(input => {
+            if (input.id && userProgressData[input.id]) {
+              input.value = userProgressData[input.id];
+            }
+          });
+        } catch (e) {
+          console.error('讀取歷史紀錄失敗', e);
+        }
+      }
+
+      // 3. 綁定防呆驗證邏輯
       setupValidation();
+
+      // 4. 對已有資料的輸入框觸發一次驗證，讓原本已填好的按鈕解鎖
+      document.querySelectorAll('.text-input').forEach(input => {
+        if (input.value) {
+          input.dispatchEvent(new Event('input'));
+        }
+      });
 
       const urlParams = new URLSearchParams(window.location.search);
       const step = urlParams.get('step');
