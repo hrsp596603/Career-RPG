@@ -22,16 +22,16 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      background-color: #f4f2ee;
+      background: #F4F1DE url('assets/banner.png') center/cover no-repeat fixed;
       font-family: 'Iansui', 'Noto Serif TC', serif;
-      color: #12151a;
+      color: #3D405B;
       overflow-x: hidden;
     }
 
     /* 左上角 Icon */
     .site-icon {
       position: absolute;
-      top: 20px;
+      top: 0px;
       left: 40px;
       width: 80px;
       height: auto;
@@ -56,13 +56,40 @@
       position: absolute;
       top: 0;
       left: 0;
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
     }
 
     .page-container.active {
       display: flex;
-      opacity: 1;
+    }
+
+    /* --- 進場動畫 (Entrance Animation) --- */
+    @keyframes gentleFadeIn {
+      from { opacity: 0; filter: blur(10px); transform: translateY(20px); }
+      to { opacity: 1; filter: blur(0); transform: translateY(0); }
+    }
+
+    /* 文字與輸入框淡入並微浮 */
+    .page-container.active .page-title,
+    .page-container.active .sub-title,
+    .page-container.active .form-group,
+    .page-container.active .tags-container,
+    .page-container.active .grid-options {
+      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    /* 按鈕進場稍微延遲，製造層次感 */
+    .page-container.active .action-buttons .action-btn {
+      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    .page-container.active .action-buttons .action-btn:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+    .page-container.active .action-buttons .action-btn:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    .page-container.active .action-buttons .action-btn:nth-child(3) {
+      animation-delay: 0.2s;
     }
 
     h2.page-title {
@@ -72,12 +99,18 @@
       letter-spacing: 15px;
       margin-right: -15px;
       text-align: center;
+      /* 額外優化：微弱白色陰影確保大標題不受背景干擾 */
+      text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);
     }
 
     .sub-title {
       font-size: 1.5rem;
       margin-bottom: 30px;
-      color: #555;
+      color: #E07A5F;
+      /* 溫暖清晰的深邃陶土色 */
+      font-weight: 600;
+      /* 額外優化：白色光暈文字陰影，將文字與複雜背景隔離 */
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 2px 4px rgba(255, 255, 255, 0.8);
     }
 
     /* 按鈕樣式 */
@@ -90,33 +123,42 @@
     }
 
     .action-btn {
-      padding: 14px 28px;
-      font-size: 18px;
+      padding: 16px 32px;
+      font-size: 1.125rem;
       font-weight: 600;
       font-family: 'Iansui', serif;
-      background: #c3eef5;
-      color: #0c3340;
+      background: #E07A5F;
+      color: #FFFFFF;
       border: none;
       border-radius: 24px;
       cursor: pointer;
-      transition: transform 0.3s, background 0.3s;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(224, 122, 95, 0.2);
     }
 
     .action-btn:hover {
-      background: #99ddea;
+      background: #D16B50;
       transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(224, 122, 95, 0.3);
+    }
+
+    .action-btn:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 4px rgba(224, 122, 95, 0.2);
     }
 
     .action-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
       box-shadow: none;
+      background: #E0DDD6;
+      color: #8D99AE;
     }
 
     .action-btn:disabled:hover {
-      background: #c3eef5;
-      transform: translateY(0);
+      transform: none;
+      box-shadow: none;
+      background: #E0DDD6;
     }
 
     /* 表單與輸入區塊 */
@@ -137,14 +179,22 @@
 
     .text-input {
       width: 100%;
-      padding: 12px 16px;
-      font-size: 1.1rem;
+      padding: 16px;
+      font-size: 1.125rem;
       font-family: 'Iansui', serif;
-      border: 1.5px solid #12151a;
-      border-radius: 8px;
-      background: transparent;
+      border: 2px solid #E0DDD6;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #3D405B;
       outline: none;
       box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .text-input:focus {
+      border-color: #E07A5F;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 4px rgba(224, 122, 95, 0.15);
     }
 
     textarea.text-input {
@@ -161,10 +211,12 @@
 
     .tag {
       padding: 8px 20px;
-      border: 1px solid #12151a;
+      border: none;
       border-radius: 20px;
       font-size: 1.1rem;
-      background: #fff;
+      background: #81B29A;
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(129, 178, 154, 0.2);
     }
 
     /* 網格選項 (方向選擇 A B C D) */
@@ -177,30 +229,31 @@
     }
 
     .grid-card {
-      background: #fff;
-      border: 2px solid #12151a;
-      border-radius: 12px;
+      background: #FFFFFF;
+      border: none;
+      border-radius: 16px;
       padding: 30px;
       text-align: center;
       cursor: pointer;
-      transition: transform 0.3s, box-shadow 0.3s;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 150px;
+      box-shadow: 0 4px 20px rgba(61, 64, 91, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .grid-card:hover {
       transform: translateY(-4px);
-      box-shadow: 4px 4px 0 #12151a;
+      box-shadow: 0 12px 24px rgba(61, 64, 91, 0.1);
     }
 
     .grid-letter {
       font-size: 1.5rem;
       font-weight: 900;
       margin-bottom: 10px;
-      color: #0c3340;
+      color: #E07A5F;
     }
 
     .grid-title {
@@ -211,7 +264,7 @@
 
     .grid-desc {
       font-size: 1.1rem;
-      color: #555;
+      color: #81B29A;
     }
 
     /* 測試用導覽列 (方便切換頁面) */
@@ -235,10 +288,86 @@
       font-size: 12px;
       cursor: pointer;
     }
+
+    /* 1. 紙張紋理 - 提高透明度並增加混合模式 */
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.06;
+      /* 從 0.04 提高 */
+      mix-blend-mode: multiply;
+      background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+    }
+
+
+
+    /* 6. 塵埃粒子 */
+    .dust-motes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .mote {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      filter: blur(1.5px);
+      animation: floatUp linear infinite;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) scale(0.5);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 0.8;
+      }
+
+      80% {
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: translateY(-10vh) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* --- 離開動畫 (Exit Animation - Soft Float & Blur) --- */
+    .page-container.exit-animation .page-title,
+    .page-container.exit-animation .sub-title,
+    .page-container.exit-animation .form-group,
+    .page-container.exit-animation .tags-container,
+    .page-container.exit-animation .grid-options,
+    .page-container.exit-animation .action-btn {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(-20px) !important;
+      transition: opacity 0.6s ease, filter 0.6s ease, transform 0.6s ease !important;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- 環境裝飾元素 -->
+  <div class="noise-overlay"></div>
+
+  <div class="dust-motes" id="dust-motes"></div>
 
   <!-- 左上角 Icon -->
   <img src="assets/icon.png" class="site-icon" alt="Career Match Icon" style="cursor: pointer;"
@@ -286,7 +415,8 @@
   <!-- 4. 事件簡述 1 -->
   <div id="page-event-summary" class="page-container">
     <h2 class="page-title">事件簡述</h2>
-    <div class="sub-title" id="display-event-1" style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
+    <div class="sub-title" id="display-event-1"
+      style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
     <div class="tags-container">
       <div class="tag">標籤 1</div>
       <div class="tag">標籤 2</div>
@@ -313,7 +443,8 @@
   <!-- 6. 事件簡述 2 -->
   <div id="page-event-summary-2" class="page-container">
     <h2 class="page-title">事件簡述</h2>
-    <div class="sub-title" id="display-event-2" style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
+    <div class="sub-title" id="display-event-2"
+      style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
     <div class="tags-container">
       <div class="tag">標籤 1</div>
       <div class="tag">標籤 2</div>
@@ -369,6 +500,30 @@
   </div>
 
   <script>
+    // 建立塵埃粒子
+    function createDustMotes() {
+      const container = document.getElementById('dust-motes');
+      if (!container) return;
+      const moteCount = 15;
+      for (let i = 0; i < moteCount; i++) {
+        const mote = document.createElement('div');
+        mote.classList.add('mote');
+
+        const size = Math.random() * 4 + 2;
+        const left = Math.random() * 100;
+        const duration = Math.random() * 15 + 10;
+        const delay = Math.random() * -20;
+
+        mote.style.width = `${size}px`;
+        mote.style.height = `${size}px`;
+        mote.style.left = `${left}vw`;
+        mote.style.animationDuration = `${duration}s`;
+        mote.style.animationDelay = `${delay}s`;
+
+        container.appendChild(mote);
+      }
+    }
+
     function setupValidation() {
       // 針對有輸入框的頁面進行驗證
       document.querySelectorAll('.page-container').forEach(page => {
@@ -403,16 +558,17 @@
     // 用來儲存使用者在各流程中輸入的資料
     let userProgressData = {};
 
-    function goTo(pageId) {
+    function goTo(pageId, immediate = false) {
       // 在離開當前頁面前，記錄該頁面的輸入內容
       const currentPage = document.querySelector('.page-container.active');
-      if (currentPage) {
-        const inputs = currentPage.querySelectorAll('.text-input');
+
+      const doSwitch = () => {
+        const inputs = currentPage ? currentPage.querySelectorAll('.text-input') : [];
         if (inputs.length > 0) {
           inputs.forEach(input => {
             if (input.id) {
               userProgressData[input.id] = input.value;
-              
+
               // 雙向綁定邏輯：保持「能不能」與「增減細節」的文字同步
               if (input.id === 'input-can-or-not') {
                 userProgressData['input-adjust'] = input.value;
@@ -426,39 +582,45 @@
             }
           });
           localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
-          console.log('系統訊息：資料已記錄並存入快取', userProgressData);
-        }
-      }
-
-      // 隱藏所有頁面
-      document.querySelectorAll('.page-container').forEach(page => {
-        page.classList.remove('active');
-      });
-      // 顯示目標頁面
-      const target = document.getElementById(pageId);
-      if (target) {
-        // 如果前往「事件簡述 1」，把記錄的文字顯示出來
-        if (pageId === 'page-event-summary') {
-          const display1 = document.getElementById('display-event-1');
-          if (display1) {
-            display1.textContent = `「${userProgressData['input-can-or-not'] || '無輸入內容'}」`;
-          }
         }
 
-        // 如果前往「事件簡述 2」，把記錄的文字顯示出來 (優先顯示增減細節的版本)
-        if (pageId === 'page-event-summary-2') {
-          const display2 = document.getElementById('display-event-2');
-          if (display2) {
-            display2.textContent = `「${userProgressData['input-adjust'] || userProgressData['input-can-or-not'] || '無輸入內容'}」`;
+        // 隱藏所有頁面並移除動畫狀態
+        document.querySelectorAll('.page-container').forEach(page => {
+          page.classList.remove('active');
+          page.classList.remove('exit-animation');
+        });
+
+        // 顯示目標頁面
+        const target = document.getElementById(pageId);
+        if (target) {
+          // 渲染邏輯
+          if (pageId === 'page-event-summary') {
+            const display1 = document.getElementById('display-event-1');
+            if (display1) display1.textContent = `「${userProgressData['input-can-or-not'] || '無輸入內容'}」`;
           }
+          if (pageId === 'page-event-summary-2') {
+            const display2 = document.getElementById('display-event-2');
+            if (display2) display2.textContent = `「${userProgressData['input-adjust'] || userProgressData['input-can-or-not'] || '無輸入內容'}」`;
+          }
+          target.classList.add('active');
         }
-        
-        target.classList.add('active');
+      };
+
+      if (currentPage && !immediate) {
+        // 正常流程：播放退場動畫
+        currentPage.classList.add('exit-animation');
+        setTimeout(doSwitch, 600);
+      } else {
+        // 初始載入或強制跳轉：直接切換
+        doSwitch();
       }
     }
 
     // 當頁面載入時，檢查 URL 參數決定顯示哪一頁，並設定驗證與自動填入邏輯
     window.addEventListener('load', () => {
+      // 啟動裝飾粒子
+      createDustMotes();
+
       // 1. 讀取 LocalStorage 歷史紀錄
       const savedData = localStorage.getItem('careerRPG_data');
       if (savedData) {
@@ -488,7 +650,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const step = urlParams.get('step');
       if (step) {
-        goTo(step);
+        goTo(step, true); // 初始進入時，使用 immediate 模式跳過退場動畫
       }
     });
   </script>
