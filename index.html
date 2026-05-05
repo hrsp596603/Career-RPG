@@ -86,8 +86,8 @@
 
     /* 佈置 5 片雲，增加大小與中央覆蓋率 */
     .cloud-1 {
-      top: -10%;
-      left: -10%;
+      top: -40%;
+      left: -40%;
       width: 120%;
       height: 120%;
       background-image: url('assets/fog_6.png');
@@ -95,19 +95,19 @@
     }
 
     .cloud-2 {
-      top: -10%;
-      right: -10%;
+      top: -40%;
+      right: -40%;
       width: 120%;
       height: 120%;
       background-image: url('assets/fog_6.png');
-      opacity: 0.85;
+      opacity: 0.95;
       /* 鏡像翻轉，增加自然感 */
       transform: scaleX(-1);
     }
 
     .cloud-3 {
-      bottom: -10%;
-      left: -10%;
+      bottom: -40%;
+      left: -40%;
       width: 120%;
       height: 120%;
       background-image: url('assets/fog_6.png');
@@ -115,26 +115,17 @@
     }
 
     .cloud-4 {
-      bottom: -10%;
-      right: -10%;
+      bottom: -40%;
+      right: -40%;
       width: 120%;
       height: 120%;
       background-image: url('assets/fog_6.png');
-      opacity: 0.8;
+      opacity: 0.95;
       /* 上下翻轉 */
       transform: scaleY(-1);
     }
 
-    .cloud-5 {
-      top: -15%;
-      left: -15%;
-      width: 130%;
-      height: 130%;
-      background-image: url('assets/fog_6.png');
-      opacity: 1;
-      /* 稍微旋轉填補中央空隙 */
-      transform: rotate(15deg);
-    }
+
 
     /* ====== 動畫觸發後的狀態 ====== */
 
@@ -167,11 +158,7 @@
       opacity: 0;
     }
 
-    body.is-clearing .cloud-5 {
-      /* 注意：保留原有的 rotate(15deg) 屬性，並向正上方放大散開 */
-      transform: translateY(-20%) scale(1.8) rotate(15deg);
-      opacity: 0;
-    }
+
 
     /* 控制按鈕 */
     .controls {
@@ -445,7 +432,7 @@
     <div class="cloud cloud-2"></div>
     <div class="cloud cloud-3"></div>
     <div class="cloud cloud-4"></div>
-    <div class="cloud cloud-5"></div>
+
   </div>
 
   <!-- 重播按鈕 -->

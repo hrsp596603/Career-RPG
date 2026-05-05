@@ -64,8 +64,17 @@
 
     /* --- 進場動畫 (Entrance Animation) --- */
     @keyframes gentleFadeIn {
-      from { opacity: 0; filter: blur(10px); transform: translateY(20px); }
-      to { opacity: 1; filter: blur(0); transform: translateY(0); }
+      from {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+      }
     }
 
     /* 文字與輸入框淡入並微浮 */
@@ -85,9 +94,11 @@
     .page-container.active .action-buttons .action-btn:nth-child(1) {
       animation-delay: 0.1s;
     }
+
     .page-container.active .action-buttons .action-btn:nth-child(2) {
       animation-delay: 0.15s;
     }
+
     .page-container.active .action-buttons .action-btn:nth-child(3) {
       animation-delay: 0.2s;
     }
@@ -397,7 +408,59 @@
       <input id="input-q3" type="text" class="text-input" placeholder="...">
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
-      <button class="action-btn" onclick="goTo('page-can-or-not')">送出</button>
+      <button class="action-btn" onclick="goTo('page-event-summary-want')">送出</button>
+    </div>
+  </div>
+
+  <!-- 想不想的事件簡述 1 -->
+  <div id="page-event-summary-want" class="page-container">
+    <h2 class="page-title">事件簡述</h2>
+    <div class="sub-title" id="display-event-want-1"
+      style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
+    <div class="tags-container">
+      <div class="tag">標籤 1</div>
+      <div class="tag">標籤 2</div>
+      <div class="tag">標籤 3</div>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-can-or-not')">符合 / 沒想法</button>
+      <button class="action-btn" onclick="goTo('page-adjust-want')">不太對，調整描述</button>
+    </div>
+  </div>
+
+  <!-- 想不想的調整向度 -->
+  <div id="page-adjust-want" class="page-container">
+    <h2 class="page-title" style="font-size: 3rem;">調整向度 / 增加細節</h2>
+    <div class="sub-title">（其他條件不變）</div>
+    <div class="form-group">
+      <label>Q1. 充電 / 耗能</label>
+      <input id="input-adjust-q1" type="text" class="text-input" placeholder="...">
+    </div>
+    <div class="form-group">
+      <label>Q2. 動機</label>
+      <input id="input-adjust-q2" type="text" class="text-input" placeholder="...">
+    </div>
+    <div class="form-group">
+      <label>Q3. 具體事件</label>
+      <input id="input-adjust-q3" type="text" class="text-input" placeholder="...">
+    </div>
+    <div class="action-buttons" style="margin-top: 20px;">
+      <button class="action-btn" onclick="goTo('page-event-summary-2-want')">enter</button>
+    </div>
+  </div>
+
+  <!-- 想不想的事件簡述 2 -->
+  <div id="page-event-summary-2-want" class="page-container">
+    <h2 class="page-title">事件簡述</h2>
+    <div class="sub-title" id="display-event-want-2"
+      style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
+    <div class="tags-container">
+      <div class="tag">標籤 1</div>
+      <div class="tag">標籤 2</div>
+      <div class="tag">標籤 3</div>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-can-or-not')">先試試看吧~</button>
     </div>
   </div>
 
@@ -423,15 +486,15 @@
       <div class="tag">標籤 3</div>
     </div>
     <div class="action-buttons">
-      <button class="action-btn" onclick="goTo('page-professions')">符合 / 沒問題</button>
+      <button class="action-btn" onclick="goTo('page-professions')">符合 / 沒想法</button>
       <button class="action-btn" onclick="goTo('page-adjust')">不太對，調整描述</button>
     </div>
   </div>
 
   <!-- 5. 調整向度 -->
   <div id="page-adjust" class="page-container">
-    <h2 class="page-title" style="font-size: 3rem;">增減細節</h2>
-    <div class="sub-title">請確認你的輸入內容足夠完整，這是你的最後一次機會。</div>
+    <h2 class="page-title" style="font-size: 3rem;">調整向度 / 增加細節</h2>
+    <div class="sub-title">（其他條件不變）</div>
     <div class="form-group" style="max-width: 600px;">
       <textarea id="input-adjust" class="text-input" placeholder="重新描述同一事件"></textarea>
     </div>
@@ -493,7 +556,7 @@
     <button onclick="goTo('page-questions')">Q1-Q3問卷</button>
     <button onclick="goTo('page-can-or-not')">能不能</button>
     <button onclick="goTo('page-event-summary')">事件簡述1</button>
-    <button onclick="goTo('page-adjust')">增減細節</button>
+    <button onclick="goTo('page-adjust')">調整向度</button>
     <button onclick="goTo('page-event-summary-2')">事件簡述2</button>
     <button onclick="goTo('page-professions')">職業結果</button>
     <button onclick="goTo('page-menu')">ABCD選擇</button>
@@ -579,6 +642,34 @@
                 const canOrNotInput = document.getElementById('input-can-or-not');
                 if (canOrNotInput) canOrNotInput.value = input.value;
               }
+              // 想不想路線的雙向綁定
+              if (input.id === 'input-q1') {
+                userProgressData['input-adjust-q1'] = input.value;
+                const adj = document.getElementById('input-adjust-q1');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-q1') {
+                userProgressData['input-q1'] = input.value;
+                const orig = document.getElementById('input-q1');
+                if (orig) orig.value = input.value;
+              }
+              if (input.id === 'input-q2') {
+                userProgressData['input-adjust-q2'] = input.value;
+                const adj = document.getElementById('input-adjust-q2');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-q2') {
+                userProgressData['input-q2'] = input.value;
+                const orig = document.getElementById('input-q2');
+                if (orig) orig.value = input.value;
+              }
+              if (input.id === 'input-q3') {
+                userProgressData['input-adjust-q3'] = input.value;
+                const adj = document.getElementById('input-adjust-q3');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-q3') {
+                userProgressData['input-q3'] = input.value;
+                const orig = document.getElementById('input-q3');
+                if (orig) orig.value = input.value;
+              }
             }
           });
           localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
@@ -601,6 +692,20 @@
           if (pageId === 'page-event-summary-2') {
             const display2 = document.getElementById('display-event-2');
             if (display2) display2.textContent = `「${userProgressData['input-adjust'] || userProgressData['input-can-or-not'] || '無輸入內容'}」`;
+          }
+          if (pageId === 'page-event-summary-want') {
+            const displayWant1 = document.getElementById('display-event-want-1');
+            const q1 = userProgressData['input-q1'] || '';
+            const q2 = userProgressData['input-q2'] || '';
+            const q3 = userProgressData['input-q3'] || '';
+            if (displayWant1) displayWant1.textContent = `「${q1} / ${q2} / ${q3}」`;
+          }
+          if (pageId === 'page-event-summary-2-want') {
+            const displayWant2 = document.getElementById('display-event-want-2');
+            const q1 = userProgressData['input-adjust-q1'] || '';
+            const q2 = userProgressData['input-adjust-q2'] || '';
+            const q3 = userProgressData['input-adjust-q3'] || '';
+            if (displayWant2) displayWant2.textContent = `「${q1} / ${q2} / ${q3}」`;
           }
           target.classList.add('active');
         }
