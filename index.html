@@ -293,15 +293,15 @@
     }
 
     body.show-final-text .action-btn:nth-child(1) {
-      animation-delay: 1.0s;
+      animation-delay: 0.4s;
     }
 
     body.show-final-text .action-btn:nth-child(2) {
-      animation-delay: 1.2s;
+      animation-delay: 0.6s;
     }
 
     body.show-final-text .action-btn:nth-child(3) {
-      animation-delay: 1.4s;
+      animation-delay: 0.8s;
     }
 
     /* 左上角 Icon 樣式 */
@@ -397,6 +397,11 @@
         opacity: 0;
       }
     }
+    /* 跳過動畫的快速樣式 */
+    body.skip-anim * {
+      transition: none !important;
+      animation: none !important;
+    }
   </style>
 </head>
 
@@ -482,7 +487,21 @@
 
     window.addEventListener('load', () => {
       createDustMotes();
-      startSequence();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('from') === 'flow') {
+        // 直接進入最終狀態
+        document.body.classList.add('skip-anim');
+        document.body.classList.add('is-clearing');
+        document.body.classList.add('show-final-text');
+        
+        // 稍微延遲移除 skip-anim，讓後續的手動操作（如重新觀看）可以有動畫
+        setTimeout(() => {
+          document.body.classList.remove('skip-anim');
+        }, 100);
+      } else {
+        startSequence();
+      }
     });
 
     function replayAnimation() {
