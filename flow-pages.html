@@ -7,9 +7,10 @@
   <title>Career Match - 流程頁面</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
-    
+
     :root {
-      --primary: #81B29A; /* 漂亮的綠色 */
+      --primary: #81B29A;
+      /* 漂亮的綠色 */
     }
 
     @font-face {
@@ -743,7 +744,7 @@
         return parsed.tags || [];
       } catch (e) {
         console.error(e);
-        return ['解析錯誤'];
+        return ['無法解析'];
       }
     }
 
@@ -868,7 +869,7 @@
             const q1 = userProgressData['input-adjust-q1'] || userProgressData['input-q1'] || '無輸入內容';
             const q2 = userProgressData['input-adjust-q2'] || userProgressData['input-q2'] || '無輸入內容';
             const q3 = userProgressData['input-adjust-q3'] || userProgressData['input-q3'] || '無輸入內容';
-            
+
             const lastTextQ1 = userProgressData['last-text-want-q1'] || '';
             const lastTextQ2 = userProgressData['last-text-want-q2'] || '';
             const lastTextQ3 = userProgressData['last-text-want-q3'] || '';
@@ -959,7 +960,7 @@
             localStorage.setItem('careerRPG_hasAbleHistory', 'true');
             const semanticContent = document.getElementById('semantic-content-able');
             const ableEvent = userProgressData['input-adjust'] || userProgressData['input-can-or-not'] || '無輸入內容';
-            
+
             const lastTextAble = userProgressData['last-text-able'] || '';
             const changedAble = ableEvent.trim() !== lastTextAble.trim() && ableEvent !== '無輸入內容';
 
