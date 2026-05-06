@@ -893,6 +893,8 @@
               return tags.map(t => `<div class="tag" style="background:var(--primary); color:white; padding:6px 16px; border-radius:20px; font-size:1rem; box-shadow: 0 4px 12px rgba(129, 178, 154, 0.3);">${t}</div>`).join('');
             };
 
+            const isErrorTag = (tags) => tags && tags.length === 1 && (tags[0] === '連線失敗' || tags[0] === '無法解析');
+
             const savedTagsQ1 = userProgressData['tags-want-q1'];
             const savedTagsQ2 = userProgressData['tags-want-q2'];
             const savedTagsQ3 = userProgressData['tags-want-q3'];
@@ -905,7 +907,7 @@
                     <div style="${textStyle}">${q1}</div>
                   </div>
                   <div id="tags-want-q1" style="${tagsStyle}">
-                    ${savedTagsQ1 ? renderTags(savedTagsQ1) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
+                    ${(savedTagsQ1 && !isErrorTag(savedTagsQ1)) ? renderTags(savedTagsQ1) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
                   </div>
                 </div>
                 <div class="semantic-anim-item">
@@ -914,7 +916,7 @@
                     <div style="${textStyle}">${q2}</div>
                   </div>
                   <div id="tags-want-q2" style="${tagsStyle}">
-                    ${savedTagsQ2 ? renderTags(savedTagsQ2) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
+                    ${(savedTagsQ2 && !isErrorTag(savedTagsQ2)) ? renderTags(savedTagsQ2) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
                   </div>
                 </div>
                 <div class="semantic-anim-item">
@@ -923,35 +925,41 @@
                     <div style="${textStyle}">${q3}</div>
                   </div>
                   <div id="tags-want-q3" style="${tagsStyle}">
-                    ${savedTagsQ3 ? renderTags(savedTagsQ3) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
+                    ${(savedTagsQ3 && !isErrorTag(savedTagsQ3)) ? renderTags(savedTagsQ3) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
                   </div>
                 </div>
               `;
 
-              // Trigger analysis and update last-text upon completion
-              if (changedQ1 || !savedTagsQ1 && q1 !== '無輸入內容') {
-                analyzeByOllama(q1).then(tags => {
-                  userProgressData['tags-want-q1'] = tags;
-                  userProgressData['last-text-want-q1'] = q1.trim();
-                  localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
-                  const el = document.getElementById('tags-want-q1'); if (el) el.innerHTML = renderTags(tags);
-                });
+              // Trigger analysis if changed, missing, or previously errored
+              if (changedQ1 || !savedTagsQ1 || isErrorTag(savedTagsQ1)) {
+                if (q1 !== '無輸入內容') {
+                  analyzeByOllama(q1).then(tags => {
+                    userProgressData['tags-want-q1'] = tags;
+                    userProgressData['last-text-want-q1'] = q1.trim();
+                    localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+                    const el = document.getElementById('tags-want-q1'); if (el) el.innerHTML = renderTags(tags);
+                  });
+                }
               }
-              if (changedQ2 || !savedTagsQ2 && q2 !== '無輸入內容') {
-                analyzeByOllama(q2).then(tags => {
-                  userProgressData['tags-want-q2'] = tags;
-                  userProgressData['last-text-want-q2'] = q2.trim();
-                  localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
-                  const el = document.getElementById('tags-want-q2'); if (el) el.innerHTML = renderTags(tags);
-                });
+              if (changedQ2 || !savedTagsQ2 || isErrorTag(savedTagsQ2)) {
+                if (q2 !== '無輸入內容') {
+                  analyzeByOllama(q2).then(tags => {
+                    userProgressData['tags-want-q2'] = tags;
+                    userProgressData['last-text-want-q2'] = q2.trim();
+                    localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+                    const el = document.getElementById('tags-want-q2'); if (el) el.innerHTML = renderTags(tags);
+                  });
+                }
               }
-              if (changedQ3 || !savedTagsQ3 && q3 !== '無輸入內容') {
-                analyzeByOllama(q3).then(tags => {
-                  userProgressData['tags-want-q3'] = tags;
-                  userProgressData['last-text-want-q3'] = q3.trim();
-                  localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
-                  const el = document.getElementById('tags-want-q3'); if (el) el.innerHTML = renderTags(tags);
-                });
+              if (changedQ3 || !savedTagsQ3 || isErrorTag(savedTagsQ3)) {
+                if (q3 !== '無輸入內容') {
+                  analyzeByOllama(q3).then(tags => {
+                    userProgressData['tags-want-q3'] = tags;
+                    userProgressData['last-text-want-q3'] = q3.trim();
+                    localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+                    const el = document.getElementById('tags-want-q3'); if (el) el.innerHTML = renderTags(tags);
+                  });
+                }
               }
             }
           }
@@ -976,6 +984,8 @@
               return tags.map(t => `<div class="tag" style="background:var(--primary); color:white; padding:6px 16px; border-radius:20px; font-size:1rem; box-shadow: 0 4px 12px rgba(129, 178, 154, 0.3);">${t}</div>`).join('');
             };
 
+            const isErrorTag = (tags) => tags && tags.length === 1 && (tags[0] === '連線失敗' || tags[0] === '無法解析');
+
             const savedTagsAble = userProgressData['tags-able'];
 
             if (semanticContent) {
@@ -986,19 +996,21 @@
                     <div style="${textStyle}">${ableEvent}</div>
                   </div>
                   <div id="tags-able-event" style="${tagsStyle}">
-                    ${savedTagsAble ? renderTags(savedTagsAble) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
+                    ${(savedTagsAble && !isErrorTag(savedTagsAble)) ? renderTags(savedTagsAble) : '<div class="tag" style="font-size: 1rem; padding: 6px 16px; color: #E07A5F; border: 1px solid #E07A5F; background: transparent;">⏳ 分析中...</div>'}
                   </div>
                 </div>
               `;
 
-              if (changedAble || !savedTagsAble && ableEvent !== '無輸入內容') {
-                analyzeByOllama(ableEvent).then(tags => {
-                  userProgressData['tags-able'] = tags;
-                  userProgressData['last-text-able'] = ableEvent.trim();
-                  localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
-                  const el = document.getElementById('tags-able-event');
-                  if (el) el.innerHTML = renderTags(tags);
-                });
+              if (changedAble || !savedTagsAble || isErrorTag(savedTagsAble)) {
+                if (ableEvent !== '無輸入內容') {
+                  analyzeByOllama(ableEvent).then(tags => {
+                    userProgressData['tags-able'] = tags;
+                    userProgressData['last-text-able'] = ableEvent.trim();
+                    localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+                    const el = document.getElementById('tags-able-event');
+                    if (el) el.innerHTML = renderTags(tags);
+                  });
+                }
               }
             }
           }
