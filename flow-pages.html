@@ -82,9 +82,18 @@
     .page-container.active .sub-title,
     .page-container.active .form-group,
     .page-container.active .tags-container,
-    .page-container.active .grid-options {
+    .page-container.active .grid-options,
+    .page-container.active .semantic-anim-item {
       animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     }
+
+    /* 語意分析成果內容的層次感進場 */
+    .page-container.active .semantic-anim-item:nth-child(1) { animation-delay: 0.1s; }
+    .page-container.active .semantic-anim-item:nth-child(2) { animation-delay: 0.2s; }
+    .page-container.active .semantic-anim-item:nth-child(3) { animation-delay: 0.3s; }
+    .page-container.active .semantic-anim-item:nth-child(4) { animation-delay: 0.4s; }
+    .page-container.active .semantic-anim-item:nth-child(5) { animation-delay: 0.5s; }
+    .page-container.active .semantic-anim-item:nth-child(6) { animation-delay: 0.6s; }
 
     /* 按鈕進場稍微延遲，製造層次感 */
     .page-container.active .action-buttons .action-btn {
@@ -364,6 +373,7 @@
     .page-container.exit-animation .form-group,
     .page-container.exit-animation .tags-container,
     .page-container.exit-animation .grid-options,
+    .page-container.exit-animation .semantic-anim-item,
     .page-container.exit-animation .action-btn {
       opacity: 0;
       filter: blur(10px);
@@ -384,6 +394,36 @@
   <img src="assets/icon.png" class="site-icon" alt="Career Match Icon" style="cursor: pointer;"
     onclick="window.location.href='index.html'">
 
+  <!-- 想不想 回顧頁面 -->
+  <div id="page-review-want" class="page-container" style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 3rem;">回顧</h2>
+    <div class="sub-title" style="font-size: 2rem; margin-bottom: 40px; font-style: italic;">What we had known about you — Want</div>
+    
+    <div id="review-content-want" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons" style="margin-top: 40px;">
+      <button class="action-btn" onclick="window.location.href='index.html'">返回</button>
+      <button class="action-btn" onclick="goTo('page-want-or-not')">開始撰寫新事件</button>
+    </div>
+  </div>
+
+  <!-- 能不能 回顧頁面 -->
+  <div id="page-review-able" class="page-container" style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 3rem;">回顧</h2>
+    <div class="sub-title" style="font-size: 2rem; margin-bottom: 40px; font-style: italic;">What we had known about you — Able</div>
+    
+    <div id="review-content-able" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons" style="margin-top: 40px;">
+      <button class="action-btn" onclick="window.location.href='index.html'">返回</button>
+      <button class="action-btn" onclick="goTo('page-can-or-not')">開始撰寫新事件</button>
+    </div>
+  </div>
+
   <!-- 1. 想不想 分流 -->
   <div id="page-want-or-not" class="page-container active">
     <h2 class="page-title">想不想</h2>
@@ -394,18 +434,18 @@
   </div>
 
   <!-- 2. 問卷 (Q1, Q2, Q3) -->
-  <div id="page-questions" class="page-container">
+  <div id="page-questions" class="page-container" style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
     <div class="form-group">
       <label>Q1. 充電 / 耗能</label>
-      <input id="input-q1" type="text" class="text-input" placeholder="...">
+      <textarea id="input-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="300" placeholder="說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷"></textarea>
     </div>
     <div class="form-group">
       <label>Q2. 動機</label>
-      <input id="input-q2" type="text" class="text-input" placeholder="...">
+      <textarea id="input-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="300" placeholder="說出一件，「不是單純出於善意，但就算 沒有 實質收穫／獎勵，你仍然願意付出努力」的事"></textarea>
     </div>
     <div class="form-group">
       <label>Q3. 具體事件</label>
-      <input id="input-q3" type="text" class="text-input" placeholder="...">
+      <textarea id="input-q3" class="text-input" rows="3" style="min-height: 80px;" maxlength="300" placeholder="說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷"></textarea>
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
       <button class="action-btn" onclick="goTo('page-event-summary-want')">送出</button>
@@ -417,32 +457,28 @@
     <h2 class="page-title">事件簡述</h2>
     <div class="sub-title" id="display-event-want-1"
       style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
-    <div class="tags-container">
-      <div class="tag">標籤 1</div>
-      <div class="tag">標籤 2</div>
-      <div class="tag">標籤 3</div>
-    </div>
+
     <div class="action-buttons">
-      <button class="action-btn" onclick="goTo('page-can-or-not')">符合 / 沒想法</button>
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-want')">符合 / 沒想法</button>
       <button class="action-btn" onclick="goTo('page-adjust-want')">不太對，調整描述</button>
     </div>
   </div>
 
   <!-- 想不想的調整向度 -->
-  <div id="page-adjust-want" class="page-container">
+  <div id="page-adjust-want" class="page-container" style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
     <h2 class="page-title" style="font-size: 3rem;">調整向度 / 增加細節</h2>
     <div class="sub-title">（其他條件不變）</div>
     <div class="form-group">
       <label>Q1. 充電 / 耗能</label>
-      <input id="input-adjust-q1" type="text" class="text-input" placeholder="...">
+      <textarea id="input-adjust-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="300" placeholder="說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷"></textarea>
     </div>
     <div class="form-group">
       <label>Q2. 動機</label>
-      <input id="input-adjust-q2" type="text" class="text-input" placeholder="...">
+      <textarea id="input-adjust-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="300" placeholder="說出一件，「不是單純出於善意，但就算 沒有 實質收穫／獎勵，你仍然願意付出努力」的事"></textarea>
     </div>
     <div class="form-group">
       <label>Q3. 具體事件</label>
-      <input id="input-adjust-q3" type="text" class="text-input" placeholder="...">
+      <textarea id="input-adjust-q3" class="text-input" rows="3" style="min-height: 80px;" maxlength="300" placeholder="說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷"></textarea>
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
       <button class="action-btn" onclick="goTo('page-event-summary-2-want')">enter</button>
@@ -454,13 +490,24 @@
     <h2 class="page-title">事件簡述</h2>
     <div class="sub-title" id="display-event-want-2"
       style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
-    <div class="tags-container">
-      <div class="tag">標籤 1</div>
-      <div class="tag">標籤 2</div>
-      <div class="tag">標籤 3</div>
-    </div>
+
     <div class="action-buttons">
-      <button class="action-btn" onclick="goTo('page-can-or-not')">先試試看吧~</button>
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-want')">先試試看吧~</button>
+    </div>
+  </div>
+
+  <!-- 想不想的語意分析成果 -->
+  <div id="page-semantic-analysis-want" class="page-container" style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 3rem;">語意分析成果</h2>
+    <div class="sub-title" style="font-size: 2rem; margin-bottom: 40px; font-style: italic;">Things from Your Stories — Wants</div>
+    
+    <div id="semantic-content-want" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons" style="margin-top: 40px;">
+      <button class="action-btn" onclick="window.location.href='index.html'">返回</button>
+      <button class="action-btn" onclick="goTo('page-can-or-not')">前往能力轉換</button>
     </div>
   </div>
 
@@ -468,7 +515,7 @@
   <div id="page-can-or-not" class="page-container">
     <h2 class="page-title">能不能</h2>
     <div class="form-group" style="max-width: 600px;">
-      <textarea id="input-can-or-not" class="text-input" placeholder="事件描述框 (概述提示...)"></textarea>
+      <textarea id="input-can-or-not" class="text-input" maxlength="300" placeholder="事件描述框 (概述提示...)"></textarea>
     </div>
     <div class="action-buttons">
       <button class="action-btn" onclick="goTo('page-event-summary')">enter</button>
@@ -480,13 +527,9 @@
     <h2 class="page-title">事件簡述</h2>
     <div class="sub-title" id="display-event-1"
       style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
-    <div class="tags-container">
-      <div class="tag">標籤 1</div>
-      <div class="tag">標籤 2</div>
-      <div class="tag">標籤 3</div>
-    </div>
+
     <div class="action-buttons">
-      <button class="action-btn" onclick="goTo('page-professions')">符合 / 沒想法</button>
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-able')">符合 / 沒想法</button>
       <button class="action-btn" onclick="goTo('page-adjust')">不太對，調整描述</button>
     </div>
   </div>
@@ -496,7 +539,7 @@
     <h2 class="page-title" style="font-size: 3rem;">調整向度 / 增加細節</h2>
     <div class="sub-title">（其他條件不變）</div>
     <div class="form-group" style="max-width: 600px;">
-      <textarea id="input-adjust" class="text-input" placeholder="重新描述同一事件"></textarea>
+      <textarea id="input-adjust" class="text-input" maxlength="300" placeholder="重新描述同一事件"></textarea>
     </div>
     <div class="action-buttons">
       <button class="action-btn" onclick="goTo('page-event-summary-2')">enter</button>
@@ -508,17 +551,28 @@
     <h2 class="page-title">事件簡述</h2>
     <div class="sub-title" id="display-event-2"
       style="font-style: italic; max-width: 600px; text-align: center; margin-bottom: 20px; line-height: 1.5;"></div>
-    <div class="tags-container">
-      <div class="tag">標籤 1</div>
-      <div class="tag">標籤 2</div>
-      <div class="tag">標籤 3</div>
-    </div>
+
     <div class="action-buttons">
-      <button class="action-btn" onclick="goTo('page-professions')">先試試看吧~</button>
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-able')">先試試看吧~</button>
     </div>
   </div>
 
-  <!-- 7. 職業圖 (結果) -->
+  <!-- 能不能的語意分析成果 -->
+  <div id="page-semantic-analysis-able" class="page-container" style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 3rem;">語意分析成果</h2>
+    <div class="sub-title" style="font-size: 2rem; margin-bottom: 40px; font-style: italic;">Things from Your Stories — Able</div>
+    
+    <div id="semantic-content-able" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons" style="margin-top: 40px;">
+      <button class="action-btn" onclick="window.location.href='index.html'">返回</button>
+      <button class="action-btn" onclick="goTo('page-professions')">前往職業選擇</button>
+    </div>
+  </div>
+
+  <!-- 7. 職業推薦 -->
   <div id="page-professions" class="page-container">
     <div class="action-buttons">
       <button class="action-btn" onclick="window.location.href='subpages.html'">職業 A</button>
@@ -620,6 +674,11 @@
 
     // 用來儲存使用者在各流程中輸入的資料
     let userProgressData = {};
+    let lastSummaryPage = 'page-event-summary-want';
+
+    function goBackToSummary() {
+      goTo(lastSummaryPage);
+    }
 
     function goTo(pageId, immediate = false) {
       // 在離開當前頁面前，記錄該頁面的輸入內容
@@ -674,6 +733,7 @@
           });
           localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
         }
+        localStorage.setItem('careerRPG_page', pageId);
 
         // 隱藏所有頁面並移除動畫狀態
         document.querySelectorAll('.page-container').forEach(page => {
@@ -695,18 +755,183 @@
           }
           if (pageId === 'page-event-summary-want') {
             const displayWant1 = document.getElementById('display-event-want-1');
-            const q1 = userProgressData['input-q1'] || '';
-            const q2 = userProgressData['input-q2'] || '';
-            const q3 = userProgressData['input-q3'] || '';
-            if (displayWant1) displayWant1.textContent = `「${q1} / ${q2} / ${q3}」`;
+            const q1 = userProgressData['input-q1'] || '無輸入內容';
+            const q2 = userProgressData['input-q2'] || '無輸入內容';
+            const q3 = userProgressData['input-q3'] || '無輸入內容';
+            if (displayWant1) {
+              const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; margin-bottom: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 12px; font-size: 1.25rem; font-style: normal; color: #3D405B; text-shadow: none;";
+              const labelStyle = "font-weight: 600; color: #E07A5F; min-width: 36px; font-size: 1.3rem;";
+              const textStyle = "flex: 1; line-height: 1.5; font-weight: 500;";
+              displayWant1.innerHTML = `
+                <div style="${blockStyle}">
+                  <div style="${labelStyle}">Q1</div>
+                  <div style="${textStyle}">${q1}</div>
+                </div>
+                <div style="${blockStyle}">
+                  <div style="${labelStyle}">Q2</div>
+                  <div style="${textStyle}">${q2}</div>
+                </div>
+                <div style="${blockStyle.replace('margin-bottom: 16px;', 'margin-bottom: 0;')}">
+                  <div style="${labelStyle}">Q3</div>
+                  <div style="${textStyle}">${q3}</div>
+                </div>
+              `;
+            }
           }
           if (pageId === 'page-event-summary-2-want') {
             const displayWant2 = document.getElementById('display-event-want-2');
-            const q1 = userProgressData['input-adjust-q1'] || '';
-            const q2 = userProgressData['input-adjust-q2'] || '';
-            const q3 = userProgressData['input-adjust-q3'] || '';
-            if (displayWant2) displayWant2.textContent = `「${q1} / ${q2} / ${q3}」`;
+            const q1 = userProgressData['input-adjust-q1'] || '無輸入內容';
+            const q2 = userProgressData['input-adjust-q2'] || '無輸入內容';
+            const q3 = userProgressData['input-adjust-q3'] || '無輸入內容';
+            if (displayWant2) {
+              const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; margin-bottom: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 12px; font-size: 1.25rem; font-style: normal; color: #3D405B; text-shadow: none;";
+              const labelStyle = "font-weight: 600; color: #E07A5F; min-width: 36px; font-size: 1.3rem;";
+              const textStyle = "flex: 1; line-height: 1.5; font-weight: 500;";
+              displayWant2.innerHTML = `
+                <div style="${blockStyle}">
+                  <div style="${labelStyle}">Q1</div>
+                  <div style="${textStyle}">${q1}</div>
+                </div>
+                <div style="${blockStyle}">
+                  <div style="${labelStyle}">Q2</div>
+                  <div style="${textStyle}">${q2}</div>
+                </div>
+                <div style="${blockStyle.replace('margin-bottom: 16px;', 'margin-bottom: 0;')}">
+                  <div style="${labelStyle}">Q3</div>
+                  <div style="${textStyle}">${q3}</div>
+                </div>
+              `;
+            }
           }
+          if (pageId === 'page-event-summary-want' || pageId === 'page-event-summary-2-want') {
+            lastSummaryPage = pageId;
+          }
+
+          if (pageId === 'page-semantic-analysis-want') {
+            localStorage.setItem('careerRPG_hasWantHistory', 'true');
+            const semanticContent = document.getElementById('semantic-content-want');
+            // Prefer adjusted answers if they exist
+            const q1 = userProgressData['input-adjust-q1'] || userProgressData['input-q1'] || '無輸入內容';
+            const q2 = userProgressData['input-adjust-q2'] || userProgressData['input-q2'] || '無輸入內容';
+            const q3 = userProgressData['input-adjust-q3'] || userProgressData['input-q3'] || '無輸入內容';
+            
+            const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 12px; font-size: 1.25rem; font-style: normal; color: #3D405B; text-shadow: none;";
+            const labelStyle = "font-weight: 600; color: #E07A5F; min-width: 36px; font-size: 1.3rem;";
+            const textStyle = "flex: 1; line-height: 1.5; font-weight: 500;";
+            const tagsStyle = "display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding-left: 48px;"; // align with text
+            const tagHTML = `<div class="tag" style="font-size: 1rem; padding: 6px 16px;">標籤</div>`;
+            
+            if (semanticContent) {
+              semanticContent.innerHTML = `
+                <div class="semantic-anim-item">
+                  <div style="${blockStyle}">
+                    <div style="${labelStyle}">Q1</div>
+                    <div style="${textStyle}">${q1}</div>
+                  </div>
+                  <div style="${tagsStyle}">
+                    ${tagHTML}${tagHTML}${tagHTML}
+                  </div>
+                </div>
+                <div class="semantic-anim-item">
+                  <div style="${blockStyle}">
+                    <div style="${labelStyle}">Q2</div>
+                    <div style="${textStyle}">${q2}</div>
+                  </div>
+                  <div style="${tagsStyle}">
+                    ${tagHTML}${tagHTML}
+                  </div>
+                </div>
+                <div class="semantic-anim-item">
+                  <div style="${blockStyle}">
+                    <div style="${labelStyle}">Q3</div>
+                    <div style="${textStyle}">${q3}</div>
+                  </div>
+                  <div style="${tagsStyle}">
+                    ${tagHTML}${tagHTML}
+                  </div>
+                </div>
+              `;
+            }
+          }
+
+          if (pageId === 'page-semantic-analysis-able') {
+            localStorage.setItem('careerRPG_hasAbleHistory', 'true');
+            const semanticContent = document.getElementById('semantic-content-able');
+            // Prefer adjusted answers if they exist
+            const q1 = userProgressData['input-adjust-q1'] || userProgressData['input-q1'] || '無輸入內容';
+            const q2 = userProgressData['input-adjust-q2'] || userProgressData['input-q2'] || '無輸入內容';
+            const q3 = userProgressData['input-adjust-q3'] || userProgressData['input-q3'] || '無輸入內容';
+            
+            const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 12px; font-size: 1.25rem; font-style: normal; color: #3D405B; text-shadow: none;";
+            const labelStyle = "font-weight: 600; color: #E07A5F; min-width: 36px; font-size: 1.3rem;";
+            const textStyle = "flex: 1; line-height: 1.5; font-weight: 500;";
+            const tagsStyle = "display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding-left: 48px;"; // align with text
+            const tagHTML = `<div class="tag" style="font-size: 1rem; padding: 6px 16px;">標籤</div>`;
+            
+            if (semanticContent) {
+              semanticContent.innerHTML = `
+                <div class="semantic-anim-item">
+                  <div style="${blockStyle}">
+                    <div style="${labelStyle}">Q1</div>
+                    <div style="${textStyle}">${q1}</div>
+                  </div>
+                  <div style="${tagsStyle}">
+                    ${tagHTML}${tagHTML}${tagHTML}
+                  </div>
+                </div>
+                <div class="semantic-anim-item">
+                  <div style="${blockStyle}">
+                    <div style="${labelStyle}">Q2</div>
+                    <div style="${textStyle}">${q2}</div>
+                  </div>
+                  <div style="${tagsStyle}">
+                    ${tagHTML}${tagHTML}
+                  </div>
+                </div>
+                <div class="semantic-anim-item">
+                  <div style="${blockStyle}">
+                    <div style="${labelStyle}">Q3</div>
+                    <div style="${textStyle}">${q3}</div>
+                  </div>
+                  <div style="${tagsStyle}">
+                    ${tagHTML}${tagHTML}
+                  </div>
+                </div>
+              `;
+            }
+          }
+
+          if (pageId === 'page-review-want' || pageId === 'page-review-able') {
+            const isWant = pageId === 'page-review-want';
+            const reviewContent = document.getElementById(isWant ? 'review-content-want' : 'review-content-able');
+            const recentEvent = isWant ? (userProgressData['input-adjust-q1'] || userProgressData['input-q1'] || '近期想不想事件紀錄...') : (userProgressData['input-adjust'] || userProgressData['input-can-or-not'] || '近期能不能事件紀錄...');
+            
+            const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); color: #3D405B; line-height: 1.5; font-size: 1.25rem;";
+            const tagHTML = `<div class="tag" style="font-size: 1rem; padding: 6px 16px;">標籤</div>`;
+            
+            if (reviewContent) {
+              reviewContent.innerHTML = `
+                <div class="semantic-anim-item">
+                  <h3 style="color: #E07A5F; margin-bottom: 12px; text-align: left; font-size: 1.5rem;">近期事件 (前一次)</h3>
+                  <div style="${blockStyle}">${recentEvent}</div>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+                    ${tagHTML}${tagHTML}
+                  </div>
+                </div>
+                <div class="semantic-anim-item" style="margin-top: 24px;">
+                  <h3 style="color: #E07A5F; margin-bottom: 12px; text-align: left; font-size: 1.5rem;">歷史事件與微標籤 (歷史總結)</h3>
+                  <div style="${blockStyle}">這是一段過去累積的歷史事件總結內容，將會由系統產生...</div>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+                    ${tagHTML}${tagHTML}${tagHTML}
+                  </div>
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+                    ${tagHTML}
+                  </div>
+                </div>
+              `;
+            }
+          }
+
           target.classList.add('active');
         }
       };
@@ -754,8 +979,21 @@
 
       const urlParams = new URLSearchParams(window.location.search);
       const step = urlParams.get('step');
-      if (step) {
-        goTo(step, true); // 初始進入時，使用 immediate 模式跳過退場動畫
+      const savedPage = localStorage.getItem('careerRPG_page');
+
+      if (step === 'page-want-or-not' && localStorage.getItem('careerRPG_hasWantHistory') === 'true') {
+        goTo('page-review-want', true);
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (step === 'page-can-or-not' && localStorage.getItem('careerRPG_hasAbleHistory') === 'true') {
+        goTo('page-review-able', true);
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (step) {
+        goTo(step, true);
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (savedPage) {
+        goTo(savedPage, true);
+      } else {
+        goTo('page-want-or-not', true);
       }
     });
   </script>
