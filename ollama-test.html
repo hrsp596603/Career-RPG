@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama 語意分析測試</title>
+    <style>
+        :root {
+            --primary: #E07A5F;
+            --bg: #F4F1DE;
+            --text: #3D405B;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 { color: var(--primary); margin-bottom: 20px; }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary);
+            width: 100%;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .status { margin-top: 10px; font-size: 0.9rem; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Ollama 語意分析測試</h1>
+        <p>請輸入一段經歷描述，系統將調用本機 Ollama 進行標籤辨識。</p>
+        
+        <textarea id="inputText" placeholder="例如：我過去一年在科技業擔任專案經理..."></textarea>
+        
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="sendBtn">開始分析</button>
+            <span id="loader" style="display:none;">⏳ 分析中...</span>
+        </div>
+
+        <div class="status" id="corsWarning">
+            💡 提示：如果出現 CORS 錯誤，請在終端機執行 <br>
+            <code>export OLLAMA_ORIGINS="*"</code> 後重啟 Ollama。
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const sendBtn = document.getElementById('sendBtn');
+        const inputText = document.getElementById('inputText');
+        const resultDiv = document.getElementById('result');
+        const loader = document.getElementById('loader');
+
+        sendBtn.addEventListener('click', async () => {
+            const text = inputText.value.trim();
+            if (!text) return alert('請輸入內容');
+
+            sendBtn.disabled = true;
+            loader.style.display = 'inline';
+            resultDiv.style.display = 'none';
+
+            try {
+                // 調用 Ollama API
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: "career-analyzer", // 呼叫自訂的職涯分析模型
+                        prompt: text, // 因為模型已經在 System Prompt 中被設定好規則，所以我們只要傳入原始文字即可
+                        stream: false,
+                    })
+                });
+
+                if (!response.ok) throw new Error('無法連接到 Ollama 服務');
+
+                const data = await response.json();
+                let rawResponse = data.response.trim();
+                
+                // 清理可能出現的引號或 Markdown 語法
+                rawResponse = rawResponse.replace(/^['"`]|['"`]$/g, '');
+                
+                try {
+                    const parsed = JSON.parse(rawResponse);
+                    if (parsed.tags && Array.isArray(parsed.tags)) {
+                        let html = '<strong>分析結果：</strong><br><div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">';
+                        parsed.tags.forEach(tag => {
+                            html += `<span class="tag" style="background:var(--primary); color:white; padding:5px 15px; border-radius:20px; font-size:0.9rem;">${tag}</span>`;
+                        });
+                        html += '</div>';
+                        resultDiv.innerHTML = html;
+                    } else {
+                        resultDiv.innerText = "分析結果（非預期格式）：\n" + rawResponse;
+                    }
+                } catch (e) {
+                    resultDiv.innerText = "分析結果（解析 JSON 失敗）：\n" + rawResponse;
+                }
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                alert('錯誤：' + error.message + '\n請確認 Ollama 是否已啟動。');
+                console.error(error);
+            } finally {
+                sendBtn.disabled = false;
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
