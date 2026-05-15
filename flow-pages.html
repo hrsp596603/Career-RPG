@@ -968,23 +968,39 @@
 
     async function analyzeByCloud(text) {
       if (!text || text === '無輸入內容') return [];
+      
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
       try {
-        const response = await fetch('/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: text })
-        });
-        
-        const data = await response.json();
-
-        if (!response.ok) {
-          return [data.error || '連線失敗'];
+        if (isLocal) {
+          // 【地端模式】呼叫本地 Ollama
+          const response = await fetch('http://localhost:11434/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'llama3', // 請確保你地端有安裝 llama3
+              prompt: `你是一個職涯標籤辨識系統。請根據經歷描述，從標籤庫中選出最符合的 2 至 3 個標籤。僅輸出 JSON 格式，結構如下：{"tags": ["標籤1", "標籤2"]}。經歷內容：${text}`,
+              stream: false,
+              format: 'json'
+            })
+          });
+          const data = await response.json();
+          const result = JSON.parse(data.response);
+          return result.tags || [];
+        } else {
+          // 【雲端模式】呼叫 Cloudflare Pages Functions (Groq)
+          const response = await fetch('/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text })
+          });
+          const data = await response.json();
+          if (!response.ok) return [data.error || '連線失敗'];
+          return data.tags || [];
         }
-
-        return data.tags || [];
       } catch (e) {
-        console.error("雲端分析失敗:", e);
-        return ['無法解析: ' + e.message];
+        console.error("分析失敗:", e);
+        return ['無法解析: ' + e.message + (isLocal ? ' (請檢查 Ollama 是否已啟動)' : '')];
       }
     }
 
