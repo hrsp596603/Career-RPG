@@ -421,6 +421,7 @@
       transform: translateY(-20px) !important;
       transition: opacity 0.6s ease, filter 0.6s ease, transform 0.6s ease !important;
     }
+
     /* --- 要不要 (Reality Check) 刻度條組件 --- */
     .scale-container {
       display: flex;
@@ -429,6 +430,7 @@
       width: 100%;
       max-width: 800px;
     }
+
     .scale-header {
       font-size: 1.2rem;
       font-weight: 600;
@@ -438,6 +440,7 @@
       padding-right: 20px;
       flex-shrink: 0;
     }
+
     .scale-track-container {
       position: relative;
       flex: 1;
@@ -445,6 +448,7 @@
       display: flex;
       align-items: center;
     }
+
     .scale-track {
       position: absolute;
       top: 50%;
@@ -456,6 +460,7 @@
       border-radius: 3px;
       z-index: 1;
     }
+
     .scale-nodes {
       display: flex;
       justify-content: space-between;
@@ -463,12 +468,14 @@
       z-index: 2;
       width: 100%;
     }
+
     .scale-node-wrapper {
       position: relative;
       cursor: pointer;
       display: flex;
       justify-content: center;
     }
+
     .scale-node {
       width: 12px;
       height: 12px;
@@ -479,6 +486,7 @@
       position: relative;
       z-index: 2;
     }
+
     .scale-label {
       position: absolute;
       bottom: 25px;
@@ -491,14 +499,17 @@
       text-align: center;
       pointer-events: none;
     }
+
     .scale-label-multiline {
       white-space: normal;
       width: 90px;
       line-height: 1.2;
     }
+
     .scale-node-wrapper.active .scale-node {
       border-color: #d62828;
     }
+
     .scale-pin {
       position: absolute;
       bottom: 12px;
@@ -512,6 +523,7 @@
       pointer-events: none;
       z-index: 1;
     }
+
     .scale-pin::after {
       content: '';
       position: absolute;
@@ -522,10 +534,12 @@
       background-color: #d62828;
       border-radius: 50%;
     }
+
     .scale-node-wrapper.active .scale-pin {
       opacity: 1;
       transform: translate(-50%, 0);
     }
+
     .scale-range-overlay {
       position: absolute;
       top: -20px;
@@ -538,6 +552,7 @@
       z-index: 10;
       -webkit-appearance: none;
     }
+
     .scale-range-overlay:active {
       cursor: grabbing;
     }
@@ -603,15 +618,15 @@
     style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
     <div class="form-group">
       <label>Q1. 有沒有哪件事，是請你重新體驗 完全一模一樣 的歷程，你 仍然願意 再次投入的</label>
-      <textarea id="input-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="100"></textarea>
+      <textarea id="input-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"></textarea>
     </div>
     <div class="form-group">
       <label>Q2. 說出一件，「不是單純出於善意，但就算 沒有 實質收穫／獎勵，你仍然願意付出努力」的事</label>
-      <textarea id="input-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="100"></textarea>
+      <textarea id="input-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"></textarea>
     </div>
     <div class="form-group">
       <label>Q3. 說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷</label>
-      <textarea id="input-q3" class="text-input" rows="3" style="min-height: 80px;" maxlength="100"
+      <textarea id="input-q3" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"
         placeholder="他人的評價正向或反向都不會影響你"></textarea>
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
@@ -639,15 +654,15 @@
     <div class="sub-title">調整內容 e.g. 環境、合作對象、個人狀態、資源背景</div>
     <div class="form-group">
       <label>Q1. 有沒有哪件事，是請你重新體驗 完全一模一樣 的歷程，你 仍然願意 再次投入的</label>
-      <textarea id="input-adjust-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="100"></textarea>
+      <textarea id="input-adjust-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"></textarea>
     </div>
     <div class="form-group">
       <label>Q2. 說出一件，「不是單純出於善意，但就算 沒有 實質收穫／獎勵，你仍然願意付出努力」的事</label>
-      <textarea id="input-adjust-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="100"></textarea>
+      <textarea id="input-adjust-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"></textarea>
     </div>
     <div class="form-group">
       <label>Q3. 說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷</label>
-      <textarea id="input-adjust-q3" class="text-input" rows="3" style="min-height: 80px;" maxlength="100"
+      <textarea id="input-adjust-q3" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"
         placeholder="他人的評價正向或反向都不會影響你"></textarea>
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
@@ -690,14 +705,14 @@
     <h2 class="page-title">能不能</h2>
     <div class="form-group">
       <label>Q1. 你目前生活中，你花了大量時間或精力在什麼事情？在執行的過程中，你實際需要做哪些事？跟人會有什麼樣怎麼互動？</label>
-      <textarea id="input-can-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="300"></textarea>
+      <textarea id="input-can-q1" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"></textarea>
     </div>
     <div class="form-group">
       <label>Q2. 承上，在做這件事的過程中，有沒有遇到卡住、或者不如預期的狀況？那時候的你怎麼想、怎麼處理？</label>
-      <textarea id="input-can-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="300"></textarea>
+      <textarea id="input-can-q2" class="text-input" rows="3" style="min-height: 80px;" maxlength="200"></textarea>
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
-      <button class="action-btn" onclick="goTo('page-event-summary')">enter</button>
+      <button class="action-btn" onclick="goTo('page-event-summary')">送出</button>
     </div>
   </div>
 
@@ -722,12 +737,12 @@
     <div class="form-group">
       <label>Q1. 你目前生活中，你花了大量時間或精力在什麼事情？在執行的過程中，你實際需要做哪些事？跟人會有什麼樣怎麼互動？</label>
       <textarea id="input-adjust-can-q1" class="text-input" rows="3" style="min-height: 80px;"
-        maxlength="300"></textarea>
+        maxlength="200"></textarea>
     </div>
     <div class="form-group">
       <label>Q2. 承上，在做這件事的過程中，有沒有遇到卡住、或者不如預期的狀況？那時候的你怎麼想、怎麼處理？</label>
       <textarea id="input-adjust-can-q2" class="text-input" rows="3" style="min-height: 80px;"
-        maxlength="300"></textarea>
+        maxlength="200"></textarea>
     </div>
     <div class="action-buttons" style="margin-top: 20px;">
       <button class="action-btn" onclick="goTo('page-event-summary-2')">送出</button>
@@ -773,28 +788,70 @@
       <div class="scale-track-container">
         <div class="scale-track"></div>
         <div class="scale-nodes" id="scale-income">
-          <div class="scale-node-wrapper active" onclick="selectScale(this, 'income', 0)"><div class="scale-label">基本時薪</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 1)"><div class="scale-label">業界平均</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 2)"><div class="scale-label">業界主管職</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 3)"><div class="scale-label">業界高階主管</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 4)"><div class="scale-label">業界頂尖</div><div class="scale-pin"></div><div class="scale-node"></div></div>
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'income', 0)">
+            <div class="scale-label">基本時薪</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 1)">
+            <div class="scale-label">業界平均</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 2)">
+            <div class="scale-label">業界主管職</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 3)">
+            <div class="scale-label">業界高階主管</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 4)">
+            <div class="scale-label">業界頂尖</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
         </div>
-        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0" oninput="syncScaleOverlay(this, 'income')">
+        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'income')">
       </div>
     </div>
-    
+
     <div class="scale-container">
       <div class="scale-header">時間結構</div>
       <div class="scale-track-container">
         <div class="scale-track"></div>
         <div class="scale-nodes" id="scale-time">
-          <div class="scale-node-wrapper active" onclick="selectScale(this, 'time', 0)"><div class="scale-label">固定班表</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 1)"><div class="scale-label">每周排班</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 2)"><div class="scale-label">每月排班</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 3)"><div class="scale-label">彈性工時</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 4)"><div class="scale-label">自由接案</div><div class="scale-pin"></div><div class="scale-node"></div></div>
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'time', 0)">
+            <div class="scale-label">固定班表</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 1)">
+            <div class="scale-label">每周排班</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 2)">
+            <div class="scale-label">每月排班</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 3)">
+            <div class="scale-label">彈性工時</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 4)">
+            <div class="scale-label">自由接案</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
         </div>
-        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0" oninput="syncScaleOverlay(this, 'time')">
+        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'time')">
       </div>
     </div>
 
@@ -803,13 +860,34 @@
       <div class="scale-track-container">
         <div class="scale-track"></div>
         <div class="scale-nodes" id="scale-mobility">
-          <div class="scale-node-wrapper active" onclick="selectScale(this, 'mobility', 0)"><div class="scale-label">固定地點</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 1)"><div class="scale-label scale-label-multiline">固定為主<br>偶爾外出</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 2)"><div class="scale-label">半外勤</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 3)"><div class="scale-label">常態外勤</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 4)"><div class="scale-label scale-label-multiline">全外勤<br><span style="font-size:0.8em">(無固定地點)</span></div><div class="scale-pin"></div><div class="scale-node"></div></div>
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'mobility', 0)">
+            <div class="scale-label">固定地點</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 1)">
+            <div class="scale-label scale-label-multiline">固定為主<br>偶爾外出</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 2)">
+            <div class="scale-label">半外勤</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 3)">
+            <div class="scale-label">常態外勤</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 4)">
+            <div class="scale-label scale-label-multiline">全外勤<br><span style="font-size:0.8em">(無固定地點)</span></div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
         </div>
-        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0" oninput="syncScaleOverlay(this, 'mobility')">
+        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'mobility')">
       </div>
     </div>
 
@@ -818,14 +896,39 @@
       <div class="scale-track-container">
         <div class="scale-track"></div>
         <div class="scale-nodes" id="scale-feedback">
-          <div class="scale-node-wrapper active" onclick="selectScale(this, 'feedback', 0)"><div class="scale-label">數天內</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 1)"><div class="scale-label">一個月內</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 2)"><div class="scale-label">三個月內</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 3)"><div class="scale-label">半年內</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 4)"><div class="scale-label">一年內</div><div class="scale-pin"></div><div class="scale-node"></div></div>
-          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 5)"><div class="scale-label">一年以上</div><div class="scale-pin"></div><div class="scale-node"></div></div>
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'feedback', 0)">
+            <div class="scale-label">數天內</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 1)">
+            <div class="scale-label">一個月內</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 2)">
+            <div class="scale-label">三個月內</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 3)">
+            <div class="scale-label">半年內</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 4)">
+            <div class="scale-label">一年內</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 5)">
+            <div class="scale-label">一年以上</div>
+            <div class="scale-pin"></div>
+            <div class="scale-node"></div>
+          </div>
         </div>
-        <input type="range" class="scale-range-overlay" min="0" max="5" step="1" value="0" oninput="syncScaleOverlay(this, 'feedback')">
+        <input type="range" class="scale-range-overlay" min="0" max="5" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'feedback')">
       </div>
     </div>
 
@@ -884,7 +987,7 @@
       const parent = element.parentNode;
       parent.querySelectorAll('.scale-node-wrapper').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
-      
+
       // sync the hidden range input
       const overlay = element.closest('.scale-track-container').querySelector('.scale-range-overlay');
       if (overlay) overlay.value = index;
@@ -901,7 +1004,7 @@
       if (nodes[val]) {
         nodes.forEach(el => el.classList.remove('active'));
         nodes[val].classList.add('active');
-        
+
         userProgressData[`scale-${category}`] = val;
         localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
       }
@@ -968,12 +1071,12 @@
 
     async function analyzeByCloud(text) {
       if (!text || text === '無輸入內容') return [];
-      
+
       // 判定是否為地端：localhost, 127.0.0.1 或直接開啟檔案 (hostname 為空)
-      const isLocal = window.location.hostname === 'localhost' || 
-                      window.location.hostname === '127.0.0.1' || 
-                      window.location.hostname === '';
-      
+      const isLocal = window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname === '';
+
       try {
         if (isLocal) {
           // 【地端模式】呼叫本地 Ollama
@@ -981,9 +1084,13 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              model: 'llama3', 
+              model: 'llama3',
               prompt: `你是一個專業的職涯標籤辨識系統。任務：從以下【標籤庫】選出最符合的 2-3 個標籤。
-【規則】1. 只能從庫中選取。2. 僅輸出 JSON：{"tags": ["標籤1", "標籤2"]}。3. 不要解釋。
+【規則】
+1. 只能從庫中選取。
+2. 請務必使用「完整的標籤名稱」（包含代碼與冒號後的中文描述），例如 "C01: 高度專業資訊轉譯"。
+3. 僅輸出 JSON：{"tags": ["標籤名稱1", "標籤名稱2"]}。
+4. 不要解釋。
 【標籤庫】
 C01: 高度專業資訊轉譯, C02: 非結構化需求釐清, C03: 繁雜數據與模式歸納, C04: 抽象概念具象化實作, C05: 長週期專案里程碑拆解, C06: 常規作業流程優化與建構, C07: 跨部門與多方共識斡旋, C08: 逆境條件下的資源重組與應變, C09: 實體環境與服務動線佈署, C10: 投入時機與資源進場判斷, E01: 高強度情緒勞動承載, E02: 跨階層角色動態切換, E03: 目標高頻變動之適應力, E04: 高不確定性決策承擔, E05: 商業利益與專業倫理權衡, E06: 極低容錯率之精準產出壓力, E07: 高密度感官刺激環境適應, E08: 低刺激環境下的專注耐受度, E09: 無外部支撐下的自律穩定度, E10: 工作與生活邊界模糊之負荷, E11: 持續性體能勞動之生理耗損, E12: 精細操作之持續性體能消耗, R01: 法定特許與學歷檢核門檻, R02: 特定產業社群網絡依賴度, R03: 長期投入與延遲回報結構, R04: 封閉系統內專有技能沉沒成本, R05: 初期專業設備與財務資本墊付, R06: 非固定收益之現金流風險, R07: 特定地理位置與場域綁定限制, R08: 高頻率地理移動與通勤成本, R09: 非常規作息與生理節律負荷, R10: 領域專有工具與技術的入門門檻, S01: 口語表達與即時溝通, S02: 結構化書面輸出, S03: 視覺化資訊呈現, S04: 通用數位工具整合應用, S05: 數據讀取與基礎分析操作, S06: 跨平台數位溝通與協作, S07: 大肌肉動作執行, S08: 小肌肉精細操作, S09: 實體空間操作與設備使用
 經歷內容：${text}`,
