@@ -20,7 +20,12 @@ export async function onRequestPost(context) {
         throw new Error("Cloudflare Workers AI 未回傳有效內容");
       }
 
-      return new Response(aiResponse.response, {
+      let content = aiResponse.response;
+      if (typeof content === "object") {
+        content = JSON.stringify(content);
+      }
+
+      return new Response(content, {
         headers: { "Content-Type": "application/json" },
       });
     }
