@@ -227,6 +227,20 @@
       /* 出現後可點擊 */
     }
 
+    .title-wrapper {
+      /* 初始隱藏，配合動畫淡入 */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    body.show-final-text .final-content .title-wrapper {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
     .final-content h2 {
       font-size: 6.5rem;
       font-weight: 600;
@@ -248,18 +262,6 @@
       /* 疊加雙層 drop-shadow 背光：首層提供高濃度緊密月光輪廓，次層提供大範圍柔和擴散，完美將大字從雲海中剝離出來 */
       filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.95)) 
               drop-shadow(0 4px 20px rgba(255, 255, 255, 0.7));
-      
-      /* 初始隱藏，配合動畫淡入 */
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    body.show-final-text .final-content h2 {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     }
 
     .final-subtitle {
@@ -478,11 +480,13 @@
 
   <!-- 最終顯示內容 -->
   <div class="final-content">
-    <h2>初路</h2>
+    <div class="title-wrapper">
+      <h2>初路</h2>
+    </div>
     <p class="final-subtitle">初級大人的探索之路</p>
     <div class="action-buttons">
-      <button class="action-btn" onclick="window.location.href='flow-pages.html?step=page-want-or-not'">背景建構</button>
-      <button class="action-btn" onclick="window.location.href='flow-pages.html?step=page-menu'">方向選擇</button>
+      <button class="action-btn" onclick="window.location.href='career-flow.html?step=start'">背景建構</button>
+      <button class="action-btn" onclick="window.location.href='career-flow.html?step=page-dreams-intro'">方向選擇</button>
     </div>
   </div>
 
