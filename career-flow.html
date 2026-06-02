@@ -1890,6 +1890,14 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
 
         const target = document.getElementById(pageId);
         if (target) {
+          // 同步記憶體資料回目標頁面的輸入框，防止舊 DOM 資料覆寫 state
+          const targetInputs = target.querySelectorAll('.text-input, textarea.text-input');
+          targetInputs.forEach(input => {
+            if (input.id && userProgressData[input.id] !== undefined) {
+              input.value = userProgressData[input.id];
+            }
+          });
+
           // ==================== 頁面特定渲染與分析觸發 ====================
 
           // 渲染 Wants 事件簡述 1
@@ -2066,7 +2074,17 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
         return tags.map(t => `<div class="tag">${t}</div>`).join('');
       };
 
-      const isErrorTag = (tags) => tags && tags.length === 1 && (tags[0].includes('失敗') || tags[0].includes('無法解析'));
+      // 檢查是否為錯誤標籤或舊版標籤快取（過期快取）
+      const isLegacyOrErrorTag = (tags) => {
+        if (!tags || tags.length === 0) return true;
+        if (tags.length === 1 && (tags[0].includes('失敗') || tags[0].includes('無法解析') || tags[0].includes('連線失敗'))) return true;
+        // 新版合法格式：A01-A15, B01-B16, C01-C16, D01-D13
+        const validTagPattern = /^[A-D](0[1-9]|1[0-6]):/;
+        for (const tag of tags) {
+          if (!validTagPattern.test(tag)) return true;
+        }
+        return false;
+      };
 
       let html = '';
       for (let i = 1; i <= count; i++) {
@@ -2085,7 +2103,7 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
               <div style="${textStyle}">${text}</div>
             </div>
             <div id="tags-${type}-${qKey}" style="${tagsStyle}">
-              ${(savedTags && !isErrorTag(savedTags)) ? renderTags(savedTags) : '<div class="tag" style="color:var(--secondary); border: 1px solid var(--secondary); background: transparent;">⏳ 分析中...</div>'}
+              ${(savedTags && !isLegacyOrErrorTag(savedTags)) ? renderTags(savedTags) : '<div class="tag" style="color:var(--secondary); border: 1px solid var(--secondary); background: transparent;">⏳ 分析中...</div>'}
             </div>
           </div>
         `;
@@ -2101,9 +2119,10 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
 
         const lastTextKey = `last-text-${type}-${qKey}`;
         const savedTagsKey = `tags-${type}-${qKey}`;
+        const savedTags = userProgressData[savedTagsKey];
         const changed = text.trim() !== (userProgressData[lastTextKey] || '').trim();
 
-        if (changed || !userProgressData[savedTagsKey] || isErrorTag(userProgressData[savedTagsKey])) {
+        if (changed || !savedTags || isLegacyOrErrorTag(savedTags)) {
           if (text !== '無輸入內容') {
             analyzeByCloud(text).then(tags => {
               userProgressData[savedTagsKey] = tags;
