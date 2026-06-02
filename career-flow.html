@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>初路 - 職涯探索之路</title>
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
+
+    :root {
+      --primary: #81B29A;
+      --secondary: #E07A5F;
+      --dark-navy: #3D405B;
+      --paper: #F4F1DE;
+    }
+
+    @font-face {
+      font-family: 'Iansui';
+      src: url('assets/Iansui-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--paper) url('assets/banner.png') center/cover no-repeat fixed;
+      font-family: 'Iansui', 'Noto Serif TC', serif;
+      color: var(--dark-navy);
+      overflow-x: hidden;
+    }
+
+    /* 左上角 Icon */
+    .site-icon {
+      position: absolute;
+      top: 20px;
+      left: 40px;
+      width: 80px;
+      height: auto;
+      z-index: 60;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .site-icon:hover {
+      transform: scale(1.05);
+    }
+
+    /* 頁面容器 */
+    .page-container {
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .page-container.active {
+      display: flex;
+    }
+
+    /* --- 進場與退場動畫 --- */
+    @keyframes gentleFadeIn {
+      from {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes gentleFadeOut {
+      from {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(-20px);
+      }
+    }
+
+    .page-container.active .page-title,
+    .page-container.active .sub-title,
+    .page-container.active .form-group,
+    .page-container.active .about-grid,
+    .page-container.active .tags-container,
+    .page-container.active .grid-options,
+    .page-container.active .semantic-anim-item,
+    .page-container.active .scale-container,
+    .page-container.active .action-buttons,
+    .page-container.active .transition-card,
+    .page-container.active h2,
+    .page-container.active .balance-cards,
+    .page-container.active .btn-balance-back,
+    .page-container.active .history-action-container,
+    .page-container.active .sketch-paper-card,
+    .page-container.active p {
+      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    .page-container.exit-animation {
+      animation: gentleFadeOut 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      pointer-events: none;
+    }
+
+    /* 延遲動畫，創造層次感 */
+    .page-container.active .semantic-anim-item:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .page-container.active .semantic-anim-item:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .page-container.active .semantic-anim-item:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .page-container.active .scale-container:nth-of-type(1) {
+      animation-delay: 0.1s;
+    }
+
+    .page-container.active .scale-container:nth-of-type(2) {
+      animation-delay: 0.2s;
+    }
+
+    .page-container.active .scale-container:nth-of-type(3) {
+      animation-delay: 0.3s;
+    }
+
+    .page-container.active .scale-container:nth-of-type(4) {
+      animation-delay: 0.4s;
+    }
+
+    .page-container.active .action-buttons .action-btn {
+      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    .page-container.active .action-buttons .action-btn:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .page-container.active .action-buttons .action-btn:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .page-container.active .balance-cards {
+      animation-delay: 0.15s;
+    }
+
+    .page-container.active .btn-balance-back {
+      animation-delay: 0.3s;
+    }
+
+    .page-container.active .history-action-container {
+      animation-delay: 0.3s;
+    }
+
+    /* 樣式規格 */
+    h2.page-title {
+      font-size: 3.2rem;
+      font-weight: 600;
+      margin-bottom: 25px;
+      letter-spacing: 12px;
+      margin-right: -12px;
+      text-align: center;
+      text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);
+    }
+
+    .sub-title {
+      font-size: 1.3rem;
+      margin-bottom: 25px;
+      color: var(--secondary);
+      font-weight: 600;
+      text-align: center;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 2px 4px rgba(255, 255, 255, 0.8);
+      max-width: 700px;
+      line-height: 1.6;
+    }
+
+    /* 8個空格網格佈局 */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 1000px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      margin-bottom: 25px;
+    }
+
+    .about-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .about-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      max-width: 1000px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .about-header-title {
+      font-size: 2.8rem;
+      font-family: 'Noto Serif TC', serif;
+      font-weight: 600;
+      color: var(--dark-navy);
+      letter-spacing: 2px;
+      margin: 0;
+      text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);
+      flex: 1;
+      min-width: 300px;
+      line-height: 1.2;
+    }
+
+    .about-header-tip {
+      font-size: 1.05rem;
+      color: var(--secondary);
+      font-weight: 600;
+      max-width: 420px;
+      line-height: 1.6;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+      margin: 0;
+      text-align: right;
+    }
+
+    @media (max-width: 768px) {
+      .about-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .about-header-tip {
+        text-align: center;
+      }
+    }
+
+    .label-tip {
+      font-size: 0.85rem;
+      color: var(--secondary);
+      font-weight: normal;
+      margin-left: 8px;
+      opacity: 0.85;
+      display: inline-block;
+    }
+
+    .arrow-down-indicator {
+      text-align: center;
+      font-size: 1.25rem;
+      color: var(--secondary);
+      width: 100%;
+      margin-top: -10px;
+      margin-bottom: 2px;
+      font-weight: bold;
+    }
+
+    /* 手繪風格按鈕微調 (加強視覺顯眼度：一律實心陶土紅底白字) */
+    .btn-return-sketch {
+      background: var(--secondary) !important;
+      color: #FFFFFF !important;
+      border: 2px solid var(--secondary) !important;
+      font-weight: 800 !important;
+      box-shadow: 0 4px 12px rgba(224, 122, 95, 0.25) !important;
+      transition: all 0.25s ease !important;
+    }
+
+    .btn-return-sketch:hover {
+      background: #D16B50 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 6px 16px rgba(224, 122, 95, 0.35) !important;
+      transform: translateY(-2px);
+    }
+
+    .btn-return-sketch:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(224, 122, 95, 0.2) !important;
+    }
+
+    .btn-primary-sketch {
+      background: var(--primary) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 4px 12px rgba(129, 178, 154, 0.3) !important;
+    }
+
+    .btn-primary-sketch:hover {
+      background: #6fa088 !important;
+      box-shadow: 0 6px 16px rgba(129, 178, 154, 0.4) !important;
+    }
+
+    @media (max-width: 768px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 按鈕 */
+    .action-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin-top: 25px;
+    }
+
+    .action-btn {
+      padding: 14px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      font-family: 'Iansui', serif;
+      background: var(--secondary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(224, 122, 95, 0.2);
+    }
+
+    .action-btn:hover {
+      background: #D16B50;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(224, 122, 95, 0.3);
+    }
+
+    .action-btn:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 4px rgba(224, 122, 95, 0.2);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+      background: #E0DDD6;
+      color: #8D99AE;
+    }
+
+    /* 表單與輸入區塊 (參考 flow-pages.html 排版設計，去除包裹卡片) */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 800px;
+      box-sizing: border-box;
+    }
+
+    .form-group label {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--dark-navy);
+    }
+
+    .text-input,
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 1rem;
+      font-family: 'Iansui', serif;
+      border: 2px solid #E0DDD6;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--dark-navy);
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .text-input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 8px rgba(129, 178, 154, 0.25);
+    }
+
+    /* 過渡卡片 (沉浸式卡片) */
+    .transition-card {
+      background: rgba(255, 255, 255, 0.45);
+      padding: 50px 40px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 45px rgba(0, 0, 0, 0.04);
+      text-align: center;
+      max-width: 750px;
+      line-height: 1.7;
+      box-sizing: border-box;
+      margin: 0 20px;
+    }
+
+    /* 手繪暖白紙張卡片 (無毛玻璃) */
+    .sketch-paper-card {
+      background: #FFFFFF;
+      border: 2px solid var(--dark-navy);
+      border-radius: 12px;
+      box-shadow: 6px 6px 0px rgba(61, 64, 91, 0.15);
+      padding: 50px 40px;
+      width: 100%;
+      max-width: 800px;
+      box-sizing: border-box;
+      position: relative;
+      background-image: radial-gradient(rgba(61, 64, 91, 0.1) 1px, transparent 0);
+      background-size: 24px 24px;
+      text-align: center;
+      margin: 0 20px;
+    }
+
+    .transition-text {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: var(--dark-navy);
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      font-family: 'Noto Serif TC', serif;
+    }
+
+    .transition-subtext {
+      font-size: 1.2rem;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    /* 語意緩衝頁等待動畫 */
+    @keyframes bufferBounce {
+
+      0%,
+      80%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.3;
+      }
+
+      40% {
+        transform: translateY(-18px);
+        opacity: 1;
+      }
+    }
+
+    .buffer-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-top: 48px;
+    }
+
+    .buffer-loader span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--dark-navy);
+      opacity: 0.3;
+      animation: bufferBounce 1.4s ease-in-out infinite both;
+    }
+
+    .buffer-loader span:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .buffer-loader span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .buffer-loader span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    /* 歷史檔案檢視頁專用樣式 */
+    .history-card {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .history-block {
+      background: rgba(255, 255, 255, 0.65);
+      padding: 20px 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    .history-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 12px;
+      border-left: 4px solid var(--secondary);
+      padding-left: 10px;
+    }
+
+    .history-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      background: var(--primary);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 12px rgba(129, 178, 154, 0.25);
+      font-weight: 500;
+    }
+
+    /* Sliders 樣式 */
+    .scale-container {
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 35px;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .scale-header {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 35px;
+      color: var(--dark-navy);
+      text-align: center;
+    }
+
+    .scale-track-container {
+      position: relative;
+      height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .scale-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: #E0DDD6;
+      border-radius: 3px;
+      z-index: 1;
+    }
+
+    .scale-nodes {
+      position: absolute;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    .scale-node-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      width: 60px;
+    }
+
+    .scale-node {
+      width: 14px;
+      height: 14px;
+      background: #FFFFFF;
+      border: 3px solid #E0DDD6;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .scale-node-wrapper.active .scale-node {
+      background: var(--primary);
+      border-color: var(--primary);
+      transform: scale(1.3);
+      box-shadow: 0 0 10px rgba(129, 178, 154, 0.5);
+    }
+
+    .scale-label {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #8D99AE;
+      white-space: pre-line;
+      text-align: center;
+      width: 120px;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .scale-node-wrapper.active .scale-label {
+      color: var(--primary);
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    .scale-range-overlay {
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      z-index: 3;
+      cursor: pointer;
+    }
+
+    /* 卡片選項 */
+    .grid-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 1000px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .balance-cards {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .balance-card {
+      background: rgba(225, 238, 245, 0.7);
+      /* 淡水藍色半透明背景，貼合手繪圖 */
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+      width: 380px;
+      box-sizing: border-box;
+    }
+
+    .balance-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 35px rgba(129, 178, 154, 0.2);
+      background: rgba(225, 238, 245, 0.95);
+      border-color: var(--primary);
+    }
+
+    .balance-card:active {
+      transform: translateY(-2px);
+    }
+
+    .balance-card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--dark-navy);
+      margin-bottom: 12px;
+    }
+
+    .balance-card-sub {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: #6C757D;
+      margin-bottom: 18px;
+    }
+
+    .balance-card-action {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--secondary);
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 2px;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .balance-card:hover .balance-card-action {
+      color: #D16B50;
+      border-color: #D16B50;
+    }
+
+    .balance-card.disabled {
+      opacity: 0.55;
+      cursor: not-allowed !important;
+      position: relative;
+    }
+    .balance-card.disabled:hover {
+      transform: none !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02) !important;
+      background: rgba(225, 238, 245, 0.7) !important;
+      border-color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .balance-card.disabled .balance-card-action {
+      color: #8D99AE !important;
+      border-color: #8D99AE !important;
+    }
+    .balance-card.disabled::after {
+      content: "🔒 須先抵達能力分析頁面";
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      color: var(--secondary);
+      font-weight: 600;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 4px 12px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      border: 1px solid rgba(224, 122, 95, 0.2);
+    }
+
+    .btn-balance-back {
+      position: absolute;
+      bottom: 40px;
+      right: 60px;
+      z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      .btn-balance-back {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        margin-top: 20px;
+        align-self: center;
+      }
+    }
+
+    .sketch-highlight-yellow {
+      display: inline-block;
+      background: linear-gradient(180deg, transparent 55%, rgba(242, 204, 143, 0.7) 55%);
+      padding: 0 4px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .history-action-container {
+      position: absolute;
+      bottom: 40px;
+      right: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: flex-end;
+      z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      .history-action-container {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        margin-top: 30px;
+        align-self: center;
+        align-items: center;
+        width: 100%;
+      }
+    }
+
+    .grid-card {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .grid-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(129, 178, 154, 0.15);
+      border-color: var(--primary);
+    }
+
+    .grid-letter {
+      font-size: 3rem;
+      font-family: 'Noto Serif TC', serif;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    .grid-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--dark-navy);
+    }
+
+    .grid-desc {
+      font-size: 1rem;
+      color: #6C757D;
+      line-height: 1.5;
+    }
+
+    /* 塵埃粒子 */
+    .dust-motes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .mote {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.45);
+      border-radius: 50%;
+      animation: floatMote linear infinite;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+    }
+
+    @keyframes floatMote {
+      0% {
+        transform: translateY(100vh) scale(0.8);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-10vh) scale(1.2);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 塵埃粒子背景 -->
+  <div class="dust-motes" id="dust-motes"></div>
+
+  <!-- 左上角 Icon -->
+  <img src="assets/icon.png" class="site-icon" alt="Career Match Icon" onclick="window.location.href='index.html'">
+
+  <!-- ==================== 第一次進入：基本背景問卷 (Things you want us to know about You) ==================== -->
+  <div id="page-about-you" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 60px 20px 100px; box-sizing: border-box;">
+
+    <!-- 頂部標題與 Tip 分區 -->
+    <div class="about-header">
+      <h2 class="about-header-title">Things you want us to know about You</h2>
+      <p class="about-header-tip">Tip: 選擇你覺得重要的選項即可。<br>但當然完整性也會影響成果 (這是你需要知道的)</p>
+    </div>
+
+    <div class="about-grid">
+      <!-- 左欄 -->
+      <div class="about-col">
+        <div class="form-group">
+          <input type="text" id="about-major" class="text-input" placeholder="專業背景領域（大方向） eg:科系 or 職業進修">
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="about-course-status" class="text-input" placeholder="長期投入的領域 eg:不一定專業，但長期關注 or 親身投入">
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="about-turning-point" class="text-input" placeholder="想嘗試但不一定有資源投入的領域">
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="about-economic-buffer" class="text-input" placeholder="你有的資本：緩衝時間、人脈、工具、經濟緩衝">
+        </div>
+      </div>
+
+      <!-- 右欄 -->
+      <div class="about-col">
+        <div class="form-group">
+          <input type="text" id="about-duration" class="text-input" placeholder="匯入半年內的測驗結果 (測驗時間)">
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="about-credential" class="text-input" placeholder="當下從事的學業 / 事業領域">
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="about-personal-state" class="text-input" placeholder="一句話描述在這個領域的自己是什麼狀態">
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="about-notes" class="text-input" placeholder="我想找到 / 達成的目標">
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons" style="margin-top: 30px;">
+      <button class="action-btn btn-return-sketch" onclick="window.location.href='index.html?from=flow'">返回 ➔</button>
+      <button class="action-btn btn-primary-sketch" onclick="saveAboutYouAndProceed()">開始描述新事件</button>
+    </div>
+  </div>
+
+  <div id="page-balance" class="page-container"
+    style="justify-content: flex-start; align-items: center; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box; position: relative;">
+    <div style="width: 100%; max-width: 1000px; display: flex; flex-direction: column; align-items: flex-start;">
+      <!-- 靠左大標題，移除玻璃底板，字體大小一致 -->
+      <h2
+        style="font-size: 2.5rem; font-weight: 600; line-height: 1.5; color: var(--dark-navy); margin: 0 0 35px 0; font-family: 'Noto Serif TC', serif; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); text-align: left; letter-spacing: 2px;">
+        買東西總是被叮嚀：<br>
+        “要平衡好想要和需要”<br>
+        但我們可愛的小腦袋一次處理一件事就夠了
+      </h2>
+
+      <!-- 左右分流大卡片 -->
+      <div class="balance-cards" style="align-self: center;">
+        <!-- 左卡片：現實 -->
+        <div class="balance-card" onclick="chooseReality()">
+          <div class="balance-card-title">是現實，是現況，肚子要吃飽</div>
+          <div class="balance-card-sub">It's all about what you have</div>
+          <div class="balance-card-action">開始描述新事件</div>
+        </div>
+
+        <!-- 右卡片：美夢 -->
+        <div class="balance-card" onclick="chooseDream()">
+          <div class="balance-card-title">不用醒來的美夢</div>
+          <div class="balance-card-sub">It's all about what you want</div>
+          <div class="balance-card-action">開始描述新事件</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右下角返回按鈕 -->
+    <button class="action-btn btn-return-sketch btn-balance-back" onclick="goTo('page-about-you')">返回 ➔</button>
+  </div>
+
+  <!-- ==================== Welcome Back 頁 (page-welcome-back) ==================== -->
+  <div id="page-welcome-back" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2
+      style="font-size: 3.5rem; font-weight: 600; color: var(--dark-navy); margin: 0 0 15px 0; font-family: 'Noto Serif TC', serif; letter-spacing: 4px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);">
+      Welcome Back!
+    </h2>
+    <p
+      style="font-size: 1.5rem; font-style: italic; color: var(--secondary); margin: 0; font-weight: 600; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);">
+      glad to see you again ♡
+    </p>
+  </div>
+
+  <!-- ==================== 期待聽到更多故事頁 (page-expectation) ==================== -->
+  <div id="page-expectation" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2
+      style="font-size: 3.2rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.45;">
+      期待<br>聽到更多關於你的故事
+    </h2>
+  </div>
+
+  <!-- ==================== 第二次進入：Wants 歷史回顧頁 ==================== -->
+  <div id="page-known-want" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+
+    <h2 class="page-title"
+      style="font-size: 2rem; margin-bottom: 40px; font-style: italic; font-family: 'Noto Serif TC', serif;">
+      What we had known about you — Want
+    </h2>
+
+    <div id="review-content-want"
+      style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons" style="margin-top: 40px;">
+      <button class="action-btn btn-return-sketch" onclick="goTo('page-balance')">返回 ➔</button>
+      <button class="action-btn btn-primary-sketch" onclick="goTo('page-dreams-intro')">開始描述新事件</button>
+    </div>
+  </div>
+
+  <!-- ==================== Wants 故事探索前導頁 (那些夢，我們沒有忘記) ==================== -->
+  <div id="page-dreams-intro" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2 class="page-title">那些夢，我們沒有忘記</h2>
+
+    <p
+      style="font-size: 1.4rem; line-height: 2.0; color: var(--dark-navy); text-align: center; margin-bottom: 45px; font-weight: 500; font-family: 'Iansui', serif;">
+      首先，我們想邀請你一起，<br>
+      純粹地為自己考量，<br>
+      那些有點不切實際但真實的想法是什麼
+    </p>
+
+    <div class="action-buttons">
+      <button class="action-btn btn-primary-sketch" onclick="goTo('page-questions')">跨出勇敢第一步</button>
+    </div>
+  </div>
+
+  <!-- ==================== Wants 故事探索問答 (說說你的故事吧) ==================== -->
+  <div id="page-questions" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+
+    <h2 class="page-title">說說你的故事吧</h2>
+    <div class="sub-title">請盡可能描述完整喔~</div>
+
+    <div class="form-group">
+      <label>Q1. 有沒有哪件事，是請你重新體驗「完全一模一樣」的歷程，你「仍然願意」再次投入的？</label>
+      <textarea id="input-q1" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"
+        placeholder="即使過程有些辛苦，但看到結果或過程本身，你仍然渴望再次嘗試..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Q2. 說出一件，「不是單純出於善意，但就算沒有任何實質收穫/獎勵，你仍然願意付出努力」的事</label>
+      <textarea id="input-q2" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"
+        placeholder="不需要別人稱讚，也沒有金錢回報，但您依然願意自發去完成的事情..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Q3. 說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷</label>
+      <textarea id="input-q3" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"
+        placeholder="他人的評價正向或反向都不會影響你"></textarea>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="submitWantQuestions()">送出</button>
+    </div>
+  </div>
+
+  <!-- ==================== Wants 語意分析緩衝過渡頁 ==================== -->
+  <div id="page-semantic-buffer-want" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2
+      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+      請記得，這些故事說明了，<br>
+      「為什麼你是你自己」<br>
+      而你是重要的，不論任何解釋意義
+    </h2>
+    <div class="buffer-loader">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Wants 事件簡述 1 -->
+  <div id="page-event-summary-want" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title">稍作整理，感覺還對嗎？</h2>
+    <div class="sub-title" id="display-event-want-1"
+      style="font-style: italic; max-width: 650px; line-height: 1.5; margin-bottom: 30px;"></div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-buffer-want')">符合 / 沒想法</button>
+      <button class="action-btn btn-primary-sketch" onclick="goTo('page-adjust-want')">不太對，調整描述</button>
+    </div>
+  </div>
+
+  <!-- Wants 調整向度 -->
+  <div id="page-adjust-want" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 2.6rem;">魔鬼藏在細節裡，天使也躲在細節</h2>
+    <div class="sub-title">調整內容 eg. 環境、合作對象、個人狀態、資源背景</div>
+
+    <div class="form-group">
+      <label>Q1. 有沒有哪件事，是請你重新體驗「完全一模一樣」的歷程，你「仍然願意」再次投入的？</label>
+      <textarea id="input-adjust-q1" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Q2. 說出一件，「不是單純出於善意，但就算沒有任何實質收穫/獎勵，你仍然願意付出努力」的事</label>
+      <textarea id="input-adjust-q2" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Q3. 說出一件「不論別人如何評價、評價如何，但你對結果很滿意」的經歷</label>
+      <textarea id="input-adjust-q3" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"></textarea>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-buffer-want')">先試試看吧</button>
+    </div>
+  </div>
+
+  <!-- Wants 事件簡述 2 -->
+  <div id="page-event-summary-2-want" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title">事件簡述</h2>
+    <div class="sub-title">這是微調後的故事輪廓</div>
+    <div class="sub-title" id="display-event-want-2"
+      style="font-style: italic; max-width: 650px; line-height: 1.5; margin-bottom: 30px;"></div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-buffer-want')">先試試看吧~</button>
+    </div>
+  </div>
+
+  <!-- ==================== Wants 語意分析二級緩衝過渡頁 ==================== -->
+  <div id="page-semantic-analysis-buffer-want" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2
+      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+      那些 說不出口的，<br>
+      也許 只是 還沒 找到 名字<br>
+      你的故事，值得被好好看見
+    </h2>
+    <div class="buffer-loader" style="margin-top: 48px;">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Wants 語意分析成果 -->
+  <div id="page-semantic-analysis-want" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 2.2rem; margin-bottom: 30px; font-style: italic;">Things from Your Stories
+      — Wants</h2>
+
+    <div id="semantic-content-want"
+      style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-known-want')">返回 ➔</button>
+      <button class="action-btn btn-primary-sketch" onclick="goTo('page-bridge')">前往能力轉換</button>
+    </div>
+  </div>
+
+  <!-- ==================== Bridge 橋樑過渡頁 (page-bridge) ==================== -->
+  <div id="page-bridge" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2
+      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+      有夢最美，也要裝夢踏實<br>
+      小朋友才做選擇<br>
+      理想跟現實我都要
+    </h2>
+    <div class="buffer-loader" style="margin-top: 48px;">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- ==================== 第二次進入：Able 歷史回顧頁 ==================== -->
+  <div id="page-known-able" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+
+    <h2 class="page-title"
+      style="font-size: 2rem; margin-bottom: 40px; font-style: italic; font-family: 'Noto Serif TC', serif;">
+      What we had known about you — Able
+    </h2>
+
+    <div id="review-content-able"
+      style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons" style="margin-top: 40px;">
+      <button class="action-btn btn-return-sketch" onclick="goTo('page-balance')">返回 ➔</button>
+      <button class="action-btn btn-primary-sketch" onclick="goTo('page-can-or-not')">開始描述新事件</button>
+    </div>
+  </div>
+
+  <!-- ==================== Able 能不能 故事探索 (確切現況，才知道自己站在哪裡) ==================== -->
+  <div id="page-can-or-not" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title">確認現況，才知道自己站在哪裡</h2>
+    <div class="sub-title">請仔細回顧，並試著寫下您的能力展現故事</div>
+
+    <div class="form-group">
+      <label>Q1. 在你目前的日常生活或工作中，你花了大量時間或精力在什麼事情？在執行的過程中，你實際需要做哪些事？跟人會有什麼樣的互動？</label>
+      <textarea id="input-can-q1" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"
+        placeholder="例如：花了大量時間整理數據、與跨部門溝通、或者是做大範圍的體力活動..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Q2. 承上，在做這件事的過程中，有沒有遇到任何卡住、或者不如預期的狀況？那時候的你是怎麼想的？又是怎麼處理的？</label>
+      <textarea id="input-can-q2" class="text-input" rows="3" style="min-height: 85px;" maxlength="200"
+        placeholder="遇到瓶頸時，您的應變方法，以及您如何調整自己的資源或狀態..."></textarea>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="submitAbleQuestions()">送出故事</button>
+    </div>
+  </div>
+
+  <!-- ==================== Able 語意分析緩衝過渡頁 ==================== -->
+  <div id="page-semantic-buffer-able" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2
+      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+      請記得，這些故事說明了，<br>
+      「為什麼你是你自己」<br>
+      而你是重要的，不論任何解釋意義
+    </h2>
+    <div class="buffer-loader" style="margin-top: 48px;">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Able 事件簡述 1 -->
+  <div id="page-event-summary" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title">稍作整理，感覺還對嗎？</h2>
+    <div class="sub-title" id="display-event-1"
+      style="font-style: italic; max-width: 650px; line-height: 1.5; margin-bottom: 30px;"></div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-buffer-able')">符合 / 沒想法</button>
+      <button class="action-btn btn-primary-sketch" onclick="goTo('page-adjust')">不太對，調整描述</button>
+    </div>
+  </div>
+
+  <!-- Able 調整向度 -->
+  <div id="page-adjust" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 2.6rem;">魔鬼藏在細節裡，天使也躲在細節</h2>
+    <div class="sub-title">調整內容 eg. 環境、合作對象、個人狀態、資源背景</div>
+
+    <div class="form-group">
+      <label>Q1. 在你目前的日常生活或工作中，你花了大量時間或精力在什麼事情？在執行的過程中，你實際需要做哪些事？跟人會有什麼樣的互動？</label>
+      <textarea id="input-adjust-can-q1" class="text-input" rows="3" style="min-height: 85px;"
+        maxlength="200"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Q2. 承上，在做這件事的過程中，有沒有遇到任何卡住、或者不如預期的狀況？那時候的你是怎麼想的？又是怎麼處理的？</label>
+      <textarea id="input-adjust-can-q2" class="text-input" rows="3" style="min-height: 85px;"
+        maxlength="200"></textarea>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-buffer-able')">先試試看吧</button>
+    </div>
+  </div>
+
+  <!-- Able 事件簡述 2 -->
+  <div id="page-event-summary-2" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title">事件簡述</h2>
+    <div class="sub-title">這是微調後的故事輪廓</div>
+    <div class="sub-title" id="display-event-2"
+      style="font-style: italic; max-width: 650px; line-height: 1.5; margin-bottom: 30px;"></div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-semantic-analysis-buffer-able')">先試試看吧~</button>
+    </div>
+  </div>
+
+  <!-- ==================== Able 語意分析二級緩衝過渡頁 ==================== -->
+  <div id="page-semantic-analysis-buffer-able" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2
+      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+      那些 說不出口的，<br>
+      也許 只是 還沒 找到 名字<br>
+      你的故事，值得被好好看見
+    </h2>
+    <div class="buffer-loader" style="margin-top: 48px;">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Able 語意分析成果 -->
+  <div id="page-semantic-analysis-able" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title" style="font-size: 2.2rem; margin-bottom: 30px; font-style: italic;">Things from Your Stories
+      — Able</h2>
+
+    <div id="semantic-content-able"
+      style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 24px;">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="goTo('page-known-able')">返回 ➔</button>
+      <button class="action-btn btn-primary-sketch" onclick="goTo('page-reality-check-buffer')">前往現實篩選</button>
+    </div>
+  </div>
+
+  <!-- ==================== Reality Check 隨機二擇一過渡緩衝頁 ==================== -->
+  <div id="page-reality-check-buffer" class="page-container"
+    style="justify-content: center; align-items: center; text-align: center;">
+    <h2 id="reality-check-buffer-text"
+      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6; max-width: 800px;">
+      <!-- 動態寫入隨機文字 -->
+    </h2>
+    <div class="buffer-loader" style="margin-top: 48px;">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- ==================== 要不要：現實篩選 ==================== -->
+  <div id="page-reality-check" class="page-container"
+    style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
+    <h2 class="page-title">這是和自己的約定，他人的期待先放著吧</h2>
+
+    <!-- 收入底線 -->
+    <div class="scale-container">
+      <div class="scale-header">收入底線</div>
+      <div class="scale-track-container">
+        <div class="scale-track"></div>
+        <div class="scale-nodes" id="scale-income">
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'income', 0)">
+            <div class="scale-label">基本時薪</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 1)">
+            <div class="scale-label">業界平均</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 2)">
+            <div class="scale-label">業界主管職</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 3)">
+            <div class="scale-label">業界高階主管</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'income', 4)">
+            <div class="scale-label">業界頂尖</div>
+            <div class="scale-node"></div>
+          </div>
+        </div>
+        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'income')">
+      </div>
+    </div>
+
+    <!-- 時間結構 -->
+    <div class="scale-container">
+      <div class="scale-header">時間結構</div>
+      <div class="scale-track-container">
+        <div class="scale-track"></div>
+        <div class="scale-nodes" id="scale-time">
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'time', 0)">
+            <div class="scale-label">固定班表</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 1)">
+            <div class="scale-label">每周排班</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 2)">
+            <div class="scale-label">每月排班</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 3)">
+            <div class="scale-label">彈性工時</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'time', 4)">
+            <div class="scale-label">自由接案</div>
+            <div class="scale-node"></div>
+          </div>
+        </div>
+        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'time')">
+      </div>
+    </div>
+
+    <!-- 移動彈性 -->
+    <div class="scale-container">
+      <div class="scale-header">移動彈性</div>
+      <div class="scale-track-container">
+        <div class="scale-track"></div>
+        <div class="scale-nodes" id="scale-mobility">
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'mobility', 0)">
+            <div class="scale-label">固定地點</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 1)">
+            <div class="scale-label">固定為主<br>偶爾外出</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 2)">
+            <div class="scale-label">半外勤</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 3)">
+            <div class="scale-label">常態外勤</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'mobility', 4)">
+            <div class="scale-label">全外勤<br>（無固定地點）</div>
+            <div class="scale-node"></div>
+          </div>
+        </div>
+        <input type="range" class="scale-range-overlay" min="0" max="4" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'mobility')">
+      </div>
+    </div>
+
+    <!-- 反饋週期 -->
+    <div class="scale-container">
+      <div class="scale-header">反饋週期</div>
+      <div class="scale-track-container">
+        <div class="scale-track"></div>
+        <div class="scale-nodes" id="scale-feedback">
+          <div class="scale-node-wrapper active" onclick="selectScale(this, 'feedback', 0)">
+            <div class="scale-label">數天內</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 1)">
+            <div class="scale-label">一個月內</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 2)">
+            <div class="scale-label">三個月內</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 3)">
+            <div class="scale-label">半年內</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 4)">
+            <div class="scale-label">一年內</div>
+            <div class="scale-node"></div>
+          </div>
+          <div class="scale-node-wrapper" onclick="selectScale(this, 'feedback', 5)">
+            <div class="scale-label">一年以上</div>
+            <div class="scale-node"></div>
+          </div>
+        </div>
+        <input type="range" class="scale-range-overlay" min="0" max="5" step="1" value="0"
+          oninput="syncScaleOverlay(this, 'feedback')">
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="saveRealityCheckAndProceed()">送出現實篩選</button>
+    </div>
+  </div>
+
+  <!-- ==================== 職業選擇/推薦 ==================== -->
+  <div id="page-professions" class="page-container">
+    <h2 class="page-title">職涯推薦</h2>
+    <div class="sub-title">基於您的 Wants、Able 與現實考量，為您媒合以下方向</div>
+
+    <div class="history-block" style="width: 100%; max-width: 600px; text-align: center; margin-bottom: 30px;">
+      <div class="history-section-title" style="border:none; padding:0; margin-bottom: 20px;">您的媒合結果</div>
+      <p style="font-size: 1.15rem; line-height: 1.6; font-weight: 500; color:var(--dark-navy);">
+        系統已為您建立個人職涯地圖，您可以點擊下方按鈕，分別前往查看符合您的職業路徑，或者直接進入整體的「方向選擇」卡片。
+      </p>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn" onclick="window.location.href='subpages.html'"
+        style="background:var(--primary); box-shadow: 0 4px 12px rgba(129, 178, 154, 0.2);">檢視精選職業</button>
+      <button class="action-btn" onclick="goTo('page-menu')">前往方向選擇</button>
+    </div>
+  </div>
+
+  <!-- ==================== 方向選擇 (page-menu) ==================== -->
+  <div id="page-menu" class="page-container">
+    <h2 class="page-title">方向選擇</h2>
+    <div class="sub-title">點擊您有興趣的方向，展開深入分析</div>
+
+    <div class="grid-options">
+      <div class="grid-card" onclick="window.location.href='subpages.html?type=A'">
+        <div class="grid-letter">A</div>
+        <div class="grid-title">挑吃 / 微型任務</div>
+        <div class="grid-desc">熱門微型職業群，彈性且自主的短期職務推薦。</div>
+      </div>
+      <div class="grid-card" onclick="window.location.href='subpages.html?type=B'">
+        <div class="grid-letter">B</div>
+        <div class="grid-title">特製</div>
+        <div class="grid-desc">客製化設計、高度配合個人特質發展之職務。</div>
+      </div>
+      <div class="grid-card" onclick="window.location.href='subpages.html?type=C'">
+        <div class="grid-letter">C</div>
+        <div class="grid-title">私廚</div>
+        <div class="grid-desc">以高度專業技能為核心之利基型獨立工作路徑。</div>
+      </div>
+      <div class="grid-card" onclick="window.location.href='subpages.html?type=D'">
+        <div class="grid-letter">D</div>
+        <div class="grid-title">無菜單</div>
+        <div class="grid-desc">突破傳統框架之綜合跨界、高自由度開拓型職能。</div>
+      </div>
+    </div>
+
+    <div class="action-buttons" style="margin-top: 30px;">
+      <button class="action-btn" onclick="window.location.href='index.html?from=flow'"
+        style="background:#8D99AE; box-shadow:none;">返回首頁</button>
+    </div>
+  </div>
+
+
+  <!-- ==================== JAVASCRIPT 邏輯 ==================== -->
+  <script>
+    let userProgressData = {};
+
+    // 定時器參考變數，方便切換頁面時清理，避免發生非預期跳轉
+    let transitionTimer = null;
+
+    // 清理所有過渡跳轉計時器
+    function clearTransitionTimers() {
+      if (transitionTimer) {
+        clearTimeout(transitionTimer);
+        transitionTimer = null;
+      }
+    }
+
+    // 建立塵埃粒子
+    function createDustMotes() {
+      const container = document.getElementById('dust-motes');
+      if (!container) return;
+      const moteCount = 15;
+      for (let i = 0; i < moteCount; i++) {
+        const mote = document.createElement('div');
+        mote.classList.add('mote');
+
+        const size = Math.random() * 4 + 2;
+        const left = Math.random() * 100;
+        const duration = Math.random() * 15 + 10;
+        const delay = Math.random() * -20;
+
+        mote.style.width = `${size}px`;
+        mote.style.height = `${size}px`;
+        mote.style.left = `${left}vw`;
+        mote.style.animationDuration = `${duration}s`;
+        mote.style.animationDelay = `${delay}s`;
+
+        container.appendChild(mote);
+      }
+    }
+
+    // 驗證輸入框以自動啟用/停用送出按鈕
+    function setupValidation() {
+      document.querySelectorAll('.page-container').forEach(page => {
+        const textInputs = page.querySelectorAll('textarea.text-input, input.text-input');
+        const actionBtns = page.querySelectorAll('.action-buttons .action-btn');
+
+        if (textInputs.length > 0 && actionBtns.length > 0) {
+          // 初始化時禁用提交按鈕 (排除不需要驗證的按鈕，例如返回/調整)
+          actionBtns.forEach(btn => {
+            if (btn.innerText.includes('送出') || btn.innerText.includes('故事') || btn.innerText.includes('重新') || btn.innerText.includes('描述新事件') || btn.innerText.includes('第一步')) {
+              btn.disabled = true;
+            }
+          });
+
+          const checkInputs = () => {
+            let allValid = true;
+            if (page.id === 'page-about-you') {
+              // 背景建構頁面：格子皆為選填，不強求全部填滿
+              allValid = true;
+            } else {
+              textInputs.forEach(input => {
+                // 排除非必填項目（備註欄 notes 可以不填）
+                if (input.id !== 'about-notes' && input.value.trim().length < 2) {
+                  allValid = false;
+                }
+              });
+            }
+            actionBtns.forEach(btn => {
+              if (btn.innerText.includes('送出') || btn.innerText.includes('故事') || btn.innerText.includes('重新') || btn.innerText.includes('描述新事件') || btn.innerText.includes('第一步')) {
+                btn.disabled = !allValid;
+              }
+            });
+          };
+
+          textInputs.forEach(input => {
+            input.addEventListener('input', checkInputs);
+          });
+          // 初始檢查一遍
+          checkInputs();
+        }
+      });
+    }
+
+    // 儲存 8 個空格基本資料並前往 balance 分流
+    function saveAboutYouAndProceed() {
+      userProgressData['about-duration'] = document.getElementById('about-duration').value;
+      userProgressData['about-major'] = document.getElementById('about-major').value;
+      userProgressData['about-course-status'] = document.getElementById('about-course-status').value;
+      userProgressData['about-turning-point'] = document.getElementById('about-turning-point').value;
+      userProgressData['about-credential'] = document.getElementById('about-credential').value;
+      userProgressData['about-personal-state'] = document.getElementById('about-personal-state').value;
+      userProgressData['about-economic-buffer'] = document.getElementById('about-economic-buffer').value;
+      userProgressData['about-notes'] = document.getElementById('about-notes').value;
+
+      localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+      goTo('page-balance');
+    }
+
+    let knownAbleBackTarget = 'page-balance';
+
+    // 分流頁點選「是現實，是現況，肚子要吃飽」
+    function chooseReality() {
+      const hasAbleHistory = localStorage.getItem('careerRPG_hasAbleHistory') === 'true';
+      if (!hasAbleHistory) {
+        alert('請先依照流程導引，抵達「Things from your Stories - Able」能力分析頁面後，才能從這裡開始探索新事件喔！');
+        return;
+      }
+
+      knownAbleBackTarget = 'page-balance';
+      goTo('page-welcome-back');
+
+      // 3秒後自動跳轉至 expectation
+      transitionTimer = setTimeout(() => {
+        goTo('page-expectation');
+
+        // 3秒後自動跳轉至 known-able
+        transitionTimer = setTimeout(() => {
+          goTo('page-known-able');
+        }, 3000);
+      }, 3000);
+    }
+
+    // 分流頁點選「不用醒來的美夢」
+    function chooseDream() {
+      const hasWantHistory = localStorage.getItem('careerRPG_hasWantHistory') === 'true';
+      if (hasWantHistory) {
+        goTo('page-known-want');
+      } else {
+        goTo('page-dreams-intro');
+      }
+    }
+
+    // Wants 說說你的故事送出 (自動跳轉至緩衝過渡頁)
+    function submitWantQuestions() {
+      // 確保清除先前的計時器
+      clearTransitionTimers();
+
+      // 跳轉至緩衝過渡頁
+      goTo('page-semantic-buffer-want');
+
+      // 5秒後自動跳轉至事件簡述頁
+      transitionTimer = setTimeout(() => {
+        goTo('page-event-summary-want');
+      }, 5000);
+    }
+
+    // Able 說說你的故事送出 (自動跳轉至緩衝過渡頁)
+    function submitAbleQuestions() {
+      // 確保清除先前的計時器
+      clearTransitionTimers();
+
+      // 跳轉至緩衝過渡頁
+      goTo('page-semantic-buffer-able');
+
+      // 3秒後自動跳轉至事件簡述頁
+      transitionTimer = setTimeout(() => {
+        goTo('page-event-summary');
+      }, 3000);
+    }
+
+    // Wants 結束後前往能力轉換
+    function proceedToBridgeOrAble() {
+      const hasAbleHistory = localStorage.getItem('careerRPG_hasAbleHistory') === 'true';
+      if (hasAbleHistory) {
+        knownAbleBackTarget = 'page-semantic-analysis-want';
+        goTo('page-known-able');
+      } else {
+        // 初次進入 (橘色線)：先前往 Bridge，然後 3 秒自動跳轉至能不能 (page-can-or-not)
+        goTo('page-bridge');
+        transitionTimer = setTimeout(() => {
+          goTo('page-can-or-not');
+        }, 3000);
+      }
+    }
+
+    // 儲存現實篩選並結束探索
+    function saveRealityCheckAndProceed() {
+      localStorage.setItem('careerRPG_hasCompletedFirstRun', 'true');
+      goTo('page-professions');
+    }
+
+    // 呼叫 Qwen 2.5 進行語意分析
+    async function analyzeByCloud(text) {
+      if (!text || text === '無輸入內容') return [];
+
+      const isLocal = window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname === '';
+
+      try {
+        if (isLocal) {
+          // 本地 Ollama 呼叫
+          const response = await fetch('http://localhost:11434/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'career-analyzer',
+              prompt: `你是一個專業的職涯標籤辨識系統。
+你的任務是：根據使用者輸入的經歷描述，從以下【標籤庫】中，選出最符合的 2 至 3 個標籤。
+
+【規則】
+1. 只能從標籤庫中選取，不得自行創建新標籤。
+2. 每個標籤必須有描述中的明確證據支撐，不得推斷未提及內容。
+3. 若描述不足以支撐任何標籤，請回傳空陣列：{"tags": []}。
+4. 輸出格式必須嚴格遵守 JSON 結構，如：{"tags": ["A01: 專業內容的跨背景轉譯", "B03: 高頻目標調整之持續應對需求"]}。
+5. 不要輸出 any 解釋文字，只要回傳 JSON。
+
+【判定校正規則】（強制遵循）
+1. 自學與技術研發排除：禁止將任何「自學技術、自學 Web 框架、寫程式、研發核心架構」等操作判定為 D03: 訪談與提問引導。這些應歸為 D09: 通用數位工具操作。若涉及學習沉沒成本則可判定為 C14: 領域專有技術的高沉沒成本。
+2. 心靈情緒支持排除：禁止將「心靈支持」、「安撫家屬情緒」、「安撫焦慮」等精神消耗判定為 B10: 持續性體能動員的工作型態 或 D12: 大肌肉動作執行。此類精神承接應判為 B01: 高強度情緒勞動涉入，若有口頭安慰則搭配 D01: 口語表達。
+3. 資源與目標協調判定：禁止將「招募志工、分配清潔區域」判定為 B02: 高密度階層對接之認知負荷 或 D03: 訪談與提問引導。此為目標協調，應判為 A10: 多方可接受交集的判斷。
+4. 數據/資訊整理與規律辨識區隔：禁止將單純用 Excel 或工具整理資料的動作判為 A03: 大量資訊中的規律辨識 或 A04: 分析框架的建立與定義。A03 必須有明確「看出底層重複規律或痛點結論」；A04 必須有「建立可重複操作結構」的分析架構。
+5. 客訴環境判定：尖峰時刻客訴不斷、場面吵雜，應判為 B01: 高強度情緒勞動涉入 與 B06: 高密度感官刺激的工作環境，非 B02 或 A10。
+
+【標籤庫】
+A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, A03: 大量資訊中的規律辨識, A04: 分析框架的建立與定義, A05: 概念本質的釐清與定位, A06: 概念到執行方向的結構拆解, A07: 長程目標的規劃與查核設計, A08: 工作流程的診斷與改善判斷, A09: 多方立場與底線的解讀, A10: 多方可接受交集的判斷, A11: 複合變數失控下的應變判斷, A12: 實體空間使用邏輯的規劃判斷, A13: 資源條件與投入時機的判斷, A14: 特定對象行為模式的預測判斷, A15: 規則與情境的適用條件判斷, B01: 高強度情緒勞動涉入, B02: 高密度階層對接之認知負荷, B03: 高頻目標調整之持續應對需求, B04: 高精準度要求與決策責任承擔, B05: 多方利益平衡之持續角色要求, B06: 高密度感官刺激的工作環境, B07: 低外部刺激與高重複性的工作型態, B08: 低外部節律依賴的獨立作業型態, B09: 工作與生活時間的高度交疊性, B10: 持續性體能動員的工作型態, B11: 高強度他人困境的持續涉入, B12: 持續性公眾可見度與表現要求, B13: 多工並行與高資訊密度的工作型態, B14: 低結構化指令與自主定義標準的工作型態, B15: 非常規作息與生理節律的持續調適需求, B16: 特定物理環境條件的持續工作型態, C01: 法定執業資格門檻, C02: 學歷背景的結構性篩選, C03: 強制過渡期的財務壓縮結構, C04: 非公開管道的機會依賴結構, C05: 作品集與可見成果的入場前提, C06: 財務回報的結構性延遲, C07: 收入波動與現金流不確定性, C08: 入行初期的財務資本墊付, C09: 薪資結構的制度性天花板, C10: 非常規排班的強制接受, C11: 高頻率地理移動的工作型態, C12: 執業場域的地理綁定限制, C13: 職涯機會的地理集中性, C14: 領域專有技術的高沉沒成本, C15: 技術迭代造成的持續再投入需求, C16: 職涯出口的結構性窄化, D01: 口語表達, D02: 主動傾聽與語義提取, D03: 訪談與提問引導, D04: 肢體示範與動作引導, D05: 結構化書面輸出, D06: 視覺化資訊呈現, D07: 質性資訊蒐集與整理, D08: 數據讀取與分析操作, D09: 通用數位工具操作, D10: 數位溝通工具操作, D11: 實體空間操作與設備使用, D12: 大肌肉動作執行, D13: 小肌肉精細操作
+
+【訓練範例 (Few-Shot)】
+經歷描述：我負責核心架構開發，在 48 小時內自學了全新的 Web 框架，並成功克服了多端同步的技術瓶頸，獲得導師高度肯定。
+輸出：{"tags": ["B04: 高精準度要求與決策責任承擔", "C14: 領域專有技術的高沉沒成本"]}
+
+經歷描述：在醫院擔任志工時，面對焦慮的家屬，我能冷靜地安撫他們的情緒並提供協助。即便這個過程非常耗費心神，但看到家屬能稍微安心，我願意再次投入這樣高強度的心靈支持工作。
+輸出：{"tags": ["B01: 高強度情緒勞動涉入", "D01: 口語表達"]}
+
+經歷描述：我曾獨立完成一個自動化報表系統，大幅減少了同仁手動輸入的時間。雖然主管當下沒有特別表揚，但我對自己能精簡流程並提升整體工作效率的成果感到非常滿意。
+輸出：{"tags": ["A08: 工作流程的診斷與改善判斷", "D09: 通用數位工具操作"]}
+
+經歷描述：在資源有限的情況下，我利用手邊現有的免代碼工具製作了一個自動化行銷漏斗。即使這不是我的本職工作，也沒有獎金，但看到實際轉換率因此提升，我覺得這種創造價值的過程非常迷人。
+輸出：{"tags": ["D09: 通用數位工具操作", "A13: 資源條件與投入時機的判斷"]}
+
+經歷描述：負責將公司超過十年、極其混亂的零散紙本檔案全部轉化為高效的數位檢索系統。
+輸出：{"tags": ["A08: 工作流程的診斷與改善判斷", "D08: 數據讀取與分析操作"]}
+
+經歷描述：我獨立規劃了資料庫架構與分類邏輯，克服了原始資料格式不一的問題，建立了一套讓團隊成員能在三秒內精準檢索的系統。
+輸出：{"tags": ["A03: 大量資訊中的規律辨識", "D09: 通用數位工具操作"]}
+
+經歷描述：在一次大型戶外活動中，原定的場地突然因為天氣因素無法使用，我迅速聯繫了備案場地並在兩小時內指揮搬運隊完成所有物資轉移。雖然過程混亂，但我對自己能靈活調度資源感到滿意。
+輸出：{"tags": ["A11: 複合變數失控下的應變判斷", "A13: 資源條件與投入時機的判斷"]}
+
+經歷描述：曾擔任繁忙捷運站旁的連鎖餐廳店長，在尖峰時刻面對人手嚴重不足且客訴不斷的壓力測試。
+輸出：{"tags": ["B01: 高強度情緒勞動涉入", "B06: 高密度感官刺激的工作環境"]}
+
+經歷描述：我曾主動發起一個鄰里清潔日活動，負責招募志願者並分配繁雜的清潔區域。看到鄰里環境變好，即便沒有任何物質報酬，我也覺得這種對社區的具體貢獻讓我非常有成就感。
+輸出：{"tags": ["A10: 多方可接受交集的判斷", "D11: 實體空間操作與設備使用"]}
+
+經歷描述：在上次駭客松比賽中，需要在極短時間內交付一個具備雲端同步功能的產品原型。
+輸出：{"tags": ["A02: 模糊情境下的問題核心辨識", "D09: 通用數位工具操作"]}
+
+經歷描述：${text}
+輸出：`,
+              stream: false,
+              format: 'json'
+            })
+          });
+          const data = await response.json();
+          let rawText = data.response || '';
+          rawText = rawText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+          const result = JSON.parse(rawText);
+          return result.tags || [];
+        } else {
+          // 雲端 Pages Functions 呼叫
+          const response = await fetch('/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text })
+          });
+          const data = await response.json();
+          if (!response.ok) return [data.error || '連線失敗'];
+          return data.tags || [];
+        }
+      } catch (e) {
+        console.error("分析失敗:", e);
+        let errorMsg = '無法解析: ' + e.message;
+        if (isLocal && e.message.includes('fetch')) {
+          errorMsg = '無法解析: 請確保 Ollama 已啟動，並已執行「launchctl setenv OLLAMA_ORIGINS "*"」後重啟 Ollama';
+        }
+        return [errorMsg];
+      }
+    }
+
+    // 頁面路由與狀態同步跳轉
+    function goTo(pageId, immediate = false) {
+      if (pageId === 'page-known-want') {
+        const hasWantHistory = localStorage.getItem('careerRPG_hasWantHistory') === 'true';
+        if (!hasWantHistory) {
+          pageId = 'page-dreams-intro';
+        }
+      }
+
+      clearTransitionTimers(); // 每次進行 any 切換，主動清除潛在計時器
+
+      const currentPage = document.querySelector('.page-container.active');
+      const doSwitch = () => {
+        // 從目前的頁面讀取輸入框數值並儲存
+        const inputs = currentPage ? currentPage.querySelectorAll('.text-input, textarea.text-input') : [];
+        if (inputs.length > 0) {
+          inputs.forEach(input => {
+            if (input.id) {
+              userProgressData[input.id] = input.value;
+              // 雙向同步
+              if (input.id === 'input-can-q1') {
+                userProgressData['input-adjust-can-q1'] = input.value;
+                const adj = document.getElementById('input-adjust-can-q1');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-can-q1') {
+                userProgressData['input-can-q1'] = input.value;
+                const orig = document.getElementById('input-can-q1');
+                if (orig) orig.value = input.value;
+              }
+              if (input.id === 'input-can-q2') {
+                userProgressData['input-adjust-can-q2'] = input.value;
+                const adj = document.getElementById('input-adjust-can-q2');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-can-q2') {
+                userProgressData['input-can-q2'] = input.value;
+                const orig = document.getElementById('input-can-q2');
+                if (orig) orig.value = input.value;
+              }
+              if (input.id === 'input-q1') {
+                userProgressData['input-adjust-q1'] = input.value;
+                const adj = document.getElementById('input-adjust-q1');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-q1') {
+                userProgressData['input-q1'] = input.value;
+                const orig = document.getElementById('input-q1');
+                if (orig) orig.value = input.value;
+              }
+              if (input.id === 'input-q2') {
+                userProgressData['input-adjust-q2'] = input.value;
+                const adj = document.getElementById('input-adjust-q2');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-q2') {
+                userProgressData['input-q2'] = input.value;
+                const orig = document.getElementById('input-q2');
+                if (orig) orig.value = input.value;
+              }
+              if (input.id === 'input-q3') {
+                userProgressData['input-adjust-q3'] = input.value;
+                const adj = document.getElementById('input-adjust-q3');
+                if (adj) adj.value = input.value;
+              } else if (input.id === 'input-adjust-q3') {
+                userProgressData['input-q3'] = input.value;
+                const orig = document.getElementById('input-q3');
+                if (orig) orig.value = input.value;
+              }
+            }
+          });
+          localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+        }
+
+        // 切換 Active Class
+        document.querySelectorAll('.page-container').forEach(page => {
+          page.classList.remove('active', 'exit-animation');
+        });
+
+        const target = document.getElementById(pageId);
+        if (target) {
+          // 同步記憶體資料回目標頁面的輸入框，防止舊 DOM 資料覆寫 state
+          const targetInputs = target.querySelectorAll('.text-input, textarea.text-input');
+          targetInputs.forEach(input => {
+            if (input.id && userProgressData[input.id] !== undefined) {
+              input.value = userProgressData[input.id];
+            }
+          });
+
+          // ==================== 頁面特定渲染與分析觸發 ====================
+
+          // 渲染 Wants 事件簡述 1
+          if (pageId === 'page-event-summary-want') {
+            const display = document.getElementById('display-event-want-1');
+            renderSummaryBlock(display, 'input-q1', 'input-q2', 'input-q3');
+          }
+          // 渲染 Wants 事件簡述 2
+          if (pageId === 'page-event-summary-2-want') {
+            const display = document.getElementById('display-event-want-2');
+            renderSummaryBlock(display, 'input-adjust-q1', 'input-adjust-q2', 'input-adjust-q3');
+          }
+          // 渲染 Able 事件簡述 1
+          if (pageId === 'page-event-summary') {
+            const display = document.getElementById('display-event-1');
+            renderSummaryBlock(display, 'input-can-q1', 'input-can-q2');
+          }
+          // 渲染 Able 事件簡述 2
+          if (pageId === 'page-event-summary-2') {
+            const display = document.getElementById('display-event-2');
+            renderSummaryBlock(display, 'input-adjust-can-q1', 'input-adjust-can-q2');
+          }
+
+          // Wants 語意分析成果
+          if (pageId === 'page-semantic-analysis-want') {
+            localStorage.setItem('careerRPG_hasWantHistory', 'true');
+            triggerSemanticAnalysis('want', 3);
+          }
+
+          // Able 語意分析成果
+          if (pageId === 'page-semantic-analysis-able') {
+            localStorage.setItem('careerRPG_hasAbleHistory', 'true');
+            triggerSemanticAnalysis('able', 2);
+          }
+
+          // Wants 歷史回顧頁渲染
+          if (pageId === 'page-known-want') {
+            renderHistoryView('want', 3);
+          }
+
+          // Able 歷史回顧頁渲染
+          if (pageId === 'page-known-able') {
+            renderHistoryView('able', 2);
+          }
+
+          // page-balance 頁面：動態檢查 Able 通過狀態以啟用/禁用現實按鈕
+          if (pageId === 'page-balance') {
+            const hasAbleHistory = localStorage.getItem('careerRPG_hasAbleHistory') === 'true';
+            const realityCard = document.querySelector('.balance-card:nth-child(1)');
+            if (realityCard) {
+              if (hasAbleHistory) {
+                realityCard.classList.remove('disabled');
+              } else {
+                realityCard.classList.add('disabled');
+              }
+            }
+          }
+
+          // Wants 語意分析二級緩衝過渡頁自動跳轉 (等待分析 Promise 完成，或 8 秒超時安全網強行跳轉)
+          if (pageId === 'page-semantic-analysis-buffer-want') {
+            clearTransitionTimers();
+            let hasRedirected = false;
+            const forceGo = () => {
+              if (!hasRedirected) {
+                hasRedirected = true;
+                goTo('page-semantic-analysis-want');
+              }
+            };
+            const timeoutTimer = setTimeout(forceGo, 8000);
+
+            runSemanticAnalysisAndCache('want', 3).then(() => {
+              clearTimeout(timeoutTimer);
+              forceGo();
+            });
+          }
+
+          // Able 語意分析二級緩衝過渡頁自動跳轉 (等待分析 Promise 完成，或 8 秒超時安全網強行跳轉)
+          if (pageId === 'page-semantic-analysis-buffer-able') {
+            clearTransitionTimers();
+            let hasRedirected = false;
+            const forceGo = () => {
+              if (!hasRedirected) {
+                hasRedirected = true;
+                goTo('page-semantic-analysis-able');
+              }
+            };
+            const timeoutTimer = setTimeout(forceGo, 8000);
+
+            runSemanticAnalysisAndCache('able', 2).then(() => {
+              clearTimeout(timeoutTimer);
+              forceGo();
+            });
+          }
+
+          // Bridge 橋樑頁面自動跳轉 (3秒)
+          if (pageId === 'page-bridge') {
+            clearTransitionTimers();
+            transitionTimer = setTimeout(() => {
+              goTo('page-can-or-not');
+            }, 3000);
+          }
+
+          // Reality Check 隨機二擇一過渡緩衝頁自動跳轉 (3秒)
+          if (pageId === 'page-reality-check-buffer') {
+            const sentences = [
+              "就算現實很骨感，<br>但這只是現況，偶爾<br>我們需要好好看見那些正在成為的自己",
+              "有時候，<br>你只是需要一點時間習慣<br>那個閃閃發光的自己"
+            ];
+            const randomIndex = Math.floor(Math.random() * sentences.length);
+            const textEl = document.getElementById('reality-check-buffer-text');
+            if (textEl) {
+              textEl.innerHTML = sentences[randomIndex];
+            }
+
+            clearTransitionTimers();
+            transitionTimer = setTimeout(() => {
+              goTo('page-reality-check');
+            }, 3000);
+          }
+
+          target.classList.add('active');
+
+          // 過渡緩衝頁不記錄（reload 後無法正確還原這些頁面）
+          const transientPages = new Set([
+            'page-semantic-buffer-want',
+            'page-semantic-analysis-buffer-want',
+            'page-semantic-buffer-able',
+            'page-semantic-analysis-buffer-able',
+            'page-reality-check-buffer',
+            'page-welcome-back',
+            'page-bridge',
+            'page-expectation',
+          ]);
+          if (!transientPages.has(pageId)) {
+            localStorage.setItem('careerRPG_page', pageId);
+          }
+
+          setupValidation(); // 重新綁定輸入驗證
+        }
+      };
+
+      if (currentPage && !immediate) {
+        currentPage.classList.add('exit-animation');
+        setTimeout(doSwitch, 600);
+      } else {
+        doSwitch();
+      }
+    }
+
+    // 輔助函數：渲染簡述區塊
+    function renderSummaryBlock(element, q1Id, q2Id, q3Id = null) {
+      if (!element) return;
+      const q1 = userProgressData[q1Id] || '無輸入內容';
+      const q2 = userProgressData[q2Id] || '無輸入內容';
+      const q3 = q3Id ? (userProgressData[q3Id] || '無輸入內容') : null;
+
+      const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; margin-bottom: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 12px; font-size: 1.15rem; color: #3D405B;";
+      const labelStyle = "font-weight: 600; color: var(--secondary); min-width: 30px;";
+      const textStyle = "flex: 1; line-height: 1.5; font-weight: 500;";
+
+      let html = `
+        <div style="${blockStyle}">
+          <div style="${labelStyle}">Q1</div>
+          <div style="${textStyle}">${q1}</div>
+        </div>
+        <div style="${blockStyle}">
+          <div style="${labelStyle}">Q2</div>
+          <div style="${textStyle}">${q2}</div>
+        </div>
+      `;
+      if (q3) {
+        html += `
+          <div style="${blockStyle}">
+            <div style="${labelStyle}">Q3</div>
+            <div style="${textStyle}">${q3}</div>
+          </div>
+        `;
+      }
+      element.innerHTML = html;
+    }
+
+    // 檢查是否為錯誤標籤或舊版標籤快取（過期快取）
+    const isLegacyOrErrorTag = (tags) => {
+      if (!tags || tags.length === 0) return true;
+      if (tags.length === 1 && (tags[0].includes('失敗') || tags[0].includes('無法解析') || tags[0].includes('連線失敗'))) return true;
+      // 新版合法格式：A01-A15, B01-B16, C01-C16, D01-D13
+      const validTagPattern = /^[A-D](0[1-9]|1[0-6]):/;
+      for (const tag of tags) {
+        if (!validTagPattern.test(tag)) return true;
+      }
+      return false;
+    };
+
+    // 輔助函數：觸發並渲染語意分析
+    function triggerSemanticAnalysis(type, count) {
+      const container = document.getElementById(`semantic-content-${type}`);
+      if (!container) return;
+
+      const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); display: flex; align-items: flex-start; gap: 12px; font-size: 1.15rem; color: #3D405B;";
+      const labelStyle = "font-weight: 600; color: var(--secondary); min-width: 30px;";
+      const textStyle = "flex: 1; line-height: 1.5; font-weight: 500;";
+      const tagsStyle = "display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding-left: 42px;";
+
+      const renderTags = (tags) => {
+        if (!tags || tags.length === 0) return `<span style="color:#888; font-size:0.9rem;">(無相符標籤)</span>`;
+        return tags.map(t => `<div class="tag">${t}</div>`).join('');
+      };
+
+      // 找到該頁面的所有 action-btn（透過 container 往上找到 page-container）
+      const pageEl = container.closest('.page-container');
+      const actionBtns = pageEl ? pageEl.querySelectorAll('.action-btn') : [];
+
+      // 鎖住按鈕的輔助函數
+      const lockBtns = () => {
+        actionBtns.forEach(btn => {
+          btn.disabled = true;
+          btn.title = '請稍候，標籤分析中...';
+        });
+      };
+
+      // 解鎖按鈕的輔助函數
+      const unlockBtns = () => {
+        actionBtns.forEach(btn => {
+          btn.disabled = false;
+          btn.title = '';
+        });
+      };
+
+      let html = '';
+      let pendingCount = 0; // 需要發 API 的題目數量
+
+      for (let i = 1; i <= count; i++) {
+        const qKey = i === 1 ? 'q1' : (i === 2 ? 'q2' : 'q3');
+        const storageTextKey = type === 'want' ? `input-adjust-${qKey}` : `input-adjust-can-${qKey}`;
+        const fallbackTextKey = type === 'want' ? `input-${qKey}` : `input-can-${qKey}`;
+        const text = userProgressData[storageTextKey] || userProgressData[fallbackTextKey] || '無輸入內容';
+
+        const lastTextKey = `last-text-${type}-${qKey}`;
+        const savedTagsKey = `tags-${type}-${qKey}`;
+        const savedTags = userProgressData[savedTagsKey];
+        const changed = text.trim() !== (userProgressData[lastTextKey] || '').trim();
+
+        // 判斷此題是否需要發 API
+        const needsAnalysis = (changed || !savedTags || isLegacyOrErrorTag(savedTags)) && text !== '無輸入內容';
+        if (needsAnalysis) pendingCount++;
+
+        html += `
+          <div class="semantic-anim-item">
+            <div style="${blockStyle}">
+              <div style="${labelStyle}">Q${i}</div>
+              <div style="${textStyle}">${text}</div>
+            </div>
+            <div id="tags-${type}-${qKey}" style="${tagsStyle}">
+              ${(savedTags && !isLegacyOrErrorTag(savedTags) && !changed) ? renderTags(savedTags) : '<div class="tag" style="color:var(--secondary); border: 1px solid var(--secondary); background: transparent;">⏳ 分析中...</div>'}
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+
+      // 若有任何一題需要等待分析，立即鎖住按鈕
+      if (pendingCount > 0) {
+        lockBtns();
+      }
+
+      // 背景發送 API
+      for (let i = 1; i <= count; i++) {
+        const qKey = i === 1 ? 'q1' : (i === 2 ? 'q2' : 'q3');
+        const storageTextKey = type === 'want' ? `input-adjust-${qKey}` : `input-adjust-can-${qKey}`;
+        const fallbackTextKey = type === 'want' ? `input-${qKey}` : `input-can-${qKey}`;
+        const text = userProgressData[storageTextKey] || userProgressData[fallbackTextKey] || '無輸入內容';
+
+        const lastTextKey = `last-text-${type}-${qKey}`;
+        const savedTagsKey = `tags-${type}-${qKey}`;
+        const savedTags = userProgressData[savedTagsKey];
+        const changed = text.trim() !== (userProgressData[lastTextKey] || '').trim();
+
+        if ((changed || !savedTags || isLegacyOrErrorTag(savedTags)) && text !== '無輸入內容') {
+          analyzeByCloud(text).then(tags => {
+            userProgressData[savedTagsKey] = tags;
+            userProgressData[lastTextKey] = text.trim();
+            localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+            const el = document.getElementById(`tags-${type}-${qKey}`);
+            if (el) el.innerHTML = renderTags(tags);
+
+            // 每完成一題就遞減，全部完成後解鎖按鈕
+            pendingCount--;
+            if (pendingCount <= 0) {
+              unlockBtns();
+            }
+          }).catch(err => {
+            // 即便出錯也要解鎖，避免使用者卡住
+            pendingCount--;
+            if (pendingCount <= 0) {
+              unlockBtns();
+            }
+          });
+        }
+      }
+    }
+
+    // 輔助函數：背景發送 API 進行分析並寫入快取，回傳 Promise
+    function runSemanticAnalysisAndCache(type, count) {
+      const promises = [];
+
+      for (let i = 1; i <= count; i++) {
+        const qKey = i === 1 ? 'q1' : (i === 2 ? 'q2' : 'q3');
+        const storageTextKey = type === 'want' ? `input-adjust-${qKey}` : `input-adjust-can-${qKey}`;
+        const fallbackTextKey = type === 'want' ? `input-${qKey}` : `input-can-${qKey}`;
+        const text = userProgressData[storageTextKey] || userProgressData[fallbackTextKey] || '無輸入內容';
+
+        const lastTextKey = `last-text-${type}-${qKey}`;
+        const savedTagsKey = `tags-${type}-${qKey}`;
+        const savedTags = userProgressData[savedTagsKey];
+        const changed = text.trim() !== (userProgressData[lastTextKey] || '').trim();
+
+        if (changed || !savedTags || isLegacyOrErrorTag(savedTags)) {
+          if (text !== '無輸入內容') {
+            const p = analyzeByCloud(text)
+              .then(tags => {
+                userProgressData[savedTagsKey] = tags;
+                userProgressData[lastTextKey] = text.trim();
+                localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+              })
+              .catch(err => {
+                console.error("分析失敗:", err);
+                userProgressData[savedTagsKey] = [`無法解析: ${err.message}`];
+                userProgressData[lastTextKey] = text.trim();
+                localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+              });
+            promises.push(p);
+          }
+        }
+      }
+
+      if (promises.length === 0) {
+        return Promise.resolve();
+      }
+      return Promise.all(promises);
+    }
+
+    // 輔助函數：渲染歷史檢視頁 (參考 flow-pages.html 的同頁面設計)
+    function renderHistoryView(type, count) {
+      const container = document.getElementById(`review-content-${type}`);
+      if (!container) return;
+
+      const blockStyle = "background: rgba(255, 255, 255, 0.65); padding: 16px 24px; border-radius: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); color: #3D405B; line-height: 1.5; font-size: 1.25rem; display: flex; align-items: flex-start; gap: 12px;";
+      const labelStyle = "font-weight: 600; color: var(--secondary); min-width: 36px; font-size: 1.3rem;";
+      const textStyle = "flex: 1;";
+
+      const renderTags = (tags) => {
+        if (!tags || tags.length === 0) return `<span style="color:#888; font-size:0.9rem; margin-top: 8px; display: inline-block;">(無相符標籤)</span>`;
+        return tags.map(t => `<div class="tag" style="background:var(--primary); color:white; padding:6px 16px; border-radius:20px; font-size:1rem; box-shadow: 0 4px 12px rgba(129, 178, 154, 0.3); margin-top: 8px;">${t}</div>`).join('');
+      };
+
+      let htmlContent = '';
+      for (let i = 1; i <= count; i++) {
+        const qKey = i === 1 ? 'q1' : (i === 2 ? 'q2' : 'q3');
+        const storageTextKey = type === 'want' ? `input-adjust-${qKey}` : `input-adjust-can-${qKey}`;
+        const fallbackTextKey = type === 'want' ? `input-${qKey}` : `input-can-${qKey}`;
+        const text = userProgressData[storageTextKey] || userProgressData[fallbackTextKey] || '無輸入內容';
+
+        const savedTagsKey = `tags-${type}-${qKey}`;
+        const savedTags = userProgressData[savedTagsKey];
+
+        htmlContent += `
+          <div class="semantic-anim-item" style="margin-bottom: 24px; width: 100%;">
+            <div style="${blockStyle}">
+              <div style="${labelStyle}">Q${i}</div>
+              <div style="${textStyle}">${text}</div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-left: 48px; margin-top: 8px;">
+              ${renderTags(savedTags)}
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = htmlContent;
+    }
+
+    // Sliders 控制邏輯
+    function selectScale(element, category, index) {
+      const parent = element.parentNode;
+      parent.querySelectorAll('.scale-node-wrapper').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+
+      const overlay = element.closest('.scale-track-container').querySelector('.scale-range-overlay');
+      if (overlay) overlay.value = index;
+
+      userProgressData[`scale-${category}`] = index;
+      localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+    }
+
+    function syncScaleOverlay(inputElement, category) {
+      const val = parseInt(inputElement.value, 10);
+      const parent = inputElement.parentNode;
+      const nodes = parent.querySelectorAll('.scale-node-wrapper');
+      if (nodes[val]) {
+        nodes.forEach(el => el.classList.remove('active'));
+        nodes[val].classList.add('active');
+
+        userProgressData[`scale-${category}`] = val;
+        localStorage.setItem('careerRPG_data', JSON.stringify(userProgressData));
+      }
+    }
+
+    // ==================== 初始化 ====================
+    window.addEventListener('load', () => {
+      createDustMotes();
+
+      // 載入 localStorage 資料
+      const savedData = localStorage.getItem('careerRPG_data');
+      if (savedData) {
+        userProgressData = JSON.parse(savedData);
+      }
+
+      // 載入問卷輸入欄位初始值
+      const inputs = document.querySelectorAll('.text-input, textarea.text-input');
+      inputs.forEach(input => {
+        if (input.id && userProgressData[input.id]) {
+          input.value = userProgressData[input.id];
+        }
+      });
+
+      // 綁定輸入檢查
+      setupValidation();
+
+
+
+      // 解析跳轉參數
+      const urlParams = new URLSearchParams(window.location.search);
+      const step = urlParams.get('step');
+      const savedPage = localStorage.getItem('careerRPG_page');
+
+      // 讀完參數後立即清除 URL，避免刷新時重複觸發
+      if (step) {
+        history.replaceState(null, '', window.location.pathname);
+      }
+
+      if (step === 'start') {
+        localStorage.removeItem('careerRPG_page');
+        goTo('page-about-you', true);
+      } else if (step === 'page-menu') {
+        goTo('page-menu', true);
+      } else if (step === 'page-dreams-intro') {
+        goTo('page-dreams-intro', true);
+      } else if (step) {
+        goTo(step, true);
+      } else if (savedPage) {
+        goTo(savedPage, true);
+      } else {
+        // 藍色線：預設第一次進入
+        goTo('page-about-you', true);
+      }
+    });
+  </script>
+</body>
+
+</html>

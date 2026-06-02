@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>初路 - 初級大人的職業探索之路 - Sample</title>
+<link rel="icon" type="image/png" href="assets/favicon.png" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
 
@@ -227,6 +228,20 @@
       /* 出現後可點擊 */
     }
 
+    .title-wrapper {
+      /* 初始隱藏，配合動畫淡入 */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    body.show-final-text .final-content .title-wrapper {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
     .final-content h2 {
       font-size: 6.5rem;
       font-weight: 600;
@@ -248,18 +263,6 @@
       /* 疊加雙層 drop-shadow 背光：首層提供高濃度緊密月光輪廓，次層提供大範圍柔和擴散，完美將大字從雲海中剝離出來 */
       filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.95)) 
               drop-shadow(0 4px 20px rgba(255, 255, 255, 0.7));
-      
-      /* 初始隱藏，配合動畫淡入 */
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    body.show-final-text .final-content h2 {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-      animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     }
 
     .final-subtitle {
@@ -333,21 +336,26 @@
       transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* 讓按鈕接續出現 */
+    /* 讓按鈕接續出現 (動畫期間保持不可點擊) */
     body.show-final-text .action-btn {
       opacity: 1;
       visibility: visible;
-      pointer-events: auto;
+      pointer-events: none; /* 動畫結束前不可點擊 */
       animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     }
 
-    body.show-final-text .action-btn:hover {
+    /* 動畫完全結束後才允許點擊 (.btns-ready 由 JS 延遲加入) */
+    body.btns-ready .action-btn {
+      pointer-events: auto;
+    }
+
+    body.btns-ready .action-btn:hover {
       background: #D16B50;
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(224, 122, 95, 0.3);
     }
 
-    body.show-final-text .action-btn:active {
+    body.btns-ready .action-btn:active {
       transform: translateY(0) scale(0.98);
       box-shadow: 0 2px 4px rgba(224, 122, 95, 0.2);
     }
@@ -363,7 +371,7 @@
     /* 左上角 Icon 樣式 */
     .site-icon {
       position: absolute;
-      top: 0px;
+      top: 20px;
       left: 40px;
       width: 80px;
       /* 控制 icon 大小 */
@@ -478,11 +486,13 @@
 
   <!-- 最終顯示內容 -->
   <div class="final-content">
-    <h2>初路</h2>
+    <div class="title-wrapper">
+      <h2>初路</h2>
+    </div>
     <p class="final-subtitle">初級大人的探索之路</p>
     <div class="action-buttons">
-      <button class="action-btn" onclick="window.location.href='flow-pages.html?step=page-want-or-not'">背景建構</button>
-      <button class="action-btn" onclick="window.location.href='flow-pages.html?step=page-menu'">方向選擇</button>
+      <button class="action-btn" onclick="window.location.href='career-flow.html?step=start'">背景建構</button>
+      <button class="action-btn" onclick="window.location.href='career-flow.html?step=page-dreams-intro'">方向選擇</button>
     </div>
   </div>
 
@@ -536,6 +546,10 @@
         // 撥雲開始後 1.9 秒 (總共約 2.7 秒)，切換到最終文字
         textTimer = setTimeout(() => {
           document.body.classList.add('show-final-text');
+          // 最長按鈕動畫：0.45s delay + 0.8s duration = 1.25s，延遲 1.3s 後開放點擊
+          setTimeout(() => {
+            document.body.classList.add('btns-ready');
+          }, 1300);
         }, 1900);
       }, 800);
     }
@@ -549,6 +563,7 @@
         document.body.classList.add('skip-anim');
         document.body.classList.add('is-clearing');
         document.body.classList.add('show-final-text');
+        document.body.classList.add('btns-ready'); // 跳過動畫時立即開放點擊
 
         // 稍微延遲移除 skip-anim，讓後續的手動操作（如重新觀看）可以有動畫
         setTimeout(() => {
@@ -567,6 +582,7 @@
       document.body.classList.add('no-transition');
       document.body.classList.remove('is-clearing');
       document.body.classList.remove('show-final-text');
+      document.body.classList.remove('btns-ready');
 
       void document.body.offsetHeight;
       document.body.classList.remove('no-transition');
