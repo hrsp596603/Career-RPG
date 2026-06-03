@@ -27,7 +27,7 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      background: #F4F1DE url('assets/Nbanner.png') center/cover no-repeat fixed;
+      background: #F4F1DE url('assets/abanner.png') center/cover no-repeat fixed;
       font-family: 'Iansui', 'Noto Serif TC', serif;
       color: #3D405B;
       overflow-x: hidden;
