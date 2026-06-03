@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>初路 - 職涯探索之路</title>
-<link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
 
@@ -756,16 +756,19 @@
       cursor: not-allowed !important;
       position: relative;
     }
+
     .balance-card.disabled:hover {
       transform: none !important;
       box-shadow: 0 10px 30px rgba(74, 62, 56, 0.04) !important;
       background: rgba(242, 223, 211, 0.65) !important;
       border-color: rgba(232, 213, 199, 0.8) !important;
     }
+
     .balance-card.disabled .balance-card-action {
       color: var(--n30) !important;
       border-color: var(--n30) !important;
     }
+
     .balance-card.disabled::after {
       content: "🔒 須先抵達能力分析頁面";
       position: absolute;
@@ -779,7 +782,7 @@
       background: rgba(255, 255, 255, 0.9);
       padding: 4px 12px;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       border: 1px solid rgba(224, 122, 95, 0.2);
     }
 
@@ -910,6 +913,137 @@
         transform: translateY(-10vh) scale(1.2);
         opacity: 0;
       }
+    }
+
+    /* ==================== 語意分析跳轉動畫樣式 ==================== */
+    .analysis-anim-container {
+      position: relative;
+      width: 90%;
+      max-width: 900px;
+      min-height: 400px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+      font-family: 'Iansui', 'Noto Serif TC', serif;
+    }
+
+    /* 左側文字區 */
+    .analysis-text-block {
+      width: 55%;
+      text-align: left;
+      line-height: 1.8;
+      font-size: 1.15rem;
+      color: var(--dark-navy);
+      z-index: 2;
+    }
+
+    .page-container.active .analysis-text-block {
+      animation: gentleFadeIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    .analysis-text-title {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 24px;
+      font-family: 'Iansui', serif;
+      color: var(--dark-navy);
+      letter-spacing: 2px;
+    }
+
+    .analysis-text-block p {
+      margin-bottom: 1.2em;
+      font-size: 1.15rem;
+    }
+
+    /* 螢光筆劃線效果：透感莫蘭迪紫羅蘭色，完美映襯背景並與黃色標籤互補 */
+    .hl-trigger {
+      background-image: linear-gradient(120deg, rgba(202, 138, 254, 0.38) 0%, rgba(202, 138, 254, 0.38) 100%);
+      background-repeat: no-repeat;
+      background-size: 0% 100%;
+      background-position: 0 88%;
+      transition: background-size 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+      padding: 2px 4px;
+      border-radius: 4px;
+      display: inline;
+    }
+
+    .hl-trigger.active {
+      background-size: 100% 100%;
+    }
+
+    /* 右側標籤區 */
+    .analysis-tags-block {
+      width: 38%;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .tag-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+      transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .tag-group.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .analysis-tag {
+      background: #F4D35E;
+      color: #3D405B;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(244, 211, 94, 0.25);
+      align-self: flex-start;
+      white-space: nowrap;
+      font-family: 'Iansui', sans-serif;
+    }
+
+    /* SVG 畫布與箭頭 */
+    .analysis-svg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .arrow-path {
+      fill: none;
+      stroke: var(--dark-navy);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      opacity: 0.85;
+    }
+
+    .arrow-path.active {
+      stroke-dashoffset: 0;
+    }
+
+    #arrow-1-want.active-marker, #arrow-2-want.active-marker, #arrow-3-want.active-marker {
+      marker-end: url(#arrowhead-want);
+    }
+
+    #arrow-1-able.active-marker, #arrow-2-able.active-marker, #arrow-3-able.active-marker {
+      marker-end: url(#arrowhead-able);
     }
   </style>
 </head>
@@ -1165,17 +1299,42 @@
 
   <!-- ==================== Wants 語意分析二級緩衝過渡頁 ==================== -->
   <div id="page-semantic-analysis-buffer-want" class="page-container"
-    style="justify-content: center; align-items: center; text-align: center;">
-    <h2
-      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
-      那些 說不出口的，<br>
-      也許 只是 還沒 找到 名字<br>
-      你的故事，值得被好好看見
-    </h2>
-    <div class="buffer-loader" style="margin-top: 48px;">
-      <span></span>
-      <span></span>
-      <span></span>
+    style="justify-content: center; align-items: center;">
+    <div class="analysis-anim-container" id="anim-container-want">
+      <!-- SVG 畫布 -->
+      <svg class="analysis-svg-canvas" id="svg-canvas-want">
+        <defs>
+          <marker id="arrowhead-want" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#3D405B" />
+          </marker>
+        </defs>
+        <path id="arrow-1-want" class="arrow-path" />
+        <path id="arrow-2-want" class="arrow-path" />
+        <path id="arrow-3-want" class="arrow-path" />
+      </svg>
+
+      <!-- 左側文章 -->
+      <div class="analysis-text-block">
+        <div class="analysis-text-title">Things we heard</div>
+        <p>大三時我<span class="hl-trigger" id="hl-1-want">負責專題的底層架構</span>。期末發表時，教授和評審覺得畫面不夠華麗、功能不夠花俏，只給了中等分數。</p>
+        <p>但我很清楚，自己把<span class="hl-trigger" id="hl-2-want">原本混亂的模組梳理得井然有序</span>，<span class="hl-trigger" id="hl-3-want">代碼乾淨且擴充性極佳</span>。</p>
+        <p>不論別人怎麼看，我都對成果無比滿意。</p>
+      </div>
+
+      <!-- 右側標籤 -->
+      <div class="analysis-tags-block">
+        <div class="tag-group" id="tg-1-want">
+          <div class="analysis-tag"># 大量資訊中的規律辨識</div>
+          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
+        </div>
+        <div class="tag-group" id="tg-2-want">
+          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
+        </div>
+        <div class="tag-group" id="tg-3-want">
+          <div class="analysis-tag" style="white-space: normal; line-height: 1.4;"># 結構化書面輸出<br><span
+              style="font-size:0.8rem; font-weight:normal;">(產出有結構、可被讀懂與延伸的輸出物)</span></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1320,17 +1479,42 @@
 
   <!-- ==================== Able 語意分析二級緩衝過渡頁 ==================== -->
   <div id="page-semantic-analysis-buffer-able" class="page-container"
-    style="justify-content: center; align-items: center; text-align: center;">
-    <h2
-      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
-      那些 說不出口的，<br>
-      也許 只是 還沒 找到 名字<br>
-      你的故事，值得被好好看見
-    </h2>
-    <div class="buffer-loader" style="margin-top: 48px;">
-      <span></span>
-      <span></span>
-      <span></span>
+    style="justify-content: center; align-items: center;">
+    <div class="analysis-anim-container" id="anim-container-able">
+      <!-- SVG 畫布 -->
+      <svg class="analysis-svg-canvas" id="svg-canvas-able">
+        <defs>
+          <marker id="arrowhead-able" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#3D405B" />
+          </marker>
+        </defs>
+        <path id="arrow-1-able" class="arrow-path" />
+        <path id="arrow-2-able" class="arrow-path" />
+        <path id="arrow-3-able" class="arrow-path" />
+      </svg>
+
+      <!-- 左側文章 -->
+      <div class="analysis-text-block">
+        <div class="analysis-text-title">Things we heard</div>
+        <p>大三時我<span class="hl-trigger" id="hl-1-able">負責專題的底層架構</span>。期末發表時，教授和評審覺得畫面不夠華麗、功能不夠花俏，只給了中等分數。</p>
+        <p>但我很清楚，自己把<span class="hl-trigger" id="hl-2-able">原本混亂的模組梳理得井然有序</span>，<span class="hl-trigger" id="hl-3-able">代碼乾淨且擴充性極佳</span>。</p>
+        <p>不論別人怎麼看，我都對成果無比滿意。</p>
+      </div>
+
+      <!-- 右側標籤 -->
+      <div class="analysis-tags-block">
+        <div class="tag-group" id="tg-1-able">
+          <div class="analysis-tag"># 大量資訊中的規律辨識</div>
+          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
+        </div>
+        <div class="tag-group" id="tg-2-able">
+          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
+        </div>
+        <div class="tag-group" id="tg-3-able">
+          <div class="analysis-tag" style="white-space: normal; line-height: 1.4;"># 結構化書面輸出<br><span
+              style="font-size:0.8rem; font-weight:normal;">(產出有結構、可被讀懂與延伸的輸出物)</span></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1700,10 +1884,10 @@
       // 跳轉至緩衝過渡頁
       goTo('page-semantic-buffer-want');
 
-      // 5秒後自動跳轉至事件簡述頁
+      // 3秒後自動跳轉至事件簡述頁
       transitionTimer = setTimeout(() => {
         goTo('page-event-summary-want');
-      }, 5000);
+      }, 3000);
     }
 
     // Able 說說你的故事送出 (自動跳轉至緩衝過渡頁)
@@ -1764,25 +1948,24 @@
 1. 只能從標籤庫中選取，不得自行創建新標籤。
 2. 每個標籤必須有描述中的明確證據支撐，不得推斷未提及內容。
 3. 若描述不足以支撐任何標籤，請回傳空陣列：{"tags": []}。
-4. 輸出格式必須嚴格遵守 JSON 結構，如：{"tags": ["A01: 專業內容的跨背景轉譯", "B03: 高頻目標調整之持續應對需求"]}。
-5. 不要輸出 any 解釋文字，只要回傳 JSON。
+4. 輸出格式必須嚴格遵守 JSON 結構，如：{"tags": ["A01: 專業內容的跨背景轉譯", "D09: 通用數位工具操作"]}。
+5. 不要輸出任何解釋文字，只要回傳 JSON。
 
 【判定校正規則】（強制遵循）
-1. 自學與技術研發排除：禁止將任何「自學技術、自學 Web 框架、寫程式、研發核心架構」等操作判定為 D03: 訪談與提問引導。這些應歸為 D09: 通用數位工具操作。若涉及學習沉沒成本則可判定為 C14: 領域專有技術的高沉沒成本。
-2. 心靈情緒支持排除：禁止將「心靈支持」、「安撫家屬情緒」、「安撫焦慮」等精神消耗判定為 B10: 持續性體能動員的工作型態 或 D12: 大肌肉動作執行。此類精神承接應判為 B01: 高強度情緒勞動涉入，若有口頭安慰則搭配 D01: 口語表達。
-3. 資源與目標協調判定：禁止將「招募志工、分配清潔區域」判定為 B02: 高密度階層對接之認知負荷 或 D03: 訪談與提問引導。此為目標協調，應判為 A10: 多方可接受交集的判斷。
+1. 自學與技術研發排除：禁止將任何「自學技術、自學 Web 框架、寫程式、研發核心架構」等操作判定為 D03: 訪談與提問引導。這些應歸為 D09: 通用數位工具操作。
+2. 心靈情緒支持排除：禁止將「心靈支持」、「安撫家屬情緒」、「安撫焦慮」等精神消耗判定為 D12: 大肌肉動作執行。此類精神承接與安慰應判為 D01: 口語表達 與 D02: 主動傾聽與語義提取。
+3. 資源與目標協調判定：禁止將「招募志工、分配清潔區域」判定為 D03: 訪談與提問引導。此為目標協調，應判為 A10: 多方可接受交集的判斷。
 4. 數據/資訊整理與規律辨識區隔：禁止將單純用 Excel 或工具整理資料的動作判為 A03: 大量資訊中的規律辨識 或 A04: 分析框架的建立與定義。A03 必須有明確「看出底層重複規律或痛點結論」；A04 必須有「建立可重複操作結構」的分析架構。
-5. 客訴環境判定：尖峰時刻客訴不斷、場面吵雜，應判為 B01: 高強度情緒勞動涉入 與 B06: 高密度感官刺激的工作環境，非 B02 或 A10。
 
 【標籤庫】
-A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, A03: 大量資訊中的規律辨識, A04: 分析框架的建立與定義, A05: 概念本質的釐清與定位, A06: 概念到執行方向的結構拆解, A07: 長程目標的規劃與查核設計, A08: 工作流程的診斷與改善判斷, A09: 多方立場與底線的解讀, A10: 多方可接受交集的判斷, A11: 複合變數失控下的應變判斷, A12: 實體空間使用邏輯的規劃判斷, A13: 資源條件與投入時機的判斷, A14: 特定對象行為模式的預測判斷, A15: 規則與情境的適用條件判斷, B01: 高強度情緒勞動涉入, B02: 高密度階層對接之認知負荷, B03: 高頻目標調整之持續應對需求, B04: 高精準度要求與決策責任承擔, B05: 多方利益平衡之持續角色要求, B06: 高密度感官刺激的工作環境, B07: 低外部刺激與高重複性的工作型態, B08: 低外部節律依賴的獨立作業型態, B09: 工作與生活時間的高度交疊性, B10: 持續性體能動員的工作型態, B11: 高強度他人困境的持續涉入, B12: 持續性公眾可見度與表現要求, B13: 多工並行與高資訊密度的工作型態, B14: 低結構化指令與自主定義標準的工作型態, B15: 非常規作息與生理節律的持續調適需求, B16: 特定物理環境條件的持續工作型態, C01: 法定執業資格門檻, C02: 學歷背景的結構性篩選, C03: 強制過渡期的財務壓縮結構, C04: 非公開管道的機會依賴結構, C05: 作品集與可見成果的入場前提, C06: 財務回報的結構性延遲, C07: 收入波動與現金流不確定性, C08: 入行初期的財務資本墊付, C09: 薪資結構的制度性天花板, C10: 非常規排班的強制接受, C11: 高頻率地理移動的工作型態, C12: 執業場域的地理綁定限制, C13: 職涯機會的地理集中性, C14: 領域專有技術的高沉沒成本, C15: 技術迭代造成的持續再投入需求, C16: 職涯出口的結構性窄化, D01: 口語表達, D02: 主動傾聽與語義提取, D03: 訪談與提問引導, D04: 肢體示範與動作引導, D05: 結構化書面輸出, D06: 視覺化資訊呈現, D07: 質性資訊蒐集與整理, D08: 數據讀取與分析操作, D09: 通用數位工具操作, D10: 數位溝通工具操作, D11: 實體空間操作與設備使用, D12: 大肌肉動作執行, D13: 小肌肉精細操作
+A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, A03: 大量資訊中的規律辨識, A04: 分析框架的建立與定義, A05: 概念本質的釐清與定位, A06: 概念到執行方向的結構拆解, A07: 長程目標的規劃與查核設計, A08: 工作流程的診斷與改善判斷, A09: 多方立場與底線的解讀, A10: 多方可接受交集的判斷, A11: 複合變數失控下的應變判斷, A12: 實體空間使用邏輯的規劃判斷, A13: 資源條件與投入時機的判斷, A14: 特定對象行為模式的預測判斷, A15: 規則與情境的適用條件判斷, D01: 口語表達, D02: 主動傾聽與語義提取, D03: 訪談與提問引導, D04: 肢體示範與動作引導, D05: 結構化書面輸出, D06: 視覺化資訊呈現, D07: 質性資訊蒐集與整理, D08: 數據讀取與分析操作, D09: 通用數位工具操作, D10: 數位溝通工具操作, D11: 實體空間操作與設備使用, D12: 大肌肉動作執行, D13: 小肌肉精細操作
 
 【訓練範例 (Few-Shot)】
-經歷描述：我負責核心架構開發，在 48 小時內自學了全新的 Web 框架，並成功克服了多端同步的技術瓶頸，獲得導師高度肯定。
-輸出：{"tags": ["B04: 高精準度要求與決策責任承擔", "C14: 領域專有技術的高沉沒成本"]}
+經歷描述：我曾參與一個複雜的開源專案，將艱深的技術文件轉譯成初學者易懂的教學指南。儘管過程辛苦，但看到新手能因此上手，我願意重新投入這段漫長的整理與轉譯歷程。
+輸出：{"tags": ["A01: 專業內容的跨背景轉譯", "D01: 口語表達"]}
 
 經歷描述：在醫院擔任志工時，面對焦慮的家屬，我能冷靜地安撫他們的情緒並提供協助。即便這個過程非常耗費心神，但看到家屬能稍微安心，我願意再次投入這樣高強度的心靈支持工作。
-輸出：{"tags": ["B01: 高強度情緒勞動涉入", "D01: 口語表達"]}
+輸出：{"tags": ["D01: 口語表達", "D02: 主動傾聽與語義提取"]}
 
 經歷描述：我曾獨立完成一個自動化報表系統，大幅減少了同仁手動輸入的時間。雖然主管當下沒有特別表揚，但我對自己能精簡流程並提升整體工作效率的成果感到非常滿意。
 輸出：{"tags": ["A08: 工作流程的診斷與改善判斷", "D09: 通用數位工具操作"]}
@@ -1798,9 +1981,6 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
 
 經歷描述：在一次大型戶外活動中，原定的場地突然因為天氣因素無法使用，我迅速聯繫了備案場地並在兩小時內指揮搬運隊完成所有物資轉移。雖然過程混亂，但我對自己能靈活調度資源感到滿意。
 輸出：{"tags": ["A11: 複合變數失控下的應變判斷", "A13: 資源條件與投入時機的判斷"]}
-
-經歷描述：曾擔任繁忙捷運站旁的連鎖餐廳店長，在尖峰時刻面對人手嚴重不足且客訴不斷的壓力測試。
-輸出：{"tags": ["B01: 高強度情緒勞動涉入", "B06: 高密度感官刺激的工作環境"]}
 
 經歷描述：我曾主動發起一個鄰里清潔日活動，負責招募志願者並分配繁雜的清潔區域。看到鄰里環境變好，即便沒有任何物質報酬，我也覺得這種對社區的具體貢獻讓我非常有成就感。
 輸出：{"tags": ["A10: 多方可接受交集的判斷", "D11: 實體空間操作與設備使用"]}
@@ -1839,6 +2019,100 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
         return [errorMsg];
       }
     }
+
+    // 動態計算並繪製箭頭路徑
+    function updateAnalysisArrows(suffix) {
+      const container = document.getElementById(`anim-container-${suffix}`);
+      const svg = document.getElementById(`svg-canvas-${suffix}`);
+      if (!container || !svg) return;
+
+      const containerRect = container.getBoundingClientRect();
+
+      const drawArrow = (arrowId, startElId, endElId, curveOffset = -25) => {
+        const arrow = document.getElementById(arrowId);
+        const startEl = document.getElementById(startElId);
+        const endEl = document.getElementById(endElId);
+        if (!arrow || !startEl || !endEl) return;
+
+        const startRect = startEl.getBoundingClientRect();
+        const endRect = endEl.getBoundingClientRect();
+
+        // 計算相對於容器的起點 (螢光筆文字右側/右上角)
+        const x1 = (startRect.right - containerRect.left) - 5;
+        const y1 = (startRect.top + startRect.height / 2 - containerRect.top);
+
+        // 計算相對於容器的終點 (標籤左側邊界，退後 15px 以防碰到標籤)
+        const x2 = (endRect.left - containerRect.left) - 15;
+        const y2 = (endRect.top + endRect.height / 2 - containerRect.top);
+
+        // 使用二次貝茲曲線繪製帶有手寫弧度的線條
+        const cx = (x1 + x2) / 2;
+        const cy = (y1 + y2) / 2 + curveOffset; // 向上/下拉產生彎曲弧度
+
+        const d = `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
+        arrow.setAttribute('d', d);
+      };
+
+      // 繪製三個箭頭的曲線
+      drawArrow(`arrow-1-${suffix}`, `hl-1-${suffix}`, `tg-1-${suffix}`, -40);
+      drawArrow(`arrow-2-${suffix}`, `hl-2-${suffix}`, `tg-2-${suffix}`, -20);
+      drawArrow(`arrow-3-${suffix}`, `hl-3-${suffix}`, `tg-3-${suffix}`, 20);
+    }
+
+    // 執行 10 步分鏡動畫
+    function playAnalysisAnimation(suffix) {
+      // 重置狀態
+      const elements = [
+        `hl-1-${suffix}`, `arrow-1-${suffix}`, `tg-1-${suffix}`,
+        `hl-2-${suffix}`, `arrow-2-${suffix}`, `tg-2-${suffix}`,
+        `hl-3-${suffix}`, `arrow-3-${suffix}`, `tg-3-${suffix}`
+      ];
+
+      elements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active', 'active-marker');
+      });
+
+      // 延遲更新箭頭，等待瀏覽器完成版面渲染，確保 boundingClientRect 計算精準
+      setTimeout(() => {
+        updateAnalysisArrows(suffix);
+      }, 100);
+
+      // 動態播放 12 個分鏡 (精細時序，螢光筆 -> 箭頭線 -> 箭頭三角形 active-marker -> 標籤流水線)
+      const steps = [
+        // 第一組
+        { delay: 1400, action: () => document.getElementById(`hl-1-${suffix}`)?.classList.add('active') },
+        { delay: 1900, action: () => document.getElementById(`arrow-1-${suffix}`)?.classList.add('active') },
+        { delay: 2400, action: () => document.getElementById(`arrow-1-${suffix}`)?.classList.add('active-marker') },
+        { delay: 2600, action: () => document.getElementById(`tg-1-${suffix}`)?.classList.add('active') },
+        // 第二組
+        { delay: 3300, action: () => document.getElementById(`hl-2-${suffix}`)?.classList.add('active') },
+        { delay: 3800, action: () => document.getElementById(`arrow-2-${suffix}`)?.classList.add('active') },
+        { delay: 4300, action: () => document.getElementById(`arrow-2-${suffix}`)?.classList.add('active-marker') },
+        { delay: 4500, action: () => document.getElementById(`tg-2-${suffix}`)?.classList.add('active') },
+        // 第三組
+        { delay: 5200, action: () => document.getElementById(`hl-3-${suffix}`)?.classList.add('active') },
+        { delay: 5700, action: () => document.getElementById(`arrow-3-${suffix}`)?.classList.add('active') },
+        { delay: 6200, action: () => document.getElementById(`arrow-3-${suffix}`)?.classList.add('active-marker') },
+        { delay: 6400, action: () => document.getElementById(`tg-3-${suffix}`)?.classList.add('active') }
+      ];
+
+      steps.forEach(step => {
+        setTimeout(step.action, step.delay);
+      });
+    }
+
+    // 視窗大小改變時，動態重新計算並繪製箭頭路徑，確保不歪斜重疊
+    window.addEventListener('resize', () => {
+      const activePage = document.querySelector('.page-container.active');
+      if (activePage) {
+        if (activePage.id === 'page-semantic-analysis-buffer-want') {
+          updateAnalysisArrows('want');
+        } else if (activePage.id === 'page-semantic-analysis-buffer-able') {
+          updateAnalysisArrows('able');
+        }
+      }
+    });
 
     // 頁面路由與狀態同步跳轉
     function goTo(pageId, immediate = false) {
@@ -1983,9 +2257,10 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
             }
           }
 
-          // Wants 語意分析二級緩衝過渡頁自動跳轉 (等待分析 Promise 完成，或 8 秒超時安全網強行跳轉)
+          // Wants 語意分析二級緩衝過渡頁自動跳轉 (確保至少呈現 7.5 秒，並等待分析 Promise 完成，或 13 秒超時安全網強行跳轉)
           if (pageId === 'page-semantic-analysis-buffer-want') {
             clearTransitionTimers();
+            playAnalysisAnimation('want');
             let hasRedirected = false;
             const forceGo = () => {
               if (!hasRedirected) {
@@ -1993,17 +2268,24 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
                 goTo('page-semantic-analysis-want');
               }
             };
-            const timeoutTimer = setTimeout(forceGo, 8000);
+            const timeoutTimer = setTimeout(forceGo, 13000);
 
-            runSemanticAnalysisAndCache('want', 3).then(() => {
+            const delayPromise = new Promise(resolve => setTimeout(resolve, 7500));
+            const analysisPromise = runSemanticAnalysisAndCache('want', 3);
+
+            Promise.all([analysisPromise, delayPromise]).then(() => {
+              clearTimeout(timeoutTimer);
+              forceGo();
+            }).catch(() => {
               clearTimeout(timeoutTimer);
               forceGo();
             });
           }
 
-          // Able 語意分析二級緩衝過渡頁自動跳轉 (等待分析 Promise 完成，或 8 秒超時安全網強行跳轉)
+          // Able 語意分析二級緩衝過渡頁自動跳轉 (確保至少呈現 7.5 秒，並等待分析 Promise 完成，或 13 秒超時安全網強行跳轉)
           if (pageId === 'page-semantic-analysis-buffer-able') {
             clearTransitionTimers();
+            playAnalysisAnimation('able');
             let hasRedirected = false;
             const forceGo = () => {
               if (!hasRedirected) {
@@ -2011,9 +2293,15 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
                 goTo('page-semantic-analysis-able');
               }
             };
-            const timeoutTimer = setTimeout(forceGo, 8000);
+            const timeoutTimer = setTimeout(forceGo, 13000);
 
-            runSemanticAnalysisAndCache('able', 2).then(() => {
+            const delayPromise = new Promise(resolve => setTimeout(resolve, 7500));
+            const analysisPromise = runSemanticAnalysisAndCache('able', 2);
+
+            Promise.all([analysisPromise, delayPromise]).then(() => {
+              clearTimeout(timeoutTimer);
+              forceGo();
+            }).catch(() => {
               clearTimeout(timeoutTimer);
               forceGo();
             });
