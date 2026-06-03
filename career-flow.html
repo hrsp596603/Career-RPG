@@ -967,7 +967,8 @@
       transition: background-size 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
       padding: 2px 4px;
       border-radius: 4px;
-      display: inline;
+      display: inline-block;
+      white-space: nowrap;
     }
 
     .hl-trigger.active {
@@ -1325,9 +1326,9 @@
       <div class="analysis-tags-block">
         <div class="tag-group" id="tg-1-want">
           <div class="analysis-tag"># 大量資訊中的規律辨識</div>
-          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
         </div>
         <div class="tag-group" id="tg-2-want">
+          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
           <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
         </div>
         <div class="tag-group" id="tg-3-want">
@@ -1505,9 +1506,9 @@
       <div class="analysis-tags-block">
         <div class="tag-group" id="tg-1-able">
           <div class="analysis-tag"># 大量資訊中的規律辨識</div>
-          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
         </div>
         <div class="tag-group" id="tg-2-able">
+          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
           <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
         </div>
         <div class="tag-group" id="tg-3-able">
@@ -2028,17 +2029,47 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
 
       const containerRect = container.getBoundingClientRect();
 
-      const drawArrow = (arrowId, startElId, endElId, curveOffset = -25) => {
+      const drawArrow = (arrowId, startElId, endElSelector, curveOffset = -25) => {
         const arrow = document.getElementById(arrowId);
         const startEl = document.getElementById(startElId);
-        const endEl = document.getElementById(endElId);
+        const endEl = document.querySelector(endElSelector) || document.getElementById(endElSelector);
         if (!arrow || !startEl || !endEl) return;
 
-        const startRect = startEl.getBoundingClientRect();
+        let startRect = startEl.getBoundingClientRect();
+
+        // 精準取得螢光筆文字最後一個字元的位置，防止跨行斷行導致 bounding box 寬度膨脹歪斜
+        try {
+          const range = document.createRange();
+          let textNode = null;
+          for (let i = startEl.childNodes.length - 1; i >= 0; i--) {
+            if (startEl.childNodes[i].nodeType === Node.TEXT_NODE) {
+              textNode = startEl.childNodes[i];
+              break;
+            }
+          }
+          if (textNode && textNode.textContent.trim().length > 0) {
+            const text = textNode.textContent;
+            let lastCharIdx = text.length - 1;
+            while (lastCharIdx >= 0 && (text[lastCharIdx] === ' ' || text[lastCharIdx] === '\n' || text[lastCharIdx] === '\r')) {
+              lastCharIdx--;
+            }
+            if (lastCharIdx >= 0) {
+              range.setStart(textNode, lastCharIdx);
+              range.setEnd(textNode, lastCharIdx + 1);
+              const rects = range.getClientRects();
+              if (rects.length > 0) {
+                startRect = rects[0];
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("無法取得最後一個字元的 Range，將退回使用元素的 boundingClientRect:", e);
+        }
+
         const endRect = endEl.getBoundingClientRect();
 
-        // 計算相對於容器的起點 (螢光筆文字右側/右上角)
-        const x1 = (startRect.right - containerRect.left) - 5;
+        // 計算相對於容器的起點 (使起點更貼近螢光筆最後一字右側外緣，調整為 +2 px)
+        const x1 = (startRect.right - containerRect.left) + 2;
         const y1 = (startRect.top + startRect.height / 2 - containerRect.top);
 
         // 計算相對於容器的終點 (標籤左側邊界，退後 15px 以防碰到標籤)
@@ -2053,10 +2084,10 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
         arrow.setAttribute('d', d);
       };
 
-      // 繪製三個箭頭的曲線
-      drawArrow(`arrow-1-${suffix}`, `hl-1-${suffix}`, `tg-1-${suffix}`, -40);
-      drawArrow(`arrow-2-${suffix}`, `hl-2-${suffix}`, `tg-2-${suffix}`, -20);
-      drawArrow(`arrow-3-${suffix}`, `hl-3-${suffix}`, `tg-3-${suffix}`, 20);
+      // 繪製三個箭頭的曲線 (第一條連向 tg-1 的第1個標籤，第二條連向 tg-2 的第1個標籤，第三條連向 tg-3)
+      drawArrow(`arrow-1-${suffix}`, `hl-1-${suffix}`, `#tg-1-${suffix} .analysis-tag:nth-child(1)`, -45);
+      drawArrow(`arrow-2-${suffix}`, `hl-2-${suffix}`, `#tg-2-${suffix} .analysis-tag:nth-child(1)`, -15);
+      drawArrow(`arrow-3-${suffix}`, `hl-3-${suffix}`, `#tg-3-${suffix} .analysis-tag`, 20);
     }
 
     // 執行 10 步分鏡動畫
@@ -2073,10 +2104,14 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
         if (el) el.classList.remove('active', 'active-marker');
       });
 
-      // 延遲更新箭頭，等待瀏覽器完成版面渲染，確保 boundingClientRect 計算精準
-      setTimeout(() => {
-        updateAnalysisArrows(suffix);
-      }, 100);
+      // 多次定時更新箭頭，以跟隨 CSS 頁面進入 fade-in 動畫 (1.2s) 期間的坐標變化，保證最終完全對齊
+      // 在 1.3 秒（動畫完全結束）進行最後一次鎖定重繪後即停止更新，徹底消除畫完後的些微跳動
+      const updateTimes = [100, 300, 600, 900, 1200, 1300];
+      updateTimes.forEach(delay => {
+        setTimeout(() => {
+          updateAnalysisArrows(suffix);
+        }, delay);
+      });
 
       // 動態播放 12 個分鏡 (精細時序，螢光筆 -> 箭頭線 -> 箭頭三角形 active-marker -> 標籤流水線)
       const steps = [

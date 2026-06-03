@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>初路 - 初級大人的職業探索之路 - Sample</title>
-<link rel="icon" type="image/png" href="assets/favicon.png" />
+  <title>初路 - 初級大人的職業探索之路</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
 
@@ -41,7 +41,7 @@
       color: var(--n50);
     }
 
-    /* 模擬的首頁內容 */
+    /* 首頁背景底圖 */
     .homepage-mock {
       width: 100%;
       height: 100%;
@@ -55,171 +55,9 @@
         rgba(250, 246, 243, 0.25)
       ), url('assets/abanner.png') center/cover no-repeat;
       color: var(--n50);
-
-      /* 初始狀態：模糊且稍微暗一點 */
-      filter: blur(15px) brightness(0.9);
-      transform: scale(1.05);
-      transition: filter 4s cubic-bezier(0.3, 0, 0.2, 1), transform 4s cubic-bezier(0.3, 0, 0.2, 1);
     }
 
-    .homepage-mock h1 {
-      font-size: 4rem;
-      font-weight: 900;
-      margin-bottom: 10px;
-      color: var(--n50);
-      text-shadow: 0 2px 8px rgba(250, 246, 243, 0.6);
-    }
-
-    .homepage-mock p {
-      font-size: 1.25rem;
-      color: var(--s50);
-      font-weight: 600;
-      text-shadow: 0 1px 4px rgba(250, 246, 243, 0.8);
-    }
-
-    /* 雲霧容器 */
-    .clouds-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 100;
-    }
-
-    /* 單片雲霧，替換成真實圖片 */
-    .cloud {
-      position: absolute;
-      background-size: cover;
-      /* 讓圖片填滿指定的區域 */
-      background-position: center;
-      background-repeat: no-repeat;
-      /* 放慢動畫至 4 秒，讓雲氣散開更有史詩感 */
-      transition: transform 4s cubic-bezier(0.3, 0, 0.2, 1), opacity 4s cubic-bezier(0.3, 0, 0.2, 1);
-    }
-
-    /* 佈置 5 片雲，增加大小與中央覆蓋率 */
-    .cloud-1 {
-      top: -40%;
-      left: -40%;
-      width: 120%;
-      height: 120%;
-      background-image: url('assets/fog_6.png');
-      opacity: 0.95;
-    }
-
-    .cloud-2 {
-      top: -40%;
-      right: -40%;
-      width: 120%;
-      height: 120%;
-      background-image: url('assets/fog_6.png');
-      opacity: 0.95;
-      /* 鏡像翻轉，增加自然感 */
-      transform: scaleX(-1);
-    }
-
-    .cloud-3 {
-      bottom: -40%;
-      left: -40%;
-      width: 120%;
-      height: 120%;
-      background-image: url('assets/fog_6.png');
-      opacity: 0.95;
-    }
-
-    .cloud-4 {
-      bottom: -40%;
-      right: -40%;
-      width: 120%;
-      height: 120%;
-      background-image: url('assets/fog_6.png');
-      opacity: 0.95;
-      /* 上下翻轉 */
-      transform: scaleY(-1);
-    }
-
-
-
-    /* ====== 動畫觸發後的狀態 ====== */
-
-    /* 首頁變清晰 */
-    body.is-clearing .homepage-mock {
-      filter: blur(0px) brightness(1);
-      transform: scale(1);
-    }
-
-    /* 雲霧向四周推移、放大（營造逼近相機後消失的感覺）、並漸漸透明 */
-    body.is-clearing .cloud-1 {
-      transform: translate(-30%, -30%) scale(1.5);
-      opacity: 0;
-    }
-
-    body.is-clearing .cloud-2 {
-      /* 注意：保留原有的 scaleX(-1) 屬性 */
-      transform: translate(30%, -30%) scaleX(-1) scale(1.5);
-      opacity: 0;
-    }
-
-    body.is-clearing .cloud-3 {
-      transform: translate(-30%, 30%) scale(1.5);
-      opacity: 0;
-    }
-
-    body.is-clearing .cloud-4 {
-      /* 注意：保留原有的 scaleY(-1) 屬性 */
-      transform: translate(30%, 30%) scaleY(-1) scale(1.5);
-      opacity: 0;
-    }
-
-
-
-    /* 控制按鈕 */
-    .controls {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 200;
-    }
-
-    .controls button {
-      padding: 10px 24px;
-      font-size: 16px;
-      font-family: inherit;
-      /* N50 碳墨底色，S10 靜白文字 */
-      background: var(--n50);
-      color: var(--s10);
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
-    }
-
-    /* 當動畫啟動後，延遲顯示按鈕 */
-    body.is-clearing .controls button {
-      opacity: 1;
-      visibility: visible;
-      transition-delay: 2s;
-      /* 延遲加快一秒，改為 2 秒 */
-    }
-
-    /* 文字切換動畫 */
-    .homepage-mock h1,
-    .homepage-mock p {
-      transition: opacity 1s ease-in-out, filter 1s ease-in-out;
-    }
-
-    body.show-final-text .homepage-mock h1,
-    body.show-final-text .homepage-mock p {
-      opacity: 0;
-      filter: blur(10px);
-    }
-
-    /* 最終標題文字容器 */
+    /* 最終顯示內容容器 */
     .final-content {
       position: absolute;
       top: 50%;
@@ -229,7 +67,6 @@
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      /* 初始不可點擊 */
       transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
       z-index: 50;
     }
@@ -238,11 +75,9 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
-      /* 出現後可點擊 */
     }
 
     .title-wrapper {
-      /* 初始隱藏，配合動畫淡入 */
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -289,7 +124,6 @@
       text-shadow: 0 2px 10px rgba(250, 246, 243, 0.95), 
                    0 1px 4px rgba(250, 246, 243, 0.85);
       
-      /* 初始隱藏，配合動畫淡入 */
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -342,21 +176,20 @@
       transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* 讓按鈕接續出現 (動畫期間保持不可點擊) */
+    /* 讓按鈕接續出現 */
     body.show-final-text .action-btn {
       opacity: 1;
       visibility: visible;
-      pointer-events: none; /* 動畫結束前不可點擊 */
+      pointer-events: none;
       animation: gentleFadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
     }
 
-    /* 動畫完全結束後才允許點擊 (.btns-ready 由 JS 延遲加入) */
+    /* 動畫完全結束後才允許點擊 */
     body.btns-ready .action-btn {
       pointer-events: auto;
     }
 
     body.btns-ready .action-btn:hover {
-      /* 懸停時加深為 S50 約 15% 深 */
       background: #C39787;
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(212, 168, 152, 0.45);
@@ -381,13 +214,11 @@
       top: 20px;
       left: 40px;
       width: 80px;
-      /* 控制 icon 大小 */
       height: auto;
       z-index: 60;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      /* 初始不可點擊 */
       transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
     }
 
@@ -395,22 +226,9 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
-      /* 出現後可點擊 */
     }
 
-    /* 強制瞬間重設，不帶動畫 */
-    body.no-transition .cloud,
-    body.no-transition .homepage-mock,
-    body.no-transition .homepage-mock h1,
-    body.no-transition .homepage-mock p,
-    body.no-transition .final-content,
-    body.no-transition .action-btn,
-    body.no-transition .site-icon,
-    body.no-transition .controls button {
-      transition: none !important;
-    }
-
-    /* 1. 紙張紋理 - 提高透明度並增加混合模式 */
+    /* 紙張紋理 */
     .noise-overlay {
       position: absolute;
       top: 0;
@@ -420,14 +238,11 @@
       pointer-events: none;
       z-index: 9999;
       opacity: 0.06;
-      /* 從 0.04 提高 */
       mix-blend-mode: multiply;
       background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
     }
 
-
-
-    /* 6. 塵埃粒子 */
+    /* 塵埃粒子 */
     .dust-motes {
       position: absolute;
       top: 0;
@@ -436,13 +251,11 @@
       height: 100vh;
       pointer-events: none;
       z-index: 25;
-      /* 位於雲朵與主內容之間 */
       overflow: hidden;
     }
 
     .mote {
       position: absolute;
-      /* 以 S10 靜白帶透明做為塵埃粒子，符合品牌溫暖調性 */
       background: rgba(250, 246, 243, 0.85);
       border-radius: 50%;
       filter: blur(1.5px);
@@ -469,12 +282,6 @@
         opacity: 0;
       }
     }
-
-    /* 跳過動畫的快速樣式 */
-    body.skip-anim * {
-      transition: none !important;
-      animation: none !important;
-    }
   </style>
 </head>
 
@@ -488,11 +295,10 @@
   <!-- 左上角 Icon -->
   <img src="assets/icon.png" class="site-icon" alt="Career Match Icon">
 
-  <!-- 初始首頁內容 -->
-  <div class="homepage-mock">
-  </div>
+  <!-- 初始首頁背景 (清晰背景) -->
+  <div class="homepage-mock"></div>
 
-  <!-- 最終顯示內容 -->
+  <!-- 最終顯示內容 (主標題與副標題，一進來便自動淡入) -->
   <div class="final-content">
     <div class="title-wrapper">
       <h2>初路</h2>
@@ -504,23 +310,7 @@
     </div>
   </div>
 
-  <!-- 雲霧層 -->
-  <div class="clouds-container">
-    <div class="cloud cloud-1"></div>
-    <div class="cloud cloud-2"></div>
-    <div class="cloud cloud-3"></div>
-    <div class="cloud cloud-4"></div>
-
-  </div>
-
-  <!-- 重播按鈕 -->
-  <div class="controls">
-    <button onclick="replayAnimation()">重新觀看動畫</button>
-  </div>
-
   <script>
-    let textTimer;
-
     // 建立塵埃粒子
     function createDustMotes() {
       const container = document.getElementById('dust-motes');
@@ -545,59 +335,17 @@
       }
     }
 
-    // 啟動動畫序列
-    function startSequence() {
-      // 0.8秒後開始撥雲
-      setTimeout(() => {
-        document.body.classList.add('is-clearing');
-
-        // 撥雲開始後 1.9 秒 (總共約 2.7 秒)，切換到最終文字
-        textTimer = setTimeout(() => {
-          document.body.classList.add('show-final-text');
-          // 最長按鈕動畫：0.45s delay + 0.8s duration = 1.25s，延遲 1.3s 後開放點擊
-          setTimeout(() => {
-            document.body.classList.add('btns-ready');
-          }, 1300);
-        }, 1900);
-      }, 800);
-    }
-
     window.addEventListener('load', () => {
       createDustMotes();
 
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('from') === 'flow') {
-        // 直接進入最終狀態
-        document.body.classList.add('skip-anim');
-        document.body.classList.add('is-clearing');
-        document.body.classList.add('show-final-text');
-        document.body.classList.add('btns-ready'); // 跳過動畫時立即開放點擊
-
-        // 稍微延遲移除 skip-anim，讓後續的手動操作（如重新觀看）可以有動畫
-        setTimeout(() => {
-          document.body.classList.remove('skip-anim');
-        }, 100);
-      } else {
-        startSequence();
-      }
+      // 載入網頁後立即播放淡入動畫
+      document.body.classList.add('show-final-text');
+      
+      // 動態按鈕動畫完全結束後（約 1.3 秒）開放點擊
+      setTimeout(() => {
+        document.body.classList.add('btns-ready');
+      }, 1300);
     });
-
-    function replayAnimation() {
-      // 清除計時器防止衝突
-      clearTimeout(textTimer);
-
-      // 1. 瞬間回到初始狀態
-      document.body.classList.add('no-transition');
-      document.body.classList.remove('is-clearing');
-      document.body.classList.remove('show-final-text');
-      document.body.classList.remove('btns-ready');
-
-      void document.body.offsetHeight;
-      document.body.classList.remove('no-transition');
-
-      // 2. 重新啟動序列
-      setTimeout(startSequence, 50);
-    }
   </script>
 </body>
 
