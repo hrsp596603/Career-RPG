@@ -306,7 +306,29 @@
       display: block;
     }
 
-
+    /* ===== 行動端響應式調整 ===== */
+    @media (max-width: 768px) {
+      .final-content h2 {
+        font-size: 3.5rem; /* 縮小標題字型，防止在手機上折行 */
+        letter-spacing: 15px; /* 縮小字距 */
+        margin-right: -15px;
+      }
+      .final-subtitle {
+        font-size: 1.1rem;
+        letter-spacing: 4px;
+        margin-right: -4px;
+        margin-bottom: 32px;
+      }
+      .action-buttons {
+        flex-direction: row; /* 確保按鈕維持水平排列 */
+        gap: 16px;
+      }
+      .action-btn {
+        padding: 12px 24px; /* 減少內邊距以適應手機寬度 */
+        font-size: 0.95rem;
+        white-space: nowrap; /* 強制按鈕文字不折行 */
+      }
+    }
   </style>
 </head>
 

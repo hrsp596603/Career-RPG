@@ -49,6 +49,21 @@
       overflow-x: hidden;
     }
 
+    /* 行動裝置頂部毛玻璃導航條 */
+    .site-header-mobile {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 56px;
+      background: rgba(250, 246, 243, 0.75); /* 使用品牌 s10 靜白，帶 75% 透明 */
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(232, 213, 199, 0.4); /* s40 淡燕麥邊框 */
+      z-index: 999;
+      display: none; /* 桌面端預設隱藏 */
+    }
+
     /* 左上角 Icon */
     .site-icon {
       position: absolute;
@@ -269,7 +284,52 @@
       text-align: right;
     }
 
+    .page-balance-title {
+      font-size: 2.5rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: var(--dark-navy);
+      margin: 0 0 35px 0;
+      font-family: 'Noto Serif TC', serif;
+      text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);
+      text-align: left;
+      letter-spacing: 2px;
+    }
+
+    .page-buffer-title {
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: var(--dark-navy);
+      margin: 0;
+      font-family: 'Noto Serif TC', serif;
+      letter-spacing: 2px;
+      text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5);
+      line-height: 1.6;
+      text-align: center;
+    }
+
     @media (max-width: 768px) {
+      .site-header-mobile {
+        display: block;
+      }
+      
+      .site-icon {
+        position: fixed !important;
+        top: 10px !important;
+        left: 15px !important;
+        width: 36px !important;
+        z-index: 1000 !important;
+      }
+
+      /* 為行動端所有容器加上頂部內邊距，防止一開始被 fixed header 遮住 */
+      .page-container {
+        padding-top: 72px !important;
+        box-sizing: border-box !important;
+        justify-content: flex-start !important;
+        overflow-y: auto !important;
+        height: 100% !important;
+      }
+
       .about-header {
         flex-direction: column;
         align-items: center;
@@ -278,6 +338,94 @@
 
       .about-header-tip {
         text-align: center;
+      }
+
+      /* 語意分析跳轉動畫行動端佈局優化 */
+      .analysis-anim-container {
+        width: 100% !important;
+        padding: 10px 5px !important;
+        height: 520px !important; /* 固定高度以支撐子元素 stretch */
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: stretch !important; /* 撐滿子元素高度 */
+        padding-top: 20px !important;
+        box-sizing: border-box !important;
+      }
+      .analysis-text-block {
+        width: 48% !important;
+        font-size: 0.95rem !important;
+        line-height: 1.7 !important;
+      }
+      .analysis-text-block p {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.9em !important;
+      }
+      .analysis-text-title {
+        font-size: 1.6rem !important;
+        margin-bottom: 16px !important;
+      }
+      .analysis-tags-block {
+        width: 48% !important;
+        height: 100% !important; /* 撐滿容器高度 */
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important; /* 上、中、下均勻分散對齊 */
+        gap: 0 !important; /* 移除寫死 gap，交由 space-between 自動分佈 */
+        padding: 15px 0 !important; /* 上下留適當內邊距防止貼邊 */
+        box-sizing: border-box !important;
+      }
+      .analysis-tag {
+        font-size: 0.82rem !important; /* 行動端標籤字型微調以減少折行 */
+        padding: 8px 10px !important;
+        line-height: 1.3 !important;
+        word-break: break-all !important;
+      }
+
+      .page-balance-title {
+        font-size: 1.45rem !important;
+        line-height: 2.1 !important; /* 再度拓寬行距，使其在行動端折行時更加舒展優雅 */
+        margin-bottom: 25px !important;
+        letter-spacing: 1px !important;
+      }
+      .page-buffer-title {
+        font-size: 1.45rem !important;
+        line-height: 1.8 !important; /* 拓寬行距以優化載入頁視覺焦點 */
+        letter-spacing: 1px !important;
+      }
+
+      /* 統一調整事件簡述等頁面標題在行動端的字體大小，保證兩行內呈現完畢 */
+      h2.page-title {
+        font-size: 1.8rem !important;
+        letter-spacing: 4px !important;
+        margin-right: -4px !important;
+        margin-bottom: 20px !important;
+        line-height: 1.45 !important;
+      }
+
+      /* 緩衝過渡頁面行動端重新垂直置中 */
+      #page-semantic-buffer-want,
+      #page-semantic-buffer-able,
+      #page-bridge,
+      #page-reality-check-buffer,
+      #page-welcome-back,
+      #page-expectation {
+        justify-content: center !important;
+        align-items: center !important;
+        padding-top: 56px !important; /* 避開頂部毛玻璃 header 並保持畫面置中 */
+        overflow: hidden !important;
+      }
+
+      /* 行動端特定過渡頁字體微調 */
+      #page-welcome-back h2 {
+        font-size: 2.2rem !important;
+        margin-bottom: 10px !important;
+      }
+      #page-welcome-back p {
+        font-size: 1.1rem !important;
+      }
+      #page-expectation h2 {
+        font-size: 2.0rem !important;
+        line-height: 1.5 !important;
       }
     }
 
@@ -801,6 +949,60 @@
         margin-top: 20px;
         align-self: center;
       }
+      
+      /* 行動端拉桿標籤優化：強制顯示最左、最右以及 Active 節點的標籤，避免重疊 */
+      .scale-label {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+      }
+      .scale-node-wrapper:first-child .scale-label,
+      .scale-node-wrapper:last-child .scale-label,
+      .scale-node-wrapper.active .scale-label {
+        opacity: 1;
+        visibility: visible;
+        font-size: 0.76rem !important;
+        width: 70px !important;
+      }
+      
+      /* 最左邊標籤靠左對齊，防止超出螢幕 */
+      .scale-node-wrapper:first-child .scale-label {
+        left: 0 !important;
+        transform: translateX(0) !important;
+        text-align: left !important;
+      }
+      .scale-node-wrapper.active:first-child .scale-label {
+        left: 0 !important;
+        transform: translateY(-2px) !important;
+        text-align: left !important;
+      }
+      
+      /* 最右邊標籤靠右對齊，防止超出螢幕 */
+      .scale-node-wrapper:last-child .scale-label {
+        left: auto !important;
+        right: 0 !important;
+        transform: translateX(0) !important;
+        text-align: right !important;
+      }
+      .scale-node-wrapper.active:last-child .scale-label {
+        left: auto !important;
+        right: 0 !important;
+        transform: translateY(-2px) !important;
+        text-align: right !important;
+      }
+
+      /* 中間的點 active 時，保持水平置中上浮 */
+      .scale-node-wrapper.active:not(:first-child):not(:last-child) .scale-label {
+        left: 50% !important;
+        transform: translateX(-50%) translateY(-2px) !important;
+        text-align: center !important;
+      }
+
+      .scale-container {
+        margin-bottom: 35px !important;
+        padding: 24px 16px !important;
+      }
     }
 
     .sketch-highlight-yellow {
@@ -1000,14 +1202,14 @@
     }
 
     .analysis-tag {
-      background: #F4D35E;
-      color: #3D405B;
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: var(--primary);
+      color: white;
+      border: 1px solid rgba(0, 0, 0, 0.05);
       border-radius: 20px;
       padding: 6px 14px;
       font-size: 0.95rem;
       font-weight: bold;
-      box-shadow: 0 4px 10px rgba(244, 211, 94, 0.25);
+      box-shadow: 0 4px 12px rgba(129, 178, 154, 0.3);
       align-self: flex-start;
       white-space: nowrap;
       font-family: 'Iansui', sans-serif;
@@ -1050,6 +1252,9 @@
 </head>
 
 <body>
+  <!-- 行動端固定頂部毛玻璃條 -->
+  <div class="site-header-mobile"></div>
+
   <!-- 塵埃粒子背景 -->
   <div class="dust-motes" id="dust-motes"></div>
 
@@ -1116,8 +1321,7 @@
     style="justify-content: flex-start; align-items: center; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box; position: relative;">
     <div style="width: 100%; max-width: 1000px; display: flex; flex-direction: column; align-items: flex-start;">
       <!-- 靠左大標題，移除玻璃底板，字體大小一致 -->
-      <h2
-        style="font-size: 2.5rem; font-weight: 600; line-height: 1.5; color: var(--dark-navy); margin: 0 0 35px 0; font-family: 'Noto Serif TC', serif; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); text-align: left; letter-spacing: 2px;">
+      <h2 class="page-balance-title">
         買東西總是被叮嚀：<br>
         “要平衡好想要和需要”<br>
         但我們可愛的小腦袋一次處理一件事就夠了
@@ -1235,8 +1439,7 @@
   <!-- ==================== Wants 語意分析緩衝過渡頁 ==================== -->
   <div id="page-semantic-buffer-want" class="page-container"
     style="justify-content: center; align-items: center; text-align: center;">
-    <h2
-      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+    <h2 class="page-buffer-title">
       請記得，這些故事說明了，<br>
       「為什麼你是你自己」<br>
       而你是重要的，不論任何解釋意義
@@ -1329,7 +1532,6 @@
         </div>
         <div class="tag-group" id="tg-2-want">
           <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
-          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
         </div>
         <div class="tag-group" id="tg-3-want">
           <div class="analysis-tag" style="white-space: normal; line-height: 1.4;"># 結構化書面輸出<br><span
@@ -1359,8 +1561,7 @@
   <!-- ==================== Bridge 橋樑過渡頁 (page-bridge) ==================== -->
   <div id="page-bridge" class="page-container"
     style="justify-content: center; align-items: center; text-align: center;">
-    <h2
-      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+    <h2 class="page-buffer-title">
       有夢最美，也要裝夢踏實<br>
       小朋友才做選擇<br>
       理想跟現實我都要
@@ -1417,8 +1618,7 @@
   <!-- ==================== Able 語意分析緩衝過渡頁 ==================== -->
   <div id="page-semantic-buffer-able" class="page-container"
     style="justify-content: center; align-items: center; text-align: center;">
-    <h2
-      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6;">
+    <h2 class="page-buffer-title">
       請記得，這些故事說明了，<br>
       「為什麼你是你自己」<br>
       而你是重要的，不論任何解釋意義
@@ -1509,7 +1709,6 @@
         </div>
         <div class="tag-group" id="tg-2-able">
           <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
-          <div class="analysis-tag"># 工作流程的診斷與改善判斷</div>
         </div>
         <div class="tag-group" id="tg-3-able">
           <div class="analysis-tag" style="white-space: normal; line-height: 1.4;"># 結構化書面輸出<br><span
@@ -1539,8 +1738,7 @@
   <!-- ==================== Reality Check 隨機二擇一過渡緩衝頁 ==================== -->
   <div id="page-reality-check-buffer" class="page-container"
     style="justify-content: center; align-items: center; text-align: center;">
-    <h2 id="reality-check-buffer-text"
-      style="font-size: 2.8rem; font-weight: 600; color: var(--dark-navy); margin: 0; font-family: 'Noto Serif TC', serif; letter-spacing: 2px; text-shadow: 0 4px 15px rgba(255, 255, 255, 0.5); line-height: 1.6; max-width: 800px;">
+    <h2 id="reality-check-buffer-text" class="page-buffer-title" style="max-width: 800px; margin: 0 auto;">
       <!-- 動態寫入隨機文字 -->
     </h2>
     <div class="buffer-loader" style="margin-top: 48px;">
@@ -1553,7 +1751,7 @@
   <!-- ==================== 要不要：現實篩選 ==================== -->
   <div id="page-reality-check" class="page-container"
     style="justify-content: flex-start; overflow-y: auto; padding: 80px 20px 100px; box-sizing: border-box;">
-    <h2 class="page-title">這是和自己的約定，他人的期待先放著吧</h2>
+    <h2 class="page-title">這是和自己的約定，<br>他人的期待先放著吧</h2>
 
     <!-- 收入底線 -->
     <div class="scale-container">
@@ -2069,16 +2267,28 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
         const endRect = endEl.getBoundingClientRect();
 
         // 計算相對於容器的起點 (使起點更貼近螢光筆最後一字右側外緣，調整為 +2 px)
-        const x1 = (startRect.right - containerRect.left) + 2;
-        const y1 = (startRect.top + startRect.height / 2 - containerRect.top);
+        let x1 = (startRect.right - containerRect.left) + 2;
+        let y1 = (startRect.top + startRect.height / 2 - containerRect.top);
 
-        // 計算相對於容器的終點 (標籤左側邊界，退後 15px 以防碰到標籤)
-        const x2 = (endRect.left - containerRect.left) - 15;
-        const y2 = (endRect.top + endRect.height / 2 - containerRect.top);
+        // 計算相對於容器的終點 (標籤左側邊界，在行動端減少退後距離，給箭頭更多伸展空間)
+        const isMobile = window.innerWidth <= 768;
+        const retreatDist = isMobile ? 6 : 15;
+        let x2 = (endRect.left - containerRect.left) - retreatDist;
+        let y2 = (endRect.top + endRect.height / 2 - containerRect.top);
+
+        // 安全邊界限制：避免行動端下，左側螢光筆太靠右或折行導致起點與終點水平反向 (x1 >= x2)
+        if (isMobile && x1 >= x2 - 10) {
+          // 限制起點不超過文字區的右側邊界 (約容器寬度的 46%)
+          const maxLeftX = containerRect.width * 0.46;
+          x1 = Math.min(x1, maxLeftX);
+          x2 = Math.max(x2, x1 + 15); // 確保 x2 至少在 x1 右側 15px 處
+        }
 
         // 使用二次貝茲曲線繪製帶有手寫弧度的線條
         const cx = (x1 + x2) / 2;
-        const cy = (y1 + y2) / 2 + curveOffset; // 向上/下拉產生彎曲弧度
+        // 行動端調小 curveOffset，使曲線更加平緩自然
+        const adjustedOffset = isMobile ? curveOffset * 0.6 : curveOffset;
+        const cy = (y1 + y2) / 2 + adjustedOffset; 
 
         const d = `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
         arrow.setAttribute('d', d);
@@ -2654,6 +2864,24 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
       }
     }
 
+    function initScales() {
+      ['income', 'time', 'mobility', 'feedback'].forEach(category => {
+        const savedVal = userProgressData[`scale-${category}`];
+        const nodesContainer = document.getElementById(`scale-${category}`);
+        if (nodesContainer) {
+          const wrappers = nodesContainer.querySelectorAll('.scale-node-wrapper');
+          let activeIndex = 0;
+          if (savedVal !== undefined && wrappers[savedVal]) {
+            activeIndex = parseInt(savedVal, 10);
+            wrappers.forEach(el => el.classList.remove('active'));
+            wrappers[activeIndex].classList.add('active');
+            const overlay = nodesContainer.closest('.scale-track-container').querySelector('.scale-range-overlay');
+            if (overlay) overlay.value = activeIndex;
+          }
+        }
+      });
+    }
+
     // ==================== 初始化 ====================
     window.addEventListener('load', () => {
       createDustMotes();
@@ -2663,6 +2891,7 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
       if (savedData) {
         userProgressData = JSON.parse(savedData);
       }
+      initScales();
 
       // 載入問卷輸入欄位初始值
       const inputs = document.querySelectorAll('.text-input, textarea.text-input');
