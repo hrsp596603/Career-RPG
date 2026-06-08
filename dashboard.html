@@ -698,6 +698,71 @@
         transform: rotate(360deg);
       }
     }
+
+    /* 批量管理按鈕與 Checkbox 樣式 */
+    .batch-btn {
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--s40);
+      background: var(--s10);
+      color: var(--n40);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .batch-btn:hover {
+      background: var(--s30);
+      border-color: var(--s50);
+      color: var(--n50);
+    }
+    .batch-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--s10) !important;
+      color: var(--n30) !important;
+      border-color: var(--s40) !important;
+    }
+
+    .record-card {
+      transition: all 0.3s ease;
+      display: flex !important;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .record-checkbox-container {
+      display: none;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      padding: 5px;
+    }
+    
+    .records-list.batch-mode .record-checkbox-container {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .record-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--s50);
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+      accent-color: var(--s50);
+      transition: all 0.2s ease;
+      margin: 0;
+    }
+
+    /* 進入批量管理時隱藏單個操作按鈕組 */
+    .records-list.batch-mode .record-actions {
+      display: none !important;
+    }
   </style>
 </head>
 
@@ -723,7 +788,7 @@
         </svg>
         <h1 class="logo-title">初路</h1>
       </div>
-      <button class="nav-btn" onclick="window.location.href='index.html'">返回上ㄧ頁 ➔</button>
+      <button class="nav-btn" onclick="if (document.referrer) { history.back(); } else { window.location.href='index.html'; }">返回上ㄧ頁 ➔</button>
     </header>
 
     <!-- 訊息提示橫幅 -->
@@ -805,7 +870,26 @@
 
         <!-- 歷史紀錄列表 -->
         <div class="records-container">
-          <h3 class="section-title">🧭 您的歷史探索回憶</h3>
+          <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
+            <span>🧭 您的歷史探索回憶</span>
+            <div class="batch-admin-triggers" style="display: none;">
+              <button id="batch-manage-btn" class="batch-btn" onclick="toggleBatchMode()">⚙️ 批量管理</button>
+            </div>
+          </h3>
+          
+          <!-- 批量操作控制列 (預設隱藏) -->
+          <div id="batch-control-bar" style="display: none; justify-content: space-between; align-items: center; background: rgba(212, 168, 152, 0.12); border: 1px dashed var(--s50); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; animation: gentleFadeIn 0.3s ease;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <button class="batch-btn" onclick="selectAllRecords()">全選</button>
+              <button class="batch-btn" onclick="deselectAllRecords()">取消全選</button>
+              <span id="batch-selected-count" style="font-size: 0.9rem; color: var(--n40); font-weight: bold; margin-left: 5px; font-family: 'Iansui', serif;">已選取 0 筆</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="batch-btn" onclick="toggleBatchMode(false)" style="background: var(--card-bg); color: var(--n40); border: 1px solid var(--s40);">取消</button>
+              <button class="batch-btn" id="batch-delete-btn" onclick="deleteSelectedRecords()" style="background: var(--danger); color: white; border-color: var(--danger);" disabled>🗑️ 刪除已選取</button>
+            </div>
+          </div>
+
           <div id="records-list" class="records-list">
             <!-- 動態填充歷史紀錄 -->
           </div>
@@ -882,6 +966,7 @@
     let authMode = 'login'; // login or register
     let currentUser = null;
     let localDataToSync = null;
+    let isBatchMode = false;
 
     // 取得全域元素
     const mainContainer = document.getElementById('main-container');
@@ -1194,6 +1279,16 @@
     // 載入歷史記錄列表
     async function loadUserProgressList() {
       const listContainer = document.getElementById('records-list');
+      const batchTriggers = document.querySelector('.batch-admin-triggers');
+      
+      // 每次重新載入列表，重置並退出批量管理狀態
+      isBatchMode = false;
+      if (listContainer) listContainer.classList.remove('batch-mode');
+      const controlBar = document.getElementById('batch-control-bar');
+      if (controlBar) controlBar.style.display = 'none';
+      const manageBtn = document.getElementById('batch-manage-btn');
+      if (manageBtn) manageBtn.style.display = 'inline-block';
+
       listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">讀取回憶中...</div>';
 
       try {
@@ -1205,6 +1300,7 @@
         if (error) throw error;
 
         if (!data || data.length === 0) {
+          if (batchTriggers) batchTriggers.style.display = 'none';
           listContainer.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon">🪐</div>
@@ -1213,6 +1309,9 @@
           `;
           return;
         }
+
+        // 有歷史紀錄，顯示批量管理按鈕
+        if (batchTriggers) batchTriggers.style.display = 'block';
 
         listContainer.innerHTML = '';
         data.forEach(item => {
@@ -1232,6 +1331,9 @@
           }
 
           card.innerHTML = `
+            <div class="record-checkbox-container">
+              <input type="checkbox" class="record-checkbox" value="${item.id}" onchange="updateSelectedCount()">
+            </div>
             <div class="record-info">
               <h5>${escapeHtml(item.record_name)}</h5>
               <div class="record-meta">
@@ -1248,6 +1350,7 @@
           listContainer.appendChild(card);
         });
       } catch (err) {
+        if (batchTriggers) batchTriggers.style.display = 'none';
         listContainer.innerHTML = `<div style="color:var(--danger); text-align:center; padding: 20px;">載入歷史失敗：${err.message}</div>`;
       }
     }
@@ -1344,11 +1447,14 @@
 
     let deleteRecordId = null;
     let deleteRecordName = '';
+    let deleteMode = 'single'; // 'single' or 'batch'
+    let batchIdsToDelete = [];
 
     // 開啟刪除確認 Modal
     function askDeleteRecord(id, name) {
       deleteRecordId = id;
       deleteRecordName = name;
+      deleteMode = 'single';
       document.getElementById('delete-confirm-text').innerHTML = `確定要刪除「<b>${escapeHtml(name)}</b>」這筆紀錄嗎？<br>刪除後將無法還原該回憶。`;
       document.getElementById('delete-confirm-modal').classList.add('active');
     }
@@ -1357,39 +1463,144 @@
     function closeDeleteModal() {
       deleteRecordId = null;
       deleteRecordName = '';
+      deleteMode = 'single';
+      batchIdsToDelete = [];
       document.getElementById('delete-confirm-modal').classList.remove('active');
     }
 
     // 執行實際刪除
     async function executeDeleteRecord() {
-      if (!deleteRecordId) return;
-      const id = deleteRecordId;
-      const name = deleteRecordName;
+      const mode = deleteMode;
+      const singleId = deleteRecordId;
+      const singleName = deleteRecordName;
+      const batchIds = [...batchIdsToDelete];
 
       closeDeleteModal();
-      showLoading("正在刪除記憶...");
-      try {
-        const { error } = await supabaseClient
-          .from('user_progress')
-          .delete()
-          .eq('id', id);
 
-        if (error) throw error;
+      if (mode === 'single') {
+        if (!singleId) return;
+        showLoading("正在刪除記憶...");
+        try {
+          const { error } = await supabaseClient
+            .from('user_progress')
+            .delete()
+            .eq('id', singleId);
 
-        // 若刪除的剛好是當前載入的這筆，將其 ID 與名稱從快取移除
-        if (localStorage.getItem('careerRPG_currentRecordId') === id) {
-          localStorage.removeItem('careerRPG_currentRecordId');
-          localStorage.removeItem('careerRPG_currentRecordName');
+          if (error) throw error;
+
+          // 若刪除的剛好是當前載入的這筆，將其 ID 與名稱從快取移除
+          if (localStorage.getItem('careerRPG_currentRecordId') === singleId) {
+            localStorage.removeItem('careerRPG_currentRecordId');
+            localStorage.removeItem('careerRPG_currentRecordName');
+          }
+
+          showGlobalMessage(`「${singleName}」已成功刪除。`);
+          await loadUserProgressList();
+          checkLocalDataToSync();
+        } catch (err) {
+          showGlobalMessage("刪除失敗：" + err.message, "error");
+        } finally {
+          hideLoading();
         }
+      } else if (mode === 'batch') {
+        if (batchIds.length === 0) return;
 
-        showGlobalMessage(`「${name}」已成功刪除。`);
-        await loadUserProgressList();
-        checkLocalDataToSync();
-      } catch (err) {
-        showGlobalMessage("刪除失敗：" + err.message, "error");
-      } finally {
-        hideLoading();
+        showLoading("正在批量刪除紀錄...");
+        try {
+          const { error } = await supabaseClient
+            .from('user_progress')
+            .delete()
+            .in('id', batchIds);
+
+          if (error) throw error;
+
+          // 若刪除的紀錄中包含當前快取的紀錄 ID，則清除本地快取
+          const currentRecordId = localStorage.getItem('careerRPG_currentRecordId');
+          if (currentRecordId && batchIds.includes(currentRecordId)) {
+            localStorage.removeItem('careerRPG_currentRecordId');
+            localStorage.removeItem('careerRPG_currentRecordName');
+          }
+
+          showGlobalMessage(`成功刪除 ${batchIds.length} 筆紀錄。`, "success");
+          await loadUserProgressList();
+          checkLocalDataToSync();
+        } catch (err) {
+          showGlobalMessage("批量刪除失敗：" + err.message, "error");
+        } finally {
+          hideLoading();
+        }
       }
+    }
+
+    // 切換批量管理模式
+    function toggleBatchMode(enable) {
+      if (enable === undefined) {
+        enable = !isBatchMode;
+      }
+      isBatchMode = enable;
+      
+      const listContainer = document.getElementById('records-list');
+      const controlBar = document.getElementById('batch-control-bar');
+      const manageBtn = document.getElementById('batch-manage-btn');
+      
+      if (isBatchMode) {
+        if (listContainer) listContainer.classList.add('batch-mode');
+        if (controlBar) controlBar.style.display = 'flex';
+        if (manageBtn) manageBtn.style.display = 'none';
+        
+        // 重置所有核取方塊為未勾選狀態
+        const checkboxes = document.querySelectorAll('.record-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelectedCount();
+      } else {
+        if (listContainer) listContainer.classList.remove('batch-mode');
+        if (controlBar) controlBar.style.display = 'none';
+        if (manageBtn) manageBtn.style.display = 'inline-block';
+      }
+    }
+
+    // 全選所有紀錄
+    function selectAllRecords() {
+      const checkboxes = document.querySelectorAll('.record-checkbox');
+      checkboxes.forEach(cb => cb.checked = true);
+      updateSelectedCount();
+    }
+
+    // 取消全選所有紀錄
+    function deselectAllRecords() {
+      const checkboxes = document.querySelectorAll('.record-checkbox');
+      checkboxes.forEach(cb => cb.checked = false);
+      updateSelectedCount();
+    }
+
+    // 更新已選取筆數統計與刪除按鈕狀態
+    function updateSelectedCount() {
+      const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
+      const count = checkedBoxes.length;
+      
+      const countLabel = document.getElementById('batch-selected-count');
+      if (countLabel) {
+        countLabel.innerText = `已選取 ${count} 筆`;
+      }
+      
+      const deleteBtn = document.getElementById('batch-delete-btn');
+      if (deleteBtn) {
+        deleteBtn.disabled = (count === 0);
+      }
+    }
+
+    // 呼叫自訂 Modal 進行批量刪除確認
+    function deleteSelectedRecords() {
+      const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
+      const idsToDelete = Array.from(checkedBoxes).map(cb => cb.value);
+      
+      if (idsToDelete.length === 0) return;
+      
+      deleteMode = 'batch';
+      batchIdsToDelete = idsToDelete;
+      
+      document.getElementById('delete-confirm-text').innerHTML = `確定要刪除所選的 <b>${idsToDelete.length}</b> 筆冒險紀錄嗎？<br>此動作將無法復原。`;
+      document.getElementById('delete-confirm-modal').classList.add('active');
     }
 
     // 開啟全新探索的確認詢問

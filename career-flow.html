@@ -1518,10 +1518,96 @@
     .btn-modal-confirm:hover {
       opacity: 0.9;
     }
+
+    /* 頂部懸浮進度條樣式 */
+    #custom-progress-container {
+      position: fixed;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      z-index: 1001;
+      background: rgba(250, 246, 243, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--s40);
+      border-radius: 20px;
+      padding: 6px 18px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(74, 62, 56, 0.08);
+      transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      width: auto;
+      min-width: 250px;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .progress-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-step-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--n30);
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+
+    .progress-step-num {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--n40);
+      font-family: 'Iansui', serif;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      width: 120px;
+      height: 6px;
+      background: rgba(232, 213, 199, 0.4);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--a20);
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* 行動端調整 */
+    @media (max-width: 768px) {
+      #custom-progress-container {
+        top: 68px;
+        min-width: 200px;
+        padding: 5px 14px;
+        gap: 8px;
+      }
+      .progress-track {
+        width: 80px;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <!-- 頂部懸浮進度條 -->
+  <div id="custom-progress-container">
+    <div class="progress-info">
+      <span class="progress-step-label">探索進度</span>
+      <span class="progress-step-num"><span id="custom-progress-current-num">1</span> / 10</span>
+    </div>
+    <div class="progress-track">
+      <div id="custom-progress-fill" class="progress-fill"></div>
+    </div>
+  </div>
   <!-- 行動端固定頂部毛玻璃條 -->
   <div class="site-header-mobile"></div>
 
@@ -2920,6 +3006,7 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
           }
 
           setupValidation(); // 重新綁定輸入驗證
+          updateProgressBar(pageId); // 更新進度條 UI
         }
       };
 
@@ -2928,6 +3015,66 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
         setTimeout(doSwitch, 600);
       } else {
         doSwitch();
+      }
+    }
+
+    // 頂部懸浮進度條更新邏輯
+    function updateProgressBar(pageId) {
+      const container = document.getElementById('custom-progress-container');
+      const fill = document.getElementById('custom-progress-fill');
+      const currentNum = document.getElementById('custom-progress-current-num');
+
+      if (!container || !fill || !currentNum) return;
+
+      // 定義 10 個核心測驗進度 (包含跳轉頁面，繼承前一進度值)
+      const progressMap = {
+        'page-about-you': 1,
+        'page-balance': 2,
+        'page-welcome-back': 2,        // 跳轉頁，維持 2
+        'page-expectation': 2,         // 跳轉頁，維持 2
+        'page-dreams-intro': 3,
+        'page-questions': 4,
+        'page-semantic-buffer-want': 4, // 跳轉頁，維持 4
+        'page-event-summary-want': 5,
+        'page-adjust-want': 5,
+        'page-event-summary-2-want': 5,
+        'page-semantic-analysis-buffer-want': 5, // 跳轉頁，維持 5
+        'page-semantic-analysis-want': 6,
+        'page-known-want': 6,
+        'page-bridge': 6,              // 跳轉頁，維持 6
+        'page-known-able': 7,
+        'page-can-or-not': 7,
+        'page-semantic-buffer-able': 7, // 跳轉頁，維持 7
+        'page-event-summary': 8,
+        'page-adjust': 8,
+        'page-event-summary-2': 8,
+        'page-semantic-analysis-buffer-able': 8, // 跳轉頁，維持 8
+        'page-semantic-analysis-able': 9,
+        'page-reality-check-buffer': 9, // 跳轉頁，維持 9
+        'page-reality-check': 10
+      };
+
+      const currentStep = progressMap[pageId];
+      if (currentStep !== undefined) {
+        container.style.display = 'flex';
+        // 觸發重繪使動畫生效
+        requestAnimationFrame(() => {
+          container.style.opacity = '1';
+          container.style.transform = 'translateX(-50%) translateY(0)';
+          fill.style.width = `${(currentStep / 10) * 100}%`;
+        });
+        currentNum.innerText = currentStep;
+      } else {
+        // 隱藏進度條
+        container.style.opacity = '0';
+        container.style.transform = 'translateX(-50%) translateY(-20px)';
+        setTimeout(() => {
+          // 確保在動畫結束後才隱藏，且目前頁面依然不顯示進度條才隱藏
+          const activePage = document.querySelector('.page-container.active');
+          if (activePage && progressMap[activePage.id] === undefined) {
+            container.style.display = 'none';
+          }
+        }, 300);
       }
     }
 
