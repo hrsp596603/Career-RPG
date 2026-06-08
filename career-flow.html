@@ -3443,25 +3443,43 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
 
       isAutoSaving = true;
 
+      const hasCompleted = localStorage.getItem('careerRPG_hasCompletedFirstRun') === 'true';
       const fullPackage = {
         careerRPG_data: userProgressData,
         careerRPG_page: localStorage.getItem('careerRPG_page') || 'page-professions',
         careerRPG_hasWantHistory: localStorage.getItem('careerRPG_hasWantHistory') === 'true',
         careerRPG_hasAbleHistory: localStorage.getItem('careerRPG_hasAbleHistory') === 'true',
-        careerRPG_hasCompletedFirstRun: localStorage.getItem('careerRPG_hasCompletedFirstRun') === 'true',
+        careerRPG_hasCompletedFirstRun: hasCompleted,
         careerRPG_adventureContinued: localStorage.getItem('careerRPG_adventureContinued') === 'true'
       };
 
       const currentRecordId = localStorage.getItem('careerRPG_currentRecordId');
 
+      // 預先計算出最新時間的 defaultName
+      const _now = new Date();
+      const _dateStr = _now.getFullYear() +
+        String(_now.getMonth() + 1).padStart(2, '0') +
+        String(_now.getDate()).padStart(2, '0');
+      const _timeStr = String(_now.getHours()).padStart(2, '0') + ':' + String(_now.getMinutes()).padStart(2, '0');
+      const defaultName = `冒險紀錄 - ${_dateStr} ${_timeStr}`;
+
       try {
         if (currentRecordId) {
           // 已存在紀錄，更新 progress_data
+          // 如果此時是完成探索狀態 (hasCompleted)
+          // 且該紀錄名稱是預設名稱，我們也將其 record_name 更新為最新的 defaultName 進行對齊
+          const currentRecordName = localStorage.getItem('careerRPG_currentRecordName') || '';
+          const isDefaultName = currentRecordName.startsWith('冒險紀錄 -') || currentRecordName.startsWith('自動存檔 -') || !currentRecordName;
+          
+          let updateData = { progress_data: fullPackage };
+          if (hasCompleted && isDefaultName) {
+            updateData.record_name = defaultName;
+            localStorage.setItem('careerRPG_currentRecordName', defaultName);
+          }
+
           const { error } = await supabaseClient
             .from('user_progress')
-            .update({
-              progress_data: fullPackage
-            })
+            .update(updateData)
             .eq('id', currentRecordId)
             .eq('user_id', currentUser.id);
 
@@ -3469,14 +3487,10 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
           console.log("自動同步：已更新雲端存檔。");
           updateSyncButtonUI(true);
         } else {
-          // 新增紀錄，命名格式：冒險紀錄 - YYYYMMDD HH:MM（含時分以區分同日不同時段的紀錄）
-          const _now = new Date();
-          const _dateStr = _now.getFullYear() +
-            String(_now.getMonth() + 1).padStart(2, '0') +
-            String(_now.getDate()).padStart(2, '0');
-          const _timeStr = String(_now.getHours()).padStart(2, '0') + ':' + String(_now.getMinutes()).padStart(2, '0');
-          const defaultName = `冒險紀錄 - ${_dateStr} ${_timeStr}`;
-          
+          // 新增紀錄，命名格式：冒險紀錄 - YYYYMMDD HH:MM
+          // 先在本地設置 record name，防禦性地確保本地 UI 拿到的同步時間不留白或錯置
+          localStorage.setItem('careerRPG_currentRecordName', defaultName);
+
           const { data, error } = await supabaseClient
             .from('user_progress')
             .insert({
@@ -3491,8 +3505,8 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
             localStorage.setItem('careerRPG_currentRecordId', data[0].id);
             localStorage.setItem('careerRPG_currentRecordName', defaultName);
             console.log("自動同步：已建立新的雲端存檔，ID:", data[0].id);
-            updateSyncButtonUI(true);
           }
+          updateSyncButtonUI(true);
         }
       } catch (e) {
         console.error("自動同步至雲端失敗：", e);
@@ -3684,6 +3698,7 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
       if (step === 'start') {
         if (localStorage.getItem('careerRPG_adventureContinued') === 'true') {
           // 接續冒險：不清除答題資料，僅重設目前頁面定位，並清除紀錄 ID 以便存成新一筆歷史紀錄
+          isFreshExploration = true; // ← 新探索保護鎖，防止 autoRestoreLastProgress 覆蓋本地資料
           localStorage.removeItem('careerRPG_page');
           localStorage.removeItem('careerRPG_currentRecordId');
           localStorage.removeItem('careerRPG_currentRecordName');

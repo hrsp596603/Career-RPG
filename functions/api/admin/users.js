@@ -111,7 +111,50 @@ export async function onRequest(context) {
       }
 
       const usersData = await usersResponse.json();
-      return new Response(JSON.stringify(usersData), {
+
+      // 取得所有使用者的測驗歷程 (user_progress)
+      let progressRecords = [];
+      try {
+        const progressResponse = await fetch(`${supabaseUrl}/rest/v1/user_progress?select=user_id,record_name,progress_data,created_at`, {
+          method: "GET",
+          headers: {
+            "apikey": supabaseServiceKey,
+            "Authorization": `Bearer ${supabaseServiceKey}`
+          }
+        });
+        if (progressResponse.ok) {
+          progressRecords = await progressResponse.json();
+        } else {
+          console.error("無法取得 user_progress:", progressResponse.statusText);
+        }
+      } catch (err) {
+        console.error("取得 user_progress 發生錯誤:", err.message);
+      }
+
+      // 分組 progress records
+      const progressMap = {};
+      progressRecords.forEach(rec => {
+        if (rec.user_id) {
+          if (!progressMap[rec.user_id]) {
+            progressMap[rec.user_id] = [];
+          }
+          progressMap[rec.user_id].push({
+            record_name: rec.record_name,
+            progress_data: rec.progress_data,
+            created_at: rec.created_at
+          });
+        }
+      });
+
+      // 合併
+      const mergedUsers = (usersData.users || []).map(u => {
+        return {
+          ...u,
+          progress_records: progressMap[u.id] || []
+        };
+      });
+
+      return new Response(JSON.stringify({ users: mergedUsers }), {
         status: 200,
         headers: {
           "Content-Type": "application/json",
