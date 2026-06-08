@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>初路 - 初級大人的職業探索之路</title>
   <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <!-- 載入 Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
 
@@ -524,6 +526,85 @@
         white-space: nowrap; /* 強制按鈕文字不折行 */
       }
     }
+
+    /* ===== Modal 彈跳視窗 ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 42, 38, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--s10);
+      border: 1px solid var(--s40);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      box-sizing: border-box;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+      text-align: center;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+      color: var(--n50);
+      font-family: 'Iansui', serif;
+    }
+
+    .modal-message {
+      font-size: 0.95rem;
+      color: var(--n40);
+      line-height: 1.6;
+      margin: 20px 0 25px 0;
+      font-family: 'Iansui', serif;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-modal-confirm {
+      padding: 10px 24px;
+      background: var(--s50);
+      color: var(--s10);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 100px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-modal-confirm:hover {
+      background: #C39787;
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 
@@ -546,7 +627,7 @@
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
       <circle cx="12" cy="7" r="4"></circle>
     </svg>
-    會員中心
+    <span id="member-btn-text">會員中心</span>
   </button>
 
   <!-- 初始首頁背景 (清晰背景) -->
@@ -591,8 +672,21 @@
     </div>
     <p class="final-subtitle">初級大人的探索之路</p>
     <div class="action-buttons">
-      <button class="action-btn" onclick="window.location.href='career-flow.html?step=start'">背景建構</button>
-      <button class="action-btn" onclick="window.location.href='career-flow.html?step=page-dreams-intro'">方向選擇</button>
+      <button class="action-btn" onclick="handleStartExploration('career-flow.html?step=start')">背景建構</button>
+      <button class="action-btn" onclick="handleStartExploration('career-flow.html?step=page-dreams-intro')">方向選擇</button>
+    </div>
+  </div>
+
+  <!-- 自定義登入提示彈跳視窗 -->
+  <div id="login-alert-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h4 class="modal-title">🧭 探索旅程準備中</h4>
+      <p class="modal-message">
+        請先登入帳號以開始職業探索！
+      </p>
+      <div class="modal-actions">
+        <button class="btn-modal-confirm" onclick="redirectToLogin()">確定</button>
+      </div>
     </div>
   </div>
 
@@ -786,6 +880,85 @@
       playMobileIntro();
     }
 
+    let isLoggedIn = false;
+
+    // 初始化 Supabase 並檢查首頁登入狀態
+    async function initSupabaseIndex() {
+      try {
+        let response = await fetch('/api/config');
+        if (!response.ok && window.location.port !== '8787') {
+          try {
+            response = await fetch('http://localhost:8787/api/config');
+          } catch (e) {
+            // 靜默失敗
+          }
+        }
+        if (!response.ok) return;
+        const config = await response.json();
+
+        if (config.SUPABASE_URL && config.SUPABASE_ANON_KEY) {
+          if (typeof supabase !== 'undefined' && supabase.createClient) {
+            const supabaseClient = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (error) throw error;
+            
+            if (session) {
+              const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+              const memberBtnText = document.getElementById('member-btn-text');
+              const memberBtn = document.querySelector('.member-btn');
+              if (userError || !user) {
+                console.warn("驗證使用者失敗，可能已在後台遭刪除，將執行登出並清理快取：", userError);
+                await supabaseClient.auth.signOut();
+                
+                // 清理本地資料
+                localStorage.removeItem('careerRPG_data');
+                localStorage.removeItem('careerRPG_page');
+                localStorage.removeItem('careerRPG_currentRecordId');
+                localStorage.removeItem('careerRPG_currentRecordName');
+                localStorage.removeItem('careerRPG_hasWantHistory');
+                localStorage.removeItem('careerRPG_hasAbleHistory');
+                localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+                localStorage.removeItem('careerRPG_adventureContinued');
+                
+                isLoggedIn = false;
+                if (memberBtn) {
+                  memberBtn.removeAttribute('title');
+                  if (memberBtnText) {
+                    memberBtnText.innerText = '會員中心';
+                  }
+                }
+              } else {
+                isLoggedIn = true;
+                const username = user.email.split('@')[0];
+                if (memberBtn && user.email) {
+                  memberBtn.title = `已登入: ${user.email}`;
+                  if (memberBtnText) {
+                    memberBtnText.innerText = username;
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Supabase 登入狀態檢查失敗：", e);
+      }
+    }
+
+    // 檢查登入並開始探索的引導函式
+    function handleStartExploration(targetUrl) {
+      if (!isLoggedIn) {
+        document.getElementById('login-alert-modal').classList.add('active');
+      } else {
+        window.location.href = targetUrl;
+      }
+    }
+
+    function redirectToLogin() {
+      document.getElementById('login-alert-modal').classList.remove('active');
+      window.location.href = 'dashboard.html';
+    }
+
     // -- 載入分流與初始化 --
     window.addEventListener('load', () => {
       // 強制導向成果頁邏輯
@@ -796,6 +969,7 @@
       }
 
       createDustMotes();
+      initSupabaseIndex();
 
       if (isMobile()) {
         // --- 行動端：直接移除（remove）桌機影片 Overlay，防止底圖殘影干擾 ---

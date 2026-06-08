@@ -48,19 +48,19 @@
       padding: 0;
       width: 100%;
       min-height: 100vh;
-      background-color: var(--s10);
       font-family: 'Iansui', 'Noto Serif TC', serif;
       color: var(--n50);
       overflow-x: hidden;
     }
 
+    body {
+      background: linear-gradient(rgba(250, 246, 243, 0.45),
+          rgba(250, 246, 243, 0.45)), url('assets/abanner.png') center/cover no-repeat fixed;
+    }
+
     /* 紙張與背景紋理 */
     .bg-overlay {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(rgba(250, 246, 243, 0.45),
-          rgba(250, 246, 243, 0.45)), url('assets/abanner.png') center/cover no-repeat;
-      z-index: -2;
+      display: none;
     }
 
     .noise-overlay {
@@ -785,8 +785,8 @@
         </div>
 
         <div class="sidebar-actions">
-          <button class="sidebar-btn btn-accent" onclick="askNewExploration()">開始全新職業探索</button>
           <button class="sidebar-btn" onclick="window.location.href='subpages.html'">前往職涯圖鑑 ➔</button>
+          <button id="admin-panel-btn" class="sidebar-btn" onclick="window.location.href='admin.html'" style="display: none; background: rgba(168, 180, 152, 0.1); border-color: var(--a20); font-weight: bold; margin-top: 10px;">🔧 管理者後台</button>
           <button class="sidebar-btn" onclick="handleLogout()"
             style="margin-top: 20px; border-color: rgba(224, 122, 95, 0.4); color: var(--danger);">登出帳號</button>
         </div>
@@ -925,8 +925,28 @@
         if (error) throw error;
 
         if (session) {
-          currentUser = session.user;
-          showDashboard();
+          // 透過 getUser() 向伺服器主動驗證，避免帳號在後台被刪除但前端快取 Token 仍在
+          const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+          if (userError || !user) {
+            console.warn("驗證使用者失敗，可能已在後台遭刪除，將執行登出並清理快取：", userError);
+            await supabaseClient.auth.signOut();
+            
+            // 清理本地資料
+            localStorage.removeItem('careerRPG_data');
+            localStorage.removeItem('careerRPG_page');
+            localStorage.removeItem('careerRPG_currentRecordId');
+            localStorage.removeItem('careerRPG_currentRecordName');
+            localStorage.removeItem('careerRPG_hasWantHistory');
+            localStorage.removeItem('careerRPG_hasAbleHistory');
+            localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+            localStorage.removeItem('careerRPG_adventureContinued');
+            
+            currentUser = null;
+            showAuth();
+          } else {
+            currentUser = user;
+            showDashboard();
+          }
         } else {
           showAuth();
         }
@@ -1013,8 +1033,19 @@
         if (authMode === 'login') {
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
+          
+          // 登入成功後，清除前一個使用者的本地探索快取，防止不同帳號間資料污染
+          localStorage.removeItem('careerRPG_data');
+          localStorage.removeItem('careerRPG_page');
+          localStorage.removeItem('careerRPG_currentRecordId');
+          localStorage.removeItem('careerRPG_currentRecordName');
+          localStorage.removeItem('careerRPG_hasWantHistory');
+          localStorage.removeItem('careerRPG_hasAbleHistory');
+          localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+          localStorage.removeItem('careerRPG_adventureContinued');
+
           currentUser = data.user;
-          showGlobalMessage("歡迎回來，初級大人！");
+          showGlobalMessage("歡迎，初級大人！");
           showDashboard();
         } else {
           const { data, error } = await supabaseClient.auth.signUp({ email, password });
@@ -1062,6 +1093,13 @@
       authSection.style.display = 'none';
       dashboardSection.style.display = 'grid';
       document.getElementById('user-display-email').innerText = currentUser.email;
+
+      // 檢查是否為管理員，顯示對應入口
+      const isAdmin = currentUser && currentUser.app_metadata && currentUser.app_metadata.role === 'admin';
+      const adminBtn = document.getElementById('admin-panel-btn');
+      if (adminBtn) {
+        adminBtn.style.display = isAdmin ? 'block' : 'none';
+      }
 
       // 檢查本機是否有未存檔的 local data
       checkLocalDataToSync();
@@ -1394,6 +1432,17 @@
       try {
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
+        
+        // 登出時清除所有本機進度快取，防範與下一位使用者的隱私或資料衝突
+        localStorage.removeItem('careerRPG_data');
+        localStorage.removeItem('careerRPG_page');
+        localStorage.removeItem('careerRPG_currentRecordId');
+        localStorage.removeItem('careerRPG_currentRecordName');
+        localStorage.removeItem('careerRPG_hasWantHistory');
+        localStorage.removeItem('careerRPG_hasAbleHistory');
+        localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+        localStorage.removeItem('careerRPG_adventureContinued');
+
         currentUser = null;
         showGlobalMessage("已成功登出。");
         showAuth();
