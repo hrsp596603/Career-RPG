@@ -516,6 +516,147 @@
       font-weight: bold;
       color: var(--n40);
     }
+
+    /* ===== 行動裝置 (768px 以下) 管理者後台介面優化 ===== */
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 15px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .logo-section h1 {
+        font-size: 1.8rem;
+      }
+
+      .back-btn {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .admin-card {
+        padding: 20px 15px;
+        border-radius: 12px;
+      }
+
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+      }
+
+      .user-count {
+        font-size: 0.9rem;
+      }
+
+      /* 表格轉卡片垂直排列 */
+      .table-container {
+        overflow-x: visible;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none; /* 隱藏表頭 */
+      }
+
+      tbody tr {
+        margin-bottom: 20px;
+        border: 1px solid var(--s40);
+        border-radius: 12px;
+        background: rgba(250, 246, 243, 0.5);
+        padding: 15px 15px 12px 15px;
+        box-shadow: 0 4px 12px rgba(74,62,56,0.02);
+        box-sizing: border-box;
+      }
+
+      tbody tr:last-child {
+        margin-bottom: 0;
+      }
+
+      tbody tr:hover td {
+        background: transparent !important;
+      }
+
+      td {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--s40);
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        text-align: left;
+      }
+
+      td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-top: 12px;
+      }
+
+      /* 利用 data-label 屬性插入小標題，達到欄位垂直堆疊的極佳排版 */
+      td::before {
+        content: attr(data-label);
+        font-size: 0.75rem;
+        color: var(--n30);
+        font-weight: bold;
+        margin-bottom: 6px;
+        letter-spacing: 1px;
+        display: block;
+      }
+
+      /* 操作選項按鈕橫向平分 */
+      td[data-label="操作選項"] {
+        flex-direction: row !important;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .view-btn, .delete-btn {
+        flex: 1;
+        text-align: center;
+        padding: 10px 10px !important;
+        font-size: 0.85rem !important;
+        margin: 0 !important;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      /* 詳情 Modal 大小與按鈕調整 */
+      .modal {
+        padding: 20px 15px !important;
+      }
+      .modal-title {
+        font-size: 1.15rem !important;
+      }
+      
+      /* 檔案切換下拉選單調整為 100% 寬度 */
+      .custom-dropdown {
+        min-width: 100% !important;
+        width: 100% !important;
+      }
+      #record-selector-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px !important;
+      }
+    }
   </style>
 </head>
 
@@ -652,8 +793,41 @@
       }, 3000);
     }
 
-    // 初始化 Supabase 與管理員身分檢查
     async function initAdmin() {
+      // 檢查是否為 debug 模式 (限本機 localhost / 127.0.0.1)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (urlParams.get('debug') === 'true' && isLocalhost) {
+        document.getElementById('page-loader').classList.add('hidden');
+        document.getElementById('main-container').classList.add('visible');
+
+        currentUser = { id: "mock-admin-id", email: "hrsp596603@gmail.com" };
+        const mockUsers = [
+          {
+            id: "mock-user-1",
+            email: "suckitup@gmail.com",
+            created_at: "2026-06-08T15:34:27.000Z",
+            last_sign_in_at: "2026-06-08T15:34:27.000Z",
+            app_metadata: { role: "user" },
+            progress_records: []
+          },
+          {
+            id: "mock-user-2",
+            email: "hrsp596603@gmail.com",
+            created_at: "2026-06-08T15:24:08.000Z",
+            last_sign_in_at: "2026-06-08T15:24:08.000Z",
+            app_metadata: { role: "admin" },
+            progress_records: [
+              { id: "mock-rec-1" }
+            ]
+          }
+        ];
+        allUsersData = mockUsers;
+        renderUserTable(mockUsers);
+        setupCustomDropdown();
+        return;
+      }
+
       try {
         // 讀取 config
         let response = await fetch('/api/config');
@@ -791,15 +965,15 @@
         const hasRecords = user.progress_records && user.progress_records.length > 0;
 
         tr.innerHTML = `
-          <td class="user-email-cell">${user.email || '未設定'} ${isSelf ? '<small style="color:var(--s50); font-weight:normal;">(您本人)</small>' : ''}</td>
-          <td>${formatDateTime(user.created_at)}</td>
-          <td>${formatDateTime(user.last_sign_in_at)}</td>
-          <td>
+          <td class="user-email-cell" data-label="電子信箱">${user.email || '未設定'} ${isSelf ? '<small style="color:var(--s50); font-weight:normal;">(您本人)</small>' : ''}</td>
+          <td data-label="註冊時間">${formatDateTime(user.created_at)}</td>
+          <td data-label="最後登入時間">${formatDateTime(user.last_sign_in_at)}</td>
+          <td data-label="身分角色">
             <span class="badge ${isAdmin ? 'badge-admin' : 'badge-user'}">
               ${isAdmin ? '管理員 (Admin)' : '一般使用者 (User)'}
             </span>
           </td>
-          <td>
+          <td data-label="操作選項">
             <button class="view-btn" 
                     onclick="openRecordModal('${user.id}')" 
                     ${hasRecords ? '' : 'disabled title="無冒險紀錄"'}>
@@ -977,19 +1151,19 @@
           <div style="margin-bottom: 12px;">
             <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q1: 你小時候、或者現在，曾對哪些職業產生過憧憬？</div>
             <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-q1'])}</div>
-            <div style="padding-left: 5px;">${renderTagsHtml(devData['wants_q1_tags'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-want-q1'])}</div>
           </div>
 
           <div style="margin-bottom: 12px;">
             <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q2: 描述一個你感到非常投入、甚至忘記時間的經驗？</div>
             <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-q2'])}</div>
-            <div style="padding-left: 5px;">${renderTagsHtml(devData['wants_q2_tags'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-want-q2'])}</div>
           </div>
 
           <div style="margin-bottom: 5px;">
             <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q3: 如果有源源不絕的預算，你最想用這筆錢做什麼？</div>
             <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-q3'])}</div>
-            <div style="padding-left: 5px;">${renderTagsHtml(devData['wants_q3_tags'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-want-q3'])}</div>
           </div>
         </div>
       `;
@@ -1002,13 +1176,13 @@
           <div style="margin-bottom: 12px;">
             <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q1: 到目前為止，哪些事情是你常被稱讚、或覺得「這對我來說其實不難」的？</div>
             <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-can-q1'])}</div>
-            <div style="padding-left: 5px;">${renderTagsHtml(devData['able_q1_tags'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-able-q1'])}</div>
           </div>
 
           <div style="margin-bottom: 5px;">
             <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q2: 當你面對一個全新、從未遇過的問題時，你通常會怎麼開始？</div>
             <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-can-q2'])}</div>
-            <div style="padding-left: 5px;">${renderTagsHtml(devData['able_q2_tags'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-able-q2'])}</div>
           </div>
         </div>
       `;

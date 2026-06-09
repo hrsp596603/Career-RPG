@@ -763,6 +763,84 @@
     .records-list.batch-mode .record-actions {
       display: none !important;
     }
+
+    /* ===== 行動裝置 (768px 以下) 歷史探索回憶介面優化 ===== */
+    @media (max-width: 768px) {
+      .record-card {
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+          "checkbox info"
+          "actions actions";
+        gap: 12px 12px;
+        align-items: center;
+        padding: 16px;
+      }
+
+      .record-checkbox-container {
+        grid-area: checkbox;
+        display: none; /* 預設在非批量模式下隱藏 */
+      }
+
+      /* 批量模式下顯示 checkbox 區域 */
+      .records-list.batch-mode .record-checkbox-container {
+        display: block !important;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .record-info {
+        grid-area: info;
+        width: 100%;
+      }
+
+      .record-info h5 {
+        font-size: 1.1rem !important;
+        line-height: 1.4;
+        margin: 0 0 6px 0 !important;
+        word-break: break-all;
+        white-space: normal;
+      }
+
+      .record-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        font-size: 0.8rem !important;
+      }
+
+      .record-actions {
+        grid-area: actions;
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 2fr 1fr 1fr; /* 載入按鈕佔用主要寬度，其餘兩個各佔 1/4 */
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .record-actions button {
+        width: 100% !important;
+        font-size: 0.8rem !important;
+        padding: 8px 4px !important;
+        text-align: center;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      /* 在極窄螢幕下 (如小於 420px) 將按鈕組改為主按鈕單行，次按鈕並排 */
+      @media (max-width: 420px) {
+        .record-actions {
+          grid-template-columns: 1fr 1fr !important;
+        }
+        .btn-record-load {
+          grid-column: span 2;
+        }
+      }
+    }
   </style>
 </head>
 
@@ -1004,6 +1082,17 @@
 
         // 建立 Supabase client
         supabaseClient = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+
+        // 檢查是否為 debug 模式 (限本機 localhost / 127.0.0.1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (urlParams.get('debug') === 'true' && isLocalhost) {
+          currentUser = { email: "test@example.com" };
+          showDashboard();
+          hideLoading();
+          mainContainer.classList.add('visible');
+          return;
+        }
 
         // 檢查登入狀態
         const { data: { session }, error } = await supabaseClient.auth.getSession();
@@ -1292,10 +1381,30 @@
       listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">讀取回憶中...</div>';
 
       try {
-        const { data, error } = await supabaseClient
-          .from('user_progress')
-          .select('id, record_name, progress_data, created_at')
-          .order('created_at', { ascending: false });
+        let data;
+        let error = null;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (urlParams.get('debug') === 'true' && isLocalhost) {
+          data = [
+            {
+              id: "mock-id-1",
+              record_name: "冒險紀錄 - 2026060916:04",
+              created_at: "2026-06-09T08:04:27.000Z",
+              progress_data: {
+                careerRPG_hasCompletedFirstRun: true
+              }
+            }
+          ];
+        } else {
+          const { data: fetchRecords, error: fetchError } = await supabaseClient
+            .from('user_progress')
+            .select('id, record_name, progress_data, created_at')
+            .order('created_at', { ascending: false });
+          data = fetchRecords;
+          error = fetchError;
+        }
 
         if (error) throw error;
 
