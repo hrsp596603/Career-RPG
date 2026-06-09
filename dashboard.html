@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>初路 - 會員後台系統</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <!-- 載入 Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
+
+    /* ===== 品牌色票 ===== */
+    :root {
+      --s10: #FAF6F3;
+      /* 靜白・背景主色 */
+      --s30: #F2DFD3;
+      /* 奶霧粉・品牌主色 */
+      --s40: #E8D5C7;
+      /* 淡燕麥・邊框 */
+      --s50: #D4A898;
+      /* 舊珊瑚・強調色 */
+      --n50: #2C2A26;
+      /* 碳墨・主文字 */
+      --n40: #4A3E38;
+      /* 深土・副標題 */
+      --n30: #8C7B72;
+      /* 木煙・輔助文字 */
+      --a20: #A8B498;
+      /* 霧綠・確認狀態 */
+      --danger: #E07A5F;
+      /* 磚紅・警告/刪除 */
+      --card-bg: rgba(250, 246, 243, 0.75);
+    }
+
+    @font-face {
+      font-family: 'Iansui';
+      src: url('assets/Iansui-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      font-family: 'Iansui', 'Noto Serif TC', serif;
+      color: var(--n50);
+      overflow-x: hidden;
+    }
+
+    body {
+      background: linear-gradient(rgba(250, 246, 243, 0.45),
+          rgba(250, 246, 243, 0.45)), url('assets/abanner.png') center/cover no-repeat fixed;
+    }
+
+    /* 紙張與背景紋理 */
+    .bg-overlay {
+      display: none;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.05;
+      mix-blend-mode: multiply;
+      background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+    }
+
+    /* 頁面高斯模糊轉場效果 */
+    .fade-container {
+      opacity: 0;
+      filter: blur(10px);
+      transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .fade-container.visible {
+      opacity: 1;
+      filter: blur(0px);
+    }
+
+    /* 全局版面容器 */
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+    }
+
+    .logo-icon {
+      width: 45px;
+      height: 45px;
+    }
+
+    .logo-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: 4px;
+      color: var(--n50);
+      margin: 0;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Iansui', serif;
+      background: transparent;
+      border: 1px solid var(--s40);
+      color: var(--n40);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: rgba(250, 246, 243, 0.6);
+      backdrop-filter: blur(5px);
+    }
+
+    .nav-btn:hover {
+      background: var(--s50);
+      color: var(--s10);
+      border-color: var(--s50);
+      transform: translateY(-1px);
+    }
+
+    /* ===== 登入 / 註冊區塊 ===== */
+    .auth-card {
+      width: 100%;
+      max-width: 450px;
+      background: var(--card-bg);
+      border: 1px solid var(--s40);
+      border-radius: 24px;
+      padding: 40px;
+      box-sizing: border-box;
+      box-shadow: 0 10px 30px rgba(74, 62, 56, 0.08);
+      backdrop-filter: blur(12px);
+      margin-top: 40px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--s40);
+      margin-bottom: 30px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--n30);
+      transition: all 0.3s ease;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .auth-tab.active {
+      color: var(--n50);
+      border-bottom-color: var(--s50);
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--n40);
+    }
+
+    .form-input {
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-family: 'Iansui', serif;
+      background: rgba(250, 246, 243, 0.9);
+      border: 1px solid var(--s40);
+      border-radius: 12px;
+      color: var(--n50);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--s50);
+      box-shadow: 0 0 0 3px rgba(212, 168, 152, 0.15);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      font-family: 'Iansui', serif;
+      background: var(--s50);
+      color: var(--s10);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(212, 168, 152, 0.25);
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: #C39787;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(212, 168, 152, 0.4);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      background: var(--s40);
+      color: var(--n30);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* ===== 後台控制面板 ===== */
+    .dashboard-layout {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 左側側邊欄 */
+    .sidebar {
+      background: var(--card-bg);
+      border: 1px solid var(--s40);
+      border-radius: 24px;
+      padding: 30px;
+      box-sizing: border-box;
+      box-shadow: 0 8px 24px rgba(74, 62, 56, 0.05);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .profile-info {
+      text-align: center;
+      border-bottom: 1px solid var(--s40);
+      padding-bottom: 20px;
+    }
+
+    .avatar-wrapper {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--s30);
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--s50);
+      box-shadow: 0 4px 10px rgba(212, 168, 152, 0.2);
+    }
+
+    .avatar-icon {
+      font-size: 2.2rem;
+    }
+
+    .profile-email {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--n50);
+      word-break: break-all;
+      margin: 0;
+    }
+
+    .profile-role {
+      font-size: 0.85rem;
+      color: var(--n30);
+      margin: 5px 0 0 0;
+      letter-spacing: 2px;
+    }
+
+    .sidebar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-btn {
+      padding: 12px;
+      font-size: 0.95rem;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      border-radius: 10px;
+      border: 1px solid var(--s40);
+      background: rgba(250, 246, 243, 0.5);
+      color: var(--n40);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .sidebar-btn:hover {
+      background: var(--s30);
+      color: var(--n50);
+      border-color: var(--s50);
+    }
+
+    .sidebar-btn.btn-accent {
+      background: var(--s50);
+      color: var(--s10);
+      border-color: var(--s50);
+    }
+
+    .sidebar-btn.btn-accent:hover {
+      background: #C39787;
+    }
+
+    /* 右側主內容區 */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 100%;
+    }
+
+    /* 同步提示通知 */
+    .sync-alert {
+      background: rgba(242, 223, 211, 0.9);
+      border: 1px dashed var(--s50);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 4px 15px rgba(212, 168, 152, 0.15);
+      backdrop-filter: blur(8px);
+      animation: gentlePulse 2s infinite ease-in-out;
+    }
+
+    @keyframes gentlePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.01);
+      }
+    }
+
+    .sync-alert-text h4 {
+      margin: 0 0 8px 0;
+      font-size: 1.15rem;
+      color: var(--n50);
+    }
+
+    .sync-alert-text p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--n40);
+      line-height: 1.4;
+    }
+
+    .btn-sync {
+      padding: 10px 20px;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      background: var(--s50);
+      color: var(--s10);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 8px rgba(212, 168, 152, 0.2);
+    }
+
+    .btn-sync:hover {
+      background: #C39787;
+      transform: translateY(-1px);
+    }
+
+    /* 歷史記錄列表 */
+    .records-container {
+      background: var(--card-bg);
+      border: 1px solid var(--s40);
+      border-radius: 24px;
+      padding: 35px;
+      box-sizing: border-box;
+      box-shadow: 0 8px 24px rgba(74, 62, 56, 0.05);
+      backdrop-filter: blur(12px);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 24px 0;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .records-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .record-card {
+      border: 1px solid var(--s40);
+      background: rgba(250, 246, 243, 0.6);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .record-card:hover {
+      border-color: var(--s50);
+      background: rgba(250, 246, 243, 0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(74, 62, 56, 0.04);
+    }
+
+    .record-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .record-info h5 {
+      margin: 0 0 6px 0;
+      font-size: 1.15rem;
+      color: var(--n50);
+      word-break: break-all;
+    }
+
+    .record-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 0.85rem;
+      color: var(--n30);
+    }
+
+    .record-tag-badge {
+      background: var(--s30);
+      color: var(--n40);
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-record-load {
+      padding: 8px 16px;
+      background: var(--s50);
+      color: var(--s10);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-record-load:hover {
+      background: #C39787;
+    }
+
+    .btn-record-delete {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid var(--s40);
+      color: var(--danger);
+      border-radius: 8px;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-record-delete:hover {
+      background: var(--danger);
+      color: var(--s10);
+      border-color: var(--danger);
+    }
+
+    .btn-record-rename {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid var(--s40);
+      color: var(--n40);
+      border-radius: 8px;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-record-rename:hover {
+      background: var(--s40);
+      color: var(--n50);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--n30);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.6;
+    }
+
+    /* ===== Modal 彈跳視窗 ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 42, 38, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--s10);
+      border: 1px solid var(--s40);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      box-sizing: border-box;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-modal-cancel {
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid var(--s40);
+      border-radius: 10px;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-modal-cancel:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    /* 錯誤訊息 / 成功訊息 */
+    .message-banner {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-sizing: border-box;
+      display: none;
+    }
+
+    .message-banner.error {
+      background: rgba(224, 122, 95, 0.15);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      display: block;
+    }
+
+    .message-banner.success {
+      background: rgba(168, 180, 152, 0.15);
+      border: 1px solid var(--a20);
+      color: var(--n40);
+      display: block;
+    }
+
+    /* ===== Loading 霧化遮罩 ===== */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: rgba(250, 246, 243, 0.85);
+      backdrop-filter: blur(15px);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .page-loader.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .loader-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 4px;
+      margin-top: 20px;
+      color: var(--n40);
+    }
+
+    /* CSS Spinner */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--s40);
+      border-top-color: var(--s50);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* 批量管理按鈕與 Checkbox 樣式 */
+    .batch-btn {
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--s40);
+      background: var(--s10);
+      color: var(--n40);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .batch-btn:hover {
+      background: var(--s30);
+      border-color: var(--s50);
+      color: var(--n50);
+    }
+    .batch-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--s10) !important;
+      color: var(--n30) !important;
+      border-color: var(--s40) !important;
+    }
+
+    .record-card {
+      transition: all 0.3s ease;
+      display: flex !important;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .record-checkbox-container {
+      display: none;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      padding: 5px;
+    }
+    
+    .records-list.batch-mode .record-checkbox-container {
+      display: block;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .record-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--s50);
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+      accent-color: var(--s50);
+      transition: all 0.2s ease;
+      margin: 0;
+    }
+
+    /* 進入批量管理時隱藏單個操作按鈕組 */
+    .records-list.batch-mode .record-actions {
+      display: none !important;
+    }
+
+    /* ===== 行動裝置 (768px 以下) 歷史探索回憶介面優化 ===== */
+    @media (max-width: 768px) {
+      .record-card {
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+          "checkbox info"
+          "actions actions";
+        gap: 12px 12px;
+        align-items: center;
+        padding: 16px;
+      }
+
+      .record-checkbox-container {
+        grid-area: checkbox;
+        display: none; /* 預設在非批量模式下隱藏 */
+      }
+
+      /* 批量模式下顯示 checkbox 區域 */
+      .records-list.batch-mode .record-checkbox-container {
+        display: block !important;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .record-info {
+        grid-area: info;
+        width: 100%;
+      }
+
+      .record-info h5 {
+        font-size: 1.1rem !important;
+        line-height: 1.4;
+        margin: 0 0 6px 0 !important;
+        word-break: break-all;
+        white-space: normal;
+      }
+
+      .record-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        font-size: 0.8rem !important;
+      }
+
+      .record-actions {
+        grid-area: actions;
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 2fr 1fr 1fr; /* 載入按鈕佔用主要寬度，其餘兩個各佔 1/4 */
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .record-actions button {
+        width: 100% !important;
+        font-size: 0.8rem !important;
+        padding: 8px 4px !important;
+        text-align: center;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      /* 在極窄螢幕下 (如小於 420px) 將按鈕組改為主按鈕單行，次按鈕並排 */
+      @media (max-width: 420px) {
+        .record-actions {
+          grid-template-columns: 1fr 1fr !important;
+        }
+        .btn-record-load {
+          grid-column: span 2;
+        }
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-overlay"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- Loading 霧化遮罩 -->
+  <div id="page-loader" class="page-loader">
+    <div class="spinner"></div>
+    <div id="loader-text" class="loader-text">冒險載入中...</div>
+  </div>
+
+  <div class="container fade-container" id="main-container">
+    <header>
+      <div class="logo-group" onclick="window.location.href='index.html'">
+        <!-- SVG 拱門 logo -->
+        <svg class="logo-icon" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28,175 L 28,102 Q 28,30 100,30 Q 172,30 172,102 L 172,175" fill="none" stroke="#2C2A26"
+            stroke-width="26" stroke-linecap="round" />
+          <path d="M 68,175 L 68,114 Q 68,74 100,74 Q 132,74 132,114 L 132,175" fill="none" stroke="#2C2A26"
+            stroke-width="22" stroke-linecap="round" />
+        </svg>
+        <h1 class="logo-title">初路</h1>
+      </div>
+      <button class="nav-btn" onclick="if (document.referrer) { history.back(); } else { window.location.href='index.html'; }">返回上ㄧ頁 ➔</button>
+    </header>
+
+    <!-- 訊息提示橫幅 -->
+    <div id="global-message" class="message-banner"></div>
+
+    <!-- ==================== 區塊一：登入/註冊卡片 (未登入狀態) ==================== -->
+    <div id="auth-section" class="auth-card" style="display: none;">
+      <div class="auth-tabs">
+        <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">登入</div>
+        <div id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">註冊</div>
+      </div>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+        <div class="form-group">
+          <label for="auth-email">冒險者 Email</label>
+          <input type="email" id="auth-email" class="form-input" required placeholder="example@email.com">
+        </div>
+        <div class="form-group">
+          <label for="auth-password">密碼</label>
+          <input type="password" id="auth-password" class="form-input" required minlength="6" placeholder="請輸入至少 6 位密碼">
+        </div>
+        <button type="submit" id="auth-submit-btn" class="btn-submit">確認登入</button>
+      </form>
+
+      <!-- 第三方登入區塊 -->
+      <div style="margin-top: 24px; text-align: center; border-top: 1px dashed var(--s40); padding-top: 20px;">
+        <p style="font-size: 0.85rem; color: var(--n30); margin: 0 0 15px 0; letter-spacing: 1px;">或使用第三方帳號</p>
+        <button type="button" onclick="handleGoogleLogin()" class="sidebar-btn"
+          style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(250, 246, 243, 0.9); font-weight: 600; border-color: var(--s40); box-sizing: border-box; margin: 0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4" />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853" />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              fill="#FBBC05" />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335" />
+          </svg>
+          Google 帳號登入 / 註冊
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== 區塊二：後台控制面板 (已登入狀態) ==================== -->
+    <div id="dashboard-section" class="dashboard-layout" style="display: none;">
+      <!-- 左側側邊欄 -->
+      <div class="sidebar">
+        <div class="profile-info">
+          <div class="avatar-wrapper">
+            <span class="avatar-icon">👑</span>
+          </div>
+          <h4 id="user-display-email" class="profile-email">---</h4>
+          <p class="profile-role">冒險中的初級大人</p>
+        </div>
+
+        <div class="sidebar-actions">
+          <button class="sidebar-btn" onclick="window.location.href='subpages.html'">前往職涯圖鑑 ➔</button>
+          <button id="admin-panel-btn" class="sidebar-btn" onclick="window.location.href='admin.html'" style="display: none; background: rgba(168, 180, 152, 0.1); border-color: var(--a20); font-weight: bold; margin-top: 10px;">🔧 管理者後台</button>
+          <button class="sidebar-btn" onclick="handleLogout()"
+            style="margin-top: 20px; border-color: rgba(224, 122, 95, 0.4); color: var(--danger);">登出帳號</button>
+        </div>
+      </div>
+
+      <!-- 右側主內容區 -->
+      <div class="main-content">
+        <!-- 本地未同步資料提示 -->
+        <div id="sync-banner" class="sync-alert" style="display: none;">
+          <div class="sync-alert-text">
+            <h4>💾 偵測到未存檔的本地冒險紀錄</h4>
+            <p>您在本機有進行過職涯探索，但尚未同步備份至此帳號。同步後可永久保存此探索進度。</p>
+          </div>
+          <button class="btn-sync" onclick="openSyncModal()">同步至雲端</button>
+        </div>
+
+        <!-- 歷史紀錄列表 -->
+        <div class="records-container">
+          <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
+            <span>🧭 您的歷史探索回憶</span>
+            <div class="batch-admin-triggers" style="display: none;">
+              <button id="batch-manage-btn" class="batch-btn" onclick="toggleBatchMode()">⚙️ 批量管理</button>
+            </div>
+          </h3>
+          
+          <!-- 批量操作控制列 (預設隱藏) -->
+          <div id="batch-control-bar" style="display: none; justify-content: space-between; align-items: center; background: rgba(212, 168, 152, 0.12); border: 1px dashed var(--s50); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; animation: gentleFadeIn 0.3s ease;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <button class="batch-btn" onclick="selectAllRecords()">全選</button>
+              <button class="batch-btn" onclick="deselectAllRecords()">取消全選</button>
+              <span id="batch-selected-count" style="font-size: 0.9rem; color: var(--n40); font-weight: bold; margin-left: 5px; font-family: 'Iansui', serif;">已選取 0 筆</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="batch-btn" onclick="toggleBatchMode(false)" style="background: var(--card-bg); color: var(--n40); border: 1px solid var(--s40);">取消</button>
+              <button class="batch-btn" id="batch-delete-btn" onclick="deleteSelectedRecords()" style="background: var(--danger); color: white; border-color: var(--danger);" disabled>🗑️ 刪除已選取</button>
+            </div>
+          </div>
+
+          <div id="records-list" class="records-list">
+            <!-- 動態填充歷史紀錄 -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 同步命名彈跳視窗 -->
+  <div id="sync-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h4 class="modal-title">命名您的探索紀錄</h4>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="sync-record-name">紀錄名稱</label>
+        <input type="text" id="sync-record-name" class="form-input" placeholder="例如：Wants 探索 - 20260608" maxlength="30">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeSyncModal()">取消</button>
+        <button class="btn-sync" onclick="submitSyncProgress()">開始同步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 刪除確認彈跳視窗 -->
+  <div id="delete-confirm-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 420px; text-align: center;">
+      <h4 class="modal-title" style="color: var(--danger);">確定要刪除紀錄嗎？</h4>
+      <p id="delete-confirm-text"
+        style="font-size: 0.95rem; color: var(--n40); margin: 20px 0 25px 0; line-height: 1.6;">
+        您確定要刪除該筆冒險紀錄嗎？此動作將無法復原。
+      </p>
+      <div class="modal-actions" style="justify-content: center; gap: 15px;">
+        <button class="btn-modal-cancel" onclick="closeDeleteModal()" style="margin: 0; padding: 10px 24px;">取消</button>
+        <button class="sidebar-btn" onclick="executeDeleteRecord()"
+          style="margin: 0; padding: 10px 24px; background: var(--danger); border-color: var(--danger); color: white; min-width: 100px; font-weight: 600;">確定刪除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 重新命名彈跳視窗 -->
+  <div id="rename-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h4 class="modal-title">重新命名您的探索紀錄</h4>
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="rename-record-name">紀錄名稱</label>
+        <input type="text" id="rename-record-name" class="form-input" placeholder="請輸入新的紀錄名稱" maxlength="30">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeRenameModal()">取消</button>
+        <button class="btn-sync" onclick="submitRenameRecord()">確定修改</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 開始新探索確認彈跳視窗 -->
+  <div id="new-exploration-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 450px; text-align: center;">
+      <h4 class="modal-title">確定要開始全新探索嗎？</h4>
+      <p
+        style="font-size: 0.95rem; color: var(--n40); margin: 20px 0 25px 0; line-height: 1.6; text-align: left; padding: 0 10px;">
+        開始全新探索會清除瀏覽器當前的暫存紀錄。<br>如果您需要保留目前的紀錄，請務必先將其「同步至雲端」。確定要開始新探索嗎？
+      </p>
+      <div class="modal-actions" style="justify-content: center; gap: 15px;">
+        <button class="btn-modal-cancel" onclick="closeNewExplorationModal()"
+          style="margin: 0; padding: 10px 24px;">取消</button>
+        <button class="sidebar-btn btn-accent" onclick="executeNewExploration()"
+          style="margin: 0; padding: 10px 24px; min-width: 100px; font-weight: 600;">確定開始</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let supabaseClient = null;
+    let authMode = 'login'; // login or register
+    let currentUser = null;
+    let localDataToSync = null;
+    let isBatchMode = false;
+
+    // 取得全域元素
+    const mainContainer = document.getElementById('main-container');
+    const authSection = document.getElementById('auth-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+    const pageLoader = document.getElementById('page-loader');
+    const loaderText = document.getElementById('loader-text');
+    const globalMessage = document.getElementById('global-message');
+    const syncBanner = document.getElementById('sync-banner');
+    const syncModal = document.getElementById('sync-modal');
+
+    // 初始化 Supabase
+    async function initSupabase() {
+      showLoading("載入系統設定中...");
+      try {
+        let response = await fetch('/api/config');
+        if (!response.ok && window.location.port !== '8787') {
+          try {
+            response = await fetch('http://localhost:8787/api/config');
+          } catch (e) {
+            console.warn("Fallback to http://localhost:8787/api/config failed:", e);
+          }
+        }
+        if (!response.ok) throw new Error("無法取得 API 設定");
+        const config = await response.json();
+
+        if (!config.SUPABASE_URL || !config.SUPABASE_ANON_KEY) {
+          showGlobalMessage("【系統設定未完成】請在 .env 檔案中填寫 SUPABASE_URL 與 SUPABASE_ANON_KEY 後重啟服務。", "error");
+          hideLoading();
+          // 啟用未設定狀態下的備份顯示
+          authSection.style.display = 'block';
+          document.getElementById('auth-submit-btn').disabled = true;
+          return;
+        }
+
+        // 建立 Supabase client
+        supabaseClient = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+
+        // 檢查是否為 debug 模式 (限本機 localhost / 127.0.0.1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (urlParams.get('debug') === 'true' && isLocalhost) {
+          currentUser = { email: "test@example.com" };
+          showDashboard();
+          hideLoading();
+          mainContainer.classList.add('visible');
+          return;
+        }
+
+        // 檢查登入狀態
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+
+        if (session) {
+          // 透過 getUser() 向伺服器主動驗證，避免帳號在後台被刪除但前端快取 Token 仍在
+          const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+          if (userError || !user) {
+            console.warn("驗證使用者失敗，可能已在後台遭刪除，將執行登出並清理快取：", userError);
+            await supabaseClient.auth.signOut();
+            
+            // 清理本地資料
+            localStorage.removeItem('careerRPG_data');
+            localStorage.removeItem('careerRPG_page');
+            localStorage.removeItem('careerRPG_currentRecordId');
+            localStorage.removeItem('careerRPG_currentRecordName');
+            localStorage.removeItem('careerRPG_hasWantHistory');
+            localStorage.removeItem('careerRPG_hasAbleHistory');
+            localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+            localStorage.removeItem('careerRPG_adventureContinued');
+            
+            currentUser = null;
+            showAuth();
+          } else {
+            currentUser = user;
+            showDashboard();
+          }
+        } else {
+          showAuth();
+        }
+      } catch (e) {
+        console.error("Supabase 初始化失敗", e);
+        showGlobalMessage("系統初始化失敗：" + e.message, "error");
+      } finally {
+        hideLoading();
+        mainContainer.classList.add('visible');
+      }
+    }
+
+    // 第三方 Google OAuth 登入
+    async function handleGoogleLogin() {
+      if (!supabaseClient) {
+        alert("系統尚未初始化，請稍後再試。");
+        return;
+      }
+      showLoading("正在導向至 Google 登入...");
+      try {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin + '/dashboard.html'
+          }
+        });
+        if (error) throw error;
+      } catch (err) {
+        showGlobalMessage("Google 登入失敗：" + err.message, "error");
+        hideLoading();
+      }
+    }
+
+    // 顯示載入中
+    function showLoading(text) {
+      loaderText.innerText = text;
+      pageLoader.classList.add('active');
+    }
+
+    // 關閉載入中
+    function hideLoading() {
+      pageLoader.classList.remove('active');
+    }
+
+    // 顯示全域訊息橫幅
+    function showGlobalMessage(text, type = 'success') {
+      globalMessage.innerText = text;
+      globalMessage.className = `message-banner ${type}`;
+      globalMessage.style.display = 'block';
+      setTimeout(() => {
+        globalMessage.style.display = 'none';
+      }, 5000);
+    }
+
+    // 切換登入註冊 Tabs
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      if (mode === 'login') {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        submitBtn.innerText = '確認登入';
+      } else {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        submitBtn.innerText = '確認註冊';
+      }
+    }
+
+    // 登入或註冊提交
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      submitBtn.disabled = true;
+      showLoading(authMode === 'login' ? "登入中..." : "註冊中...");
+
+      try {
+        if (authMode === 'login') {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          
+          // 登入成功後，清除前一個使用者的本地探索快取，防止不同帳號間資料污染
+          localStorage.removeItem('careerRPG_data');
+          localStorage.removeItem('careerRPG_page');
+          localStorage.removeItem('careerRPG_currentRecordId');
+          localStorage.removeItem('careerRPG_currentRecordName');
+          localStorage.removeItem('careerRPG_hasWantHistory');
+          localStorage.removeItem('careerRPG_hasAbleHistory');
+          localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+          localStorage.removeItem('careerRPG_adventureContinued');
+
+          currentUser = data.user;
+          showGlobalMessage("歡迎，初級大人！");
+          showDashboard();
+        } else {
+          const { data, error } = await supabaseClient.auth.signUp({ email, password });
+          if (error) throw error;
+
+          // 如果 Supabase 在註冊成功後自動建立了 session，主動將其登出以防止註冊即登入
+          if (data.session) {
+            await supabaseClient.auth.signOut();
+          }
+
+          showGlobalMessage("註冊成功！驗證信已寄出，請至信箱啟用帳號再登入。", "success");
+
+          // 清空密碼欄位，切換回登入模式
+          document.getElementById('auth-password').value = '';
+          switchAuthTab('login');
+        }
+      } catch (err) {
+        console.error("Auth error details:", err);
+        let msg = err.message;
+        if (msg === "Invalid login credentials") {
+          msg = "帳號或密碼錯誤，請重新輸入。";
+        } else if (msg === "User already registered") {
+          msg = "此 Email 已經被註冊過囉，請直接登入。";
+        } else if (msg.includes("Email not confirmed")) {
+          msg = "Email 尚未驗證，請至您的信箱收信啟用帳號。";
+        } else if (msg.includes("rate limit") || msg.includes("Rate limit")) {
+          msg = "嘗試次數過於頻繁，請稍候再試。";
+        }
+        showGlobalMessage(msg, "error");
+      } finally {
+        hideLoading();
+        submitBtn.disabled = false;
+      }
+    }
+
+    // 顯示登入註冊介面
+    function showAuth() {
+      authSection.style.display = 'block';
+      dashboardSection.style.display = 'none';
+      syncBanner.style.display = 'none';
+    }
+
+    // 顯示後台面板
+    async function showDashboard() {
+      authSection.style.display = 'none';
+      dashboardSection.style.display = 'grid';
+      document.getElementById('user-display-email').innerText = currentUser.email;
+
+      // 檢查是否為管理員，顯示對應入口
+      const isAdmin = currentUser && currentUser.app_metadata && currentUser.app_metadata.role === 'admin';
+      const adminBtn = document.getElementById('admin-panel-btn');
+      if (adminBtn) {
+        adminBtn.style.display = isAdmin ? 'block' : 'none';
+      }
+
+      // 檢查本機是否有未存檔的 local data
+      checkLocalDataToSync();
+
+      // 載入歷史列表
+      await loadUserProgressList();
+    }
+
+    // 檢查本地是否有未存檔的資料
+    function checkLocalDataToSync() {
+      const localProgress = localStorage.getItem('careerRPG_data');
+      const currentRecordId = localStorage.getItem('careerRPG_currentRecordId');
+
+      // 只有在本地有探索資料，且該資料未與任何雲端存檔綁定時，才顯示同步提醒橫幅
+      if (localProgress && !currentRecordId) {
+        localDataToSync = JSON.parse(localProgress);
+        syncBanner.style.display = 'flex';
+      } else {
+        syncBanner.style.display = 'none';
+      }
+    }
+
+    // 開啟同步視窗
+    function openSyncModal() {
+      const now = new Date();
+      const dateStr = now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0');
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('sync-record-name').value = `冒險紀錄 - ${dateStr} ${timeStr}`;
+      syncModal.classList.add('active');
+    }
+
+    // 關閉同步視窗
+    function closeSyncModal() {
+      syncModal.classList.remove('active');
+    }
+
+    // 上傳同步本地紀錄
+    async function submitSyncProgress() {
+      const name = document.getElementById('sync-record-name').value.trim();
+      if (!name) {
+        alert("請輸入紀錄名稱！");
+        return;
+      }
+      if (name.length > 30) {
+        alert("紀錄名稱不能超過 30 個字！");
+        return;
+      }
+
+      closeSyncModal();
+      showLoading("同步至雲端中...");
+
+      // 封裝完整進度狀態
+      const fullPackage = {
+        careerRPG_data: localDataToSync,
+        careerRPG_page: localStorage.getItem('careerRPG_page') || 'page-about-you',
+        careerRPG_hasWantHistory: localStorage.getItem('careerRPG_hasWantHistory') === 'true',
+        careerRPG_hasAbleHistory: localStorage.getItem('careerRPG_hasAbleHistory') === 'true',
+        careerRPG_hasCompletedFirstRun: localStorage.getItem('careerRPG_hasCompletedFirstRun') === 'true',
+        careerRPG_adventureContinued: localStorage.getItem('careerRPG_adventureContinued') === 'true'
+      };
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('user_progress')
+          .insert({
+            user_id: currentUser.id,
+            record_name: name,
+            progress_data: fullPackage
+          })
+          .select('id');
+
+        if (error) throw error;
+
+        // 同步成功後，將新紀錄的 ID 與名稱寫入 localStorage 進行綁定，防止橫幅再次顯示
+        if (data && data[0]) {
+          localStorage.setItem('careerRPG_currentRecordId', data[0].id);
+          localStorage.setItem('careerRPG_currentRecordName', name);
+        }
+
+        showGlobalMessage("同步備份成功！");
+        checkLocalDataToSync(); // 重新檢測狀態，隱藏橫幅
+        await loadUserProgressList();
+      } catch (err) {
+        showGlobalMessage("同步失敗：" + err.message, "error");
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 載入歷史記錄列表
+    async function loadUserProgressList() {
+      const listContainer = document.getElementById('records-list');
+      const batchTriggers = document.querySelector('.batch-admin-triggers');
+      
+      // 每次重新載入列表，重置並退出批量管理狀態
+      isBatchMode = false;
+      if (listContainer) listContainer.classList.remove('batch-mode');
+      const controlBar = document.getElementById('batch-control-bar');
+      if (controlBar) controlBar.style.display = 'none';
+      const manageBtn = document.getElementById('batch-manage-btn');
+      if (manageBtn) manageBtn.style.display = 'inline-block';
+
+      listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">讀取回憶中...</div>';
+
+      try {
+        let data;
+        let error = null;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (urlParams.get('debug') === 'true' && isLocalhost) {
+          data = [
+            {
+              id: "mock-id-1",
+              record_name: "冒險紀錄 - 2026060916:04",
+              created_at: "2026-06-09T08:04:27.000Z",
+              progress_data: {
+                careerRPG_hasCompletedFirstRun: true
+              }
+            }
+          ];
+        } else {
+          const { data: fetchRecords, error: fetchError } = await supabaseClient
+            .from('user_progress')
+            .select('id, record_name, progress_data, created_at')
+            .order('created_at', { ascending: false });
+          data = fetchRecords;
+          error = fetchError;
+        }
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          if (batchTriggers) batchTriggers.style.display = 'none';
+          listContainer.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🪐</div>
+              <p>這裡目前空空如也，尚未有任何存在雲端上的冒險紀錄。</p>
+            </div>
+          `;
+          return;
+        }
+
+        // 有歷史紀錄，顯示批量管理按鈕
+        if (batchTriggers) batchTriggers.style.display = 'block';
+
+        listContainer.innerHTML = '';
+        data.forEach(item => {
+          const date = new Date(item.created_at).toLocaleString('zh-TW', { hour12: false });
+          const card = document.createElement('div');
+          card.className = 'record-card';
+
+          // 判斷該紀錄中完成的狀態，以渲染精緻的 Badge
+          const pData = item.progress_data;
+          let statusText = "建構中";
+          if (pData.careerRPG_hasCompletedFirstRun) {
+            statusText = "已完成探索";
+          } else if (pData.careerRPG_hasWantHistory && pData.careerRPG_hasAbleHistory) {
+            statusText = "Want & Able 完成";
+          } else if (pData.careerRPG_hasWantHistory) {
+            statusText = "Want 已完成";
+          }
+
+          card.innerHTML = `
+            <div class="record-checkbox-container">
+              <input type="checkbox" class="record-checkbox" value="${item.id}" onchange="updateSelectedCount()">
+            </div>
+            <div class="record-info">
+              <h5>${escapeHtml(item.record_name)}</h5>
+              <div class="record-meta">
+                <span>📅 ${date}</span>
+                <span class="record-tag-badge">${statusText}</span>
+              </div>
+            </div>
+            <div class="record-actions">
+              <button class="btn-record-load" onclick="loadRecordToLocal('${item.id}')">📖 載入紀錄</button>
+              <button class="btn-record-rename" onclick="renameRecord('${item.id}', '${escapeHtml(item.record_name)}')">✏️ 修改名稱</button>
+              <button class="btn-record-delete" onclick="askDeleteRecord('${item.id}', '${escapeHtml(item.record_name)}')">🗑️ 刪除</button>
+            </div>
+          `;
+          listContainer.appendChild(card);
+        });
+      } catch (err) {
+        if (batchTriggers) batchTriggers.style.display = 'none';
+        listContainer.innerHTML = `<div style="color:var(--danger); text-align:center; padding: 20px;">載入歷史失敗：${err.message}</div>`;
+      }
+    }
+
+    // 將雲端紀錄下載並覆寫回本地 localStorage，無縫承接
+    async function loadRecordToLocal(id) {
+      showLoading("載入冒險記憶中...");
+      try {
+        const { data, error } = await supabaseClient
+          .from('user_progress')
+          .select('progress_data, record_name')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        const pData = data.progress_data;
+
+        // 寫入 localStorage
+        localStorage.setItem('careerRPG_currentRecordId', id);
+        localStorage.setItem('careerRPG_currentRecordName', data.record_name);
+        localStorage.setItem('careerRPG_data', JSON.stringify(pData.careerRPG_data));
+        localStorage.setItem('careerRPG_page', pData.careerRPG_page);
+        localStorage.setItem('careerRPG_hasWantHistory', pData.careerRPG_hasWantHistory ? 'true' : 'false');
+        localStorage.setItem('careerRPG_hasAbleHistory', pData.careerRPG_hasAbleHistory ? 'true' : 'false');
+        localStorage.setItem('careerRPG_hasCompletedFirstRun', pData.careerRPG_hasCompletedFirstRun ? 'true' : 'false');
+        localStorage.setItem('careerRPG_adventureContinued', pData.careerRPG_adventureContinued ? 'true' : 'false');
+
+        showGlobalMessage("紀錄載入成功！即將回到探索之旅！");
+
+        // 倒數 1.5 秒跳轉
+        setTimeout(() => {
+          window.location.href = `career-flow.html`;
+        }, 1500);
+
+      } catch (err) {
+        showGlobalMessage("載入失敗：" + err.message, "error");
+        hideLoading();
+      }
+    }
+
+    let renameRecordId = null;
+
+    // 開啟重新命名 Modal
+    function renameRecord(id, oldName) {
+      renameRecordId = id;
+      document.getElementById('rename-record-name').value = oldName;
+      document.getElementById('rename-modal').classList.add('active');
+    }
+
+    // 關閉重新命名 Modal
+    function closeRenameModal() {
+      renameRecordId = null;
+      document.getElementById('rename-modal').classList.remove('active');
+    }
+
+    // 送出名稱修改
+    async function submitRenameRecord() {
+      if (!renameRecordId) return;
+      const id = renameRecordId;
+      const name = document.getElementById('rename-record-name').value.trim();
+      if (!name) {
+        alert("紀錄名稱不能為空！");
+        return;
+      }
+      if (name.length > 30) {
+        alert("紀錄名稱不能超過 30 個字！");
+        return;
+      }
+
+      closeRenameModal();
+      showLoading("更新紀錄名稱中...");
+      try {
+        const { error } = await supabaseClient
+          .from('user_progress')
+          .update({ record_name: name })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        // 若修改的剛好是目前快取的這筆，也同步更新 localStorage 中的名稱
+        if (localStorage.getItem('careerRPG_currentRecordId') === id) {
+          localStorage.setItem('careerRPG_currentRecordName', name);
+        }
+
+        showGlobalMessage("紀錄名稱修改成功！");
+        await loadUserProgressList();
+      } catch (err) {
+        showGlobalMessage("修改失敗：" + err.message, "error");
+      } finally {
+        hideLoading();
+      }
+    }
+
+    let deleteRecordId = null;
+    let deleteRecordName = '';
+    let deleteMode = 'single'; // 'single' or 'batch'
+    let batchIdsToDelete = [];
+
+    // 開啟刪除確認 Modal
+    function askDeleteRecord(id, name) {
+      deleteRecordId = id;
+      deleteRecordName = name;
+      deleteMode = 'single';
+      document.getElementById('delete-confirm-text').innerHTML = `確定要刪除「<b>${escapeHtml(name)}</b>」這筆紀錄嗎？<br>刪除後將無法還原該回憶。`;
+      document.getElementById('delete-confirm-modal').classList.add('active');
+    }
+
+    // 關閉刪除確認 Modal
+    function closeDeleteModal() {
+      deleteRecordId = null;
+      deleteRecordName = '';
+      deleteMode = 'single';
+      batchIdsToDelete = [];
+      document.getElementById('delete-confirm-modal').classList.remove('active');
+    }
+
+    // 執行實際刪除
+    async function executeDeleteRecord() {
+      const mode = deleteMode;
+      const singleId = deleteRecordId;
+      const singleName = deleteRecordName;
+      const batchIds = [...batchIdsToDelete];
+
+      closeDeleteModal();
+
+      if (mode === 'single') {
+        if (!singleId) return;
+        showLoading("正在刪除記憶...");
+        try {
+          const { error } = await supabaseClient
+            .from('user_progress')
+            .delete()
+            .eq('id', singleId);
+
+          if (error) throw error;
+
+          // 若刪除的剛好是當前載入的這筆，將其 ID 與名稱從快取移除
+          if (localStorage.getItem('careerRPG_currentRecordId') === singleId) {
+            localStorage.removeItem('careerRPG_currentRecordId');
+            localStorage.removeItem('careerRPG_currentRecordName');
+          }
+
+          showGlobalMessage(`「${singleName}」已成功刪除。`);
+          await loadUserProgressList();
+          checkLocalDataToSync();
+        } catch (err) {
+          showGlobalMessage("刪除失敗：" + err.message, "error");
+        } finally {
+          hideLoading();
+        }
+      } else if (mode === 'batch') {
+        if (batchIds.length === 0) return;
+
+        showLoading("正在批量刪除紀錄...");
+        try {
+          const { error } = await supabaseClient
+            .from('user_progress')
+            .delete()
+            .in('id', batchIds);
+
+          if (error) throw error;
+
+          // 若刪除的紀錄中包含當前快取的紀錄 ID，則清除本地快取
+          const currentRecordId = localStorage.getItem('careerRPG_currentRecordId');
+          if (currentRecordId && batchIds.includes(currentRecordId)) {
+            localStorage.removeItem('careerRPG_currentRecordId');
+            localStorage.removeItem('careerRPG_currentRecordName');
+          }
+
+          showGlobalMessage(`成功刪除 ${batchIds.length} 筆紀錄。`, "success");
+          await loadUserProgressList();
+          checkLocalDataToSync();
+        } catch (err) {
+          showGlobalMessage("批量刪除失敗：" + err.message, "error");
+        } finally {
+          hideLoading();
+        }
+      }
+    }
+
+    // 切換批量管理模式
+    function toggleBatchMode(enable) {
+      if (enable === undefined) {
+        enable = !isBatchMode;
+      }
+      isBatchMode = enable;
+      
+      const listContainer = document.getElementById('records-list');
+      const controlBar = document.getElementById('batch-control-bar');
+      const manageBtn = document.getElementById('batch-manage-btn');
+      
+      if (isBatchMode) {
+        if (listContainer) listContainer.classList.add('batch-mode');
+        if (controlBar) controlBar.style.display = 'flex';
+        if (manageBtn) manageBtn.style.display = 'none';
+        
+        // 重置所有核取方塊為未勾選狀態
+        const checkboxes = document.querySelectorAll('.record-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelectedCount();
+      } else {
+        if (listContainer) listContainer.classList.remove('batch-mode');
+        if (controlBar) controlBar.style.display = 'none';
+        if (manageBtn) manageBtn.style.display = 'inline-block';
+      }
+    }
+
+    // 全選所有紀錄
+    function selectAllRecords() {
+      const checkboxes = document.querySelectorAll('.record-checkbox');
+      checkboxes.forEach(cb => cb.checked = true);
+      updateSelectedCount();
+    }
+
+    // 取消全選所有紀錄
+    function deselectAllRecords() {
+      const checkboxes = document.querySelectorAll('.record-checkbox');
+      checkboxes.forEach(cb => cb.checked = false);
+      updateSelectedCount();
+    }
+
+    // 更新已選取筆數統計與刪除按鈕狀態
+    function updateSelectedCount() {
+      const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
+      const count = checkedBoxes.length;
+      
+      const countLabel = document.getElementById('batch-selected-count');
+      if (countLabel) {
+        countLabel.innerText = `已選取 ${count} 筆`;
+      }
+      
+      const deleteBtn = document.getElementById('batch-delete-btn');
+      if (deleteBtn) {
+        deleteBtn.disabled = (count === 0);
+      }
+    }
+
+    // 呼叫自訂 Modal 進行批量刪除確認
+    function deleteSelectedRecords() {
+      const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
+      const idsToDelete = Array.from(checkedBoxes).map(cb => cb.value);
+      
+      if (idsToDelete.length === 0) return;
+      
+      deleteMode = 'batch';
+      batchIdsToDelete = idsToDelete;
+      
+      document.getElementById('delete-confirm-text').innerHTML = `確定要刪除所選的 <b>${idsToDelete.length}</b> 筆冒險紀錄嗎？<br>此動作將無法復原。`;
+      document.getElementById('delete-confirm-modal').classList.add('active');
+    }
+
+    // 開啟全新探索的確認詢問
+    function askNewExploration() {
+      if (localStorage.getItem('careerRPG_data')) {
+        document.getElementById('new-exploration-modal').classList.add('active');
+      } else {
+        executeNewExploration();
+      }
+    }
+
+    // 關閉全新探索確認 Modal
+    function closeNewExplorationModal() {
+      document.getElementById('new-exploration-modal').classList.remove('active');
+    }
+
+    // 執行全新探索跳轉
+    function executeNewExploration() {
+      closeNewExplorationModal();
+
+      // 清除本地測驗快取
+      localStorage.removeItem('careerRPG_data');
+      localStorage.removeItem('careerRPG_page');
+      localStorage.removeItem('careerRPG_currentRecordId');
+      localStorage.removeItem('careerRPG_currentRecordName');
+      localStorage.removeItem('careerRPG_hasWantHistory');
+      localStorage.removeItem('careerRPG_hasAbleHistory');
+      localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+      localStorage.removeItem('careerRPG_adventureContinued');
+
+      showLoading("準備冒險旅程...");
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1000);
+    }
+
+    // 登出帳號
+    async function handleLogout() {
+      showLoading("正在登出...");
+      try {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+        
+        // 登出時清除所有本機進度快取，防範與下一位使用者的隱私或資料衝突
+        localStorage.removeItem('careerRPG_data');
+        localStorage.removeItem('careerRPG_page');
+        localStorage.removeItem('careerRPG_currentRecordId');
+        localStorage.removeItem('careerRPG_currentRecordName');
+        localStorage.removeItem('careerRPG_hasWantHistory');
+        localStorage.removeItem('careerRPG_hasAbleHistory');
+        localStorage.removeItem('careerRPG_hasCompletedFirstRun');
+        localStorage.removeItem('careerRPG_adventureContinued');
+
+        currentUser = null;
+        showGlobalMessage("已成功登出。");
+        showAuth();
+      } catch (err) {
+        showGlobalMessage("登出失敗：" + err.message, "error");
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 防止 HTML 注入的安全輔助函數
+    function escapeHtml(str) {
+      return str.replace(/[&<>'"]/g,
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    // 當頁面載入完成後執行
+    window.addEventListener('load', () => {
+      initSupabase();
+    });
+  </script>
+</body>
+
+</html>

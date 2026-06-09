@@ -10,8 +10,5 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
-  ],
-  "ai": {
-    "binding": "AI"
-  }
+  ]
 }

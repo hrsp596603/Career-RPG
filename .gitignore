@@ -15,3 +15,7 @@ conversation_history_20260506.md
 !.dev.vars.example
 .env*
 !.env.example
+
+# Exclude all pdf files in assets except tag_system.pdf
+assets/*.pdf
+!assets/tag_system.pdf

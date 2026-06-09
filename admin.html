@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>初路 - 管理者後台系統</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <!-- 載入 Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
+
+    /* ===== 品牌色票 ===== */
+    :root {
+      --s10: #FAF6F3;
+      --s30: #F2DFD3;
+      --s40: #E8D5C7;
+      --s50: #D4A898;
+      --n50: #2C2A26;
+      --n40: #4A3E38;
+      --n30: #8C7B72;
+      --a20: #A8B498;
+      --danger: #E07A5F;
+      --card-bg: rgba(250, 246, 243, 0.85);
+    }
+
+    @font-face {
+      font-family: 'Iansui';
+      src: url('assets/Iansui-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      font-family: 'Iansui', 'Noto Serif TC', serif;
+      color: var(--n50);
+      overflow-x: hidden;
+    }
+
+    body {
+      background: linear-gradient(rgba(250, 246, 243, 0.55),
+          rgba(250, 246, 243, 0.55)), url('assets/abanner.png') center/cover no-repeat fixed;
+    }
+
+    /* 背景紋理 */
+    .bg-overlay {
+      display: none;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.04;
+      mix-blend-mode: multiply;
+      background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+    }
+
+    /* 轉場 */
+    .fade-container {
+      opacity: 0;
+      filter: blur(10px);
+      transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .fade-container.visible {
+      opacity: 1;
+      filter: blur(0px);
+    }
+
+    /* 版面容器 */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+
+    .logo-section h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      margin: 0;
+      color: var(--n50);
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-section h1::after {
+      content: '管理者後台';
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: var(--s50);
+      color: var(--s10);
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0;
+      font-family: sans-serif;
+    }
+
+    .back-btn {
+      padding: 10px 20px;
+      border: 1px solid var(--s40);
+      background: var(--card-bg);
+      color: var(--n40);
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(74,62,56,0.05);
+    }
+
+    .back-btn:hover {
+      background: var(--s30);
+      border-color: var(--s50);
+      color: var(--n50);
+      transform: translateY(-1px);
+    }
+
+    /* 控制面板大卡片 */
+    .admin-card {
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--s40);
+      border-radius: 16px;
+      padding: 30px;
+      box-sizing: border-box;
+      box-shadow: 0 10px 30px rgba(74,62,56,0.06);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 1px solid var(--s40);
+      padding-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      margin: 0;
+      color: var(--n40);
+    }
+
+    .user-count {
+      font-size: 0.95rem;
+      color: var(--n30);
+    }
+
+    .user-count span {
+      font-weight: bold;
+      color: var(--s50);
+    }
+
+    /* 使用者清單表格 */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 15px;
+      border-bottom: 2px solid var(--s40);
+      color: var(--n30);
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid var(--s40);
+      font-size: 0.95rem;
+      color: var(--n40);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(242, 223, 211, 0.25);
+    }
+
+    .user-email-cell {
+      font-weight: bold;
+      color: var(--n50);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .badge-admin {
+      background: rgba(168, 180, 152, 0.2);
+      color: var(--a20);
+      border: 1px solid var(--a20);
+    }
+
+    .badge-user {
+      background: rgba(140, 123, 114, 0.1);
+      color: var(--n30);
+      border: 1px solid var(--s40);
+    }
+
+    .view-btn {
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--a20);
+      color: var(--a20);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-right: 8px;
+    }
+
+    .view-btn:hover:not(:disabled) {
+      background: var(--a20);
+      color: #fff;
+    }
+
+    .view-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: var(--s40);
+      color: var(--n30);
+    }
+
+    .delete-btn {
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .delete-btn:hover:not(:disabled) {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .delete-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: var(--s40);
+      color: var(--n30);
+    }
+
+    /* 頁面載入器 */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--s10);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .page-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--s30);
+      border-bottom-color: var(--s50);
+      border-radius: 50%;
+      animation: rotation 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 1.1rem;
+      color: var(--n40);
+      letter-spacing: 1px;
+    }
+
+    /* 彈出警告訊息 */
+    .message-banner {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      z-index: 2000;
+      display: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      animation: slideDown 0.3s ease forwards;
+    }
+
+    .message-banner.success {
+      background-color: var(--a20);
+      color: #fff;
+    }
+
+    .message-banner.error {
+      background-color: var(--danger);
+      color: #fff;
+    }
+
+    @keyframes slideDown {
+      from { transform: translate(-50%, -20px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    /* 二次確認彈窗 (Modal) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 42, 38, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 1500;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--s10);
+      border: 1px solid var(--s40);
+      border-radius: 12px;
+      padding: 30px;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      text-align: center;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--n50);
+      margin: 0 0 15px 0;
+    }
+
+    .modal-desc {
+      font-size: 0.95rem;
+      color: var(--n40);
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: 1px solid var(--s40);
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--n40);
+    }
+
+    .btn-secondary:hover {
+      background: var(--s30);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: #c9654b;
+    }
+
+    /* 客製化下拉選單樣式 */
+    .custom-dropdown {
+      position: relative;
+      display: inline-block;
+      min-width: 320px;
+      font-family: 'Iansui', serif;
+    }
+    .custom-dropdown .dropdown-trigger {
+      background: var(--s10);
+      padding: 8px 16px;
+      border: 1px solid var(--s40);
+      border-radius: 6px;
+      color: var(--n50);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      transition: all 0.2s ease;
+    }
+    .custom-dropdown .dropdown-trigger:hover {
+      border-color: var(--s50);
+      box-shadow: 0 4px 10px rgba(212,168,152,0.15);
+    }
+    .custom-dropdown.active .dropdown-trigger {
+      border-color: var(--s50);
+      box-shadow: 0 4px 10px rgba(212,168,152,0.15);
+    }
+    .custom-dropdown.active .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+    .custom-dropdown .dropdown-arrow {
+      margin-left: 8px;
+      transition: transform 0.2s ease;
+      color: var(--n30);
+    }
+    .custom-dropdown .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      right: 0;
+      background: var(--s10);
+      border: 1px solid var(--s40);
+      border-radius: 6px;
+      box-shadow: 0 6px 16px rgba(74,62,56,0.1);
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      padding: 4px 0;
+    }
+    .custom-dropdown .dropdown-item {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      color: var(--n50);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .custom-dropdown .dropdown-item:hover {
+      background: var(--s30);
+      color: var(--n40);
+    }
+    .custom-dropdown .dropdown-item.selected {
+      background: var(--s40);
+      font-weight: bold;
+      color: var(--n40);
+    }
+
+    /* ===== 行動裝置 (768px 以下) 管理者後台介面優化 ===== */
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 15px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .logo-section h1 {
+        font-size: 1.8rem;
+      }
+
+      .back-btn {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .admin-card {
+        padding: 20px 15px;
+        border-radius: 12px;
+      }
+
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+      }
+
+      .user-count {
+        font-size: 0.9rem;
+      }
+
+      /* 表格轉卡片垂直排列 */
+      .table-container {
+        overflow-x: visible;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead {
+        display: none; /* 隱藏表頭 */
+      }
+
+      tbody tr {
+        margin-bottom: 20px;
+        border: 1px solid var(--s40);
+        border-radius: 12px;
+        background: rgba(250, 246, 243, 0.5);
+        padding: 15px 15px 12px 15px;
+        box-shadow: 0 4px 12px rgba(74,62,56,0.02);
+        box-sizing: border-box;
+      }
+
+      tbody tr:last-child {
+        margin-bottom: 0;
+      }
+
+      tbody tr:hover td {
+        background: transparent !important;
+      }
+
+      td {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--s40);
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        text-align: left;
+      }
+
+      td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-top: 12px;
+      }
+
+      /* 利用 data-label 屬性插入小標題，達到欄位垂直堆疊的極佳排版 */
+      td::before {
+        content: attr(data-label);
+        font-size: 0.75rem;
+        color: var(--n30);
+        font-weight: bold;
+        margin-bottom: 6px;
+        letter-spacing: 1px;
+        display: block;
+      }
+
+      /* 操作選項按鈕橫向平分 */
+      td[data-label="操作選項"] {
+        flex-direction: row !important;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .view-btn, .delete-btn {
+        flex: 1;
+        text-align: center;
+        padding: 10px 10px !important;
+        font-size: 0.85rem !important;
+        margin: 0 !important;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      /* 詳情 Modal 大小與按鈕調整 */
+      .modal {
+        padding: 20px 15px !important;
+      }
+      .modal-title {
+        font-size: 1.15rem !important;
+      }
+      
+      /* 檔案切換下拉選單調整為 100% 寬度 */
+      .custom-dropdown {
+        min-width: 100% !important;
+        width: 100% !important;
+      }
+      #record-selector-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-overlay"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- 載入動畫 -->
+  <div class="page-loader" id="page-loader">
+    <div class="spinner"></div>
+    <div class="loader-text" id="loader-text">驗證管理員身分中...</div>
+  </div>
+
+  <!-- 全域訊息 -->
+  <div class="message-banner" id="global-message"></div>
+
+  <!-- 內容區 -->
+  <div class="container fade-container" id="main-container">
+    <header>
+      <div class="logo-section">
+        <h1>初路</h1>
+      </div>
+      <a href="dashboard.html" class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        返回儀表板
+      </a>
+    </header>
+
+    <main class="admin-card">
+      <div class="card-header">
+        <h2 class="card-title">帳號管理面板</h2>
+        <div class="user-count">目前註冊總人數：<span id="user-count-num">0</span> 人</div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>電子信箱</th>
+              <th>註冊時間</th>
+              <th>最後登入時間</th>
+              <th>身分角色</th>
+              <th>操作選項</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body">
+            <!-- 動態填入 -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- 刪除確認 Modal -->
+  <div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal">
+      <h3 class="modal-title">確定要刪除此帳號嗎？</h3>
+      <p class="modal-desc">
+        此操作是無法復原的。刪除使用者之後，該帳號將無法登入，且其所有的雲端歷程與存檔資料將會被全部清除。
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+        <button class="btn btn-danger" id="confirm-delete-btn">確定刪除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 冒險紀錄詳情 Modal -->
+  <div class="modal-overlay" id="record-detail-modal">
+    <div class="modal" style="max-width: 800px; text-align: left; width: 95%;">
+      <h3 class="modal-title" id="record-modal-title" style="text-align: center; border-bottom: 1px solid var(--s40); padding-bottom: 15px; margin-bottom: 20px;">冒險者紀錄詳情</h3>
+      
+      <!-- 存檔切換下拉選單 (客製化美化 Dropdown) -->
+      <div id="record-selector-container" style="margin-bottom: 20px; display: none; background: rgba(242, 223, 211, 0.3); padding: 12px 15px; border-radius: 8px; border: 1px solid var(--s40); align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span style="font-weight: bold; color: var(--n40); font-size: 0.95rem;">選擇存檔紀錄：</span>
+        
+        <div class="custom-dropdown" id="custom-record-dropdown">
+          <div class="dropdown-trigger">
+            <span class="dropdown-selected-text">選擇存檔紀錄...</span>
+            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+          <div class="dropdown-menu">
+            <!-- 動態填入 -->
+          </div>
+        </div>
+      </div>
+
+      <div id="record-detail-content" style="max-height: 55vh; overflow-y: auto; padding-right: 12px; font-family: sans-serif; line-height: 1.6; color: var(--n50);">
+        <!-- 詳細資料動態渲染 -->
+      </div>
+      
+      <div class="modal-actions" style="justify-content: center; margin-top: 25px; border-top: 1px solid var(--s40); padding-top: 15px;">
+        <button class="btn btn-secondary" onclick="closeRecordModal()">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let supabaseClient = null;
+    let currentUser = null;
+    let currentSession = null;
+    let targetDeleteUserId = null;
+    let apiBaseUrl = '';
+    let allUsersData = []; // 儲存所有使用者及其冒險紀錄
+    let activeUserRecords = []; // 當前正在檢視的使用者存檔紀錄
+    let activeRecordIndex = 0; // 當前選取的存檔 index
+
+    // 格式化日期時間
+    function formatDateTime(isoString) {
+      if (!isoString) return '--';
+      const date = new Date(isoString);
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
+
+    // 顯示訊息
+    function showGlobalMessage(text, type = 'success') {
+      const banner = document.getElementById('global-message');
+      banner.innerText = text;
+      banner.className = `message-banner ${type}`;
+      banner.style.display = 'block';
+      setTimeout(() => {
+        banner.style.display = 'none';
+      }, 3000);
+    }
+
+    async function initAdmin() {
+      // 檢查是否為 debug 模式 (限本機 localhost / 127.0.0.1)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (urlParams.get('debug') === 'true' && isLocalhost) {
+        document.getElementById('page-loader').classList.add('hidden');
+        document.getElementById('main-container').classList.add('visible');
+
+        currentUser = { id: "mock-admin-id", email: "hrsp596603@gmail.com" };
+        const mockUsers = [
+          {
+            id: "mock-user-1",
+            email: "suckitup@gmail.com",
+            created_at: "2026-06-08T15:34:27.000Z",
+            last_sign_in_at: "2026-06-08T15:34:27.000Z",
+            app_metadata: { role: "user" },
+            progress_records: []
+          },
+          {
+            id: "mock-user-2",
+            email: "hrsp596603@gmail.com",
+            created_at: "2026-06-08T15:24:08.000Z",
+            last_sign_in_at: "2026-06-08T15:24:08.000Z",
+            app_metadata: { role: "admin" },
+            progress_records: [
+              { id: "mock-rec-1" }
+            ]
+          }
+        ];
+        allUsersData = mockUsers;
+        renderUserTable(mockUsers);
+        setupCustomDropdown();
+        return;
+      }
+
+      try {
+        // 讀取 config
+        let response = await fetch('/api/config');
+        if (!response.ok && window.location.port !== '8787') {
+          try {
+            response = await fetch('http://localhost:8787/api/config');
+            if (response.ok) {
+              apiBaseUrl = 'http://localhost:8787';
+            }
+          } catch (e) {}
+        }
+        if (!response.ok) throw new Error("讀取設定失敗");
+        const config = await response.json();
+
+        if (!config.SUPABASE_URL || !config.SUPABASE_ANON_KEY) {
+          throw new Error("Supabase 設定未完成");
+        }
+
+        supabaseClient = supabase.createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+
+        // 檢查登入
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+
+        if (!session) {
+          showGlobalMessage("您尚未登入，將導引回登入頁。", "error");
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+          return;
+        }
+
+        // 伺服器端 getUser 驗證
+        const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+        if (userError || !user) {
+          await supabaseClient.auth.signOut();
+          throw new Error("帳號無效或已被後台刪除，已執行登出。");
+        }
+
+        // 檢查是否具有 admin 角色
+        const isAdmin = user.app_metadata && user.app_metadata.role === 'admin';
+        if (!isAdmin) {
+          showGlobalMessage("權限不足：您並非管理員！將引導回儀表板。", "error");
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+          return;
+        }
+
+        currentUser = user;
+        currentSession = session;
+
+        // 隱藏載入器，顯示主面板
+        document.getElementById('page-loader').classList.add('hidden');
+        document.getElementById('main-container').classList.add('visible');
+
+        // 讀取使用者列表
+        await loadUsers();
+
+        // 初始化客製化下拉選單
+        setupCustomDropdown();
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loader-text').innerText = "權限驗證失敗: " + err.message;
+        showGlobalMessage("初始化失敗：" + err.message, "error");
+      }
+    }
+
+    // 初始化客製化下拉選單的展開與點擊外部關閉
+    function setupCustomDropdown() {
+      const dropdown = document.getElementById('custom-record-dropdown');
+      if (!dropdown) return;
+      const trigger = dropdown.querySelector('.dropdown-trigger');
+      const menu = dropdown.querySelector('.dropdown-menu');
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isActive = dropdown.classList.contains('active');
+        if (isActive) {
+          dropdown.classList.remove('active');
+          menu.style.display = 'none';
+        } else {
+          dropdown.classList.add('active');
+          menu.style.display = 'block';
+        }
+      });
+
+      // 點選外部其他區域時，自動收合選單
+      document.addEventListener('click', () => {
+        dropdown.classList.remove('active');
+        menu.style.display = 'none';
+      });
+    }
+
+    // 載入使用者
+    async function loadUsers() {
+      try {
+        const res = await fetch(`${apiBaseUrl}/api/admin/users`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${currentSession.access_token}`
+          }
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `讀取失败 (${res.status})`);
+        }
+
+        const data = await res.json();
+        const users = data.users || [];
+        allUsersData = users; // 儲存至全域
+        
+        // 渲染列表
+        renderUserTable(users);
+
+      } catch (err) {
+        showGlobalMessage("讀取使用者清單失敗：" + err.message, "error");
+      }
+    }
+
+    // 渲染表格
+    function renderUserTable(users) {
+      const tbody = document.getElementById('user-table-body');
+      const countEl = document.getElementById('user-count-num');
+      tbody.innerHTML = '';
+      countEl.innerText = users.length;
+
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--n30);">目前無使用者資料</td></tr>`;
+        return;
+      }
+
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        const isAdmin = user.app_metadata && user.app_metadata.role === 'admin';
+        const isSelf = user.id === currentUser.id;
+        const hasRecords = user.progress_records && user.progress_records.length > 0;
+
+        tr.innerHTML = `
+          <td class="user-email-cell" data-label="電子信箱">${user.email || '未設定'} ${isSelf ? '<small style="color:var(--s50); font-weight:normal;">(您本人)</small>' : ''}</td>
+          <td data-label="註冊時間">${formatDateTime(user.created_at)}</td>
+          <td data-label="最後登入時間">${formatDateTime(user.last_sign_in_at)}</td>
+          <td data-label="身分角色">
+            <span class="badge ${isAdmin ? 'badge-admin' : 'badge-user'}">
+              ${isAdmin ? '管理員 (Admin)' : '一般使用者 (User)'}
+            </span>
+          </td>
+          <td data-label="操作選項">
+            <button class="view-btn" 
+                    onclick="openRecordModal('${user.id}')" 
+                    ${hasRecords ? '' : 'disabled title="無冒險紀錄"'}>
+              查看紀錄
+            </button>
+            <button class="delete-btn" 
+                    onclick="openDeleteModal('${user.id}')" 
+                    ${isSelf ? 'disabled title="不能刪除您自己"' : ''}>
+              刪除
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 開啟刪除 Modal
+    function openDeleteModal(userId) {
+      targetDeleteUserId = userId;
+      document.getElementById('delete-confirm-modal').classList.add('active');
+    }
+
+    // 關閉刪除 Modal
+    function closeDeleteModal() {
+      document.getElementById('delete-confirm-modal').classList.remove('active');
+      targetDeleteUserId = null;
+    }
+
+    // 確認刪除執行
+    document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+      if (!targetDeleteUserId) return;
+      
+      const confirmBtn = document.getElementById('confirm-delete-btn');
+      confirmBtn.innerText = "刪除中...";
+      confirmBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${apiBaseUrl}/api/admin/users?id=${targetDeleteUserId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${currentSession.access_token}`
+          }
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "刪除失敗");
+        }
+
+        showGlobalMessage("帳號已成功刪除！");
+        closeDeleteModal();
+        // 重新載入列表
+        await loadUsers();
+
+      } catch (err) {
+        showGlobalMessage("刪除失敗：" + err.message, "error");
+      } finally {
+        confirmBtn.innerText = "確定刪除";
+        confirmBtn.disabled = false;
+      }
+    });
+
+    // 開啟冒險紀錄詳情 Modal
+    function openRecordModal(userId) {
+      const user = allUsersData.find(u => u.id === userId);
+      if (!user || !user.progress_records || user.progress_records.length === 0) {
+        showGlobalMessage("該使用者尚無冒險紀錄！", "error");
+        return;
+      }
+
+      // 設定當前使用者的存檔陣列
+      activeUserRecords = user.progress_records;
+      activeRecordIndex = 0;
+
+      // 設定 Modal 標題
+      document.getElementById('record-modal-title').innerText = `【${user.email}】的冒險紀錄詳情`;
+
+      // 渲染客製化存檔選擇選單
+      const selectorContainer = document.getElementById('record-selector-container');
+      const dropdown = document.getElementById('custom-record-dropdown');
+      const menu = dropdown.querySelector('.dropdown-menu');
+      const triggerText = dropdown.querySelector('.dropdown-selected-text');
+      
+      menu.innerHTML = '';
+      dropdown.classList.remove('active');
+      menu.style.display = 'none';
+
+      if (activeUserRecords.length > 1) {
+        // 設定初始選取文字為第一個存檔
+        const firstRec = activeUserRecords[0];
+        triggerText.innerText = `${firstRec.record_name || `存檔 1`} (${formatDateTime(firstRec.created_at)})`;
+
+        activeUserRecords.forEach((rec, idx) => {
+          const item = document.createElement('div');
+          item.className = `dropdown-item${idx === 0 ? ' selected' : ''}`;
+          item.innerText = `${rec.record_name || `存檔 ${idx + 1}`} (${formatDateTime(rec.created_at)})`;
+          
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // 切換選取狀態
+            dropdown.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('selected'));
+            item.classList.add('selected');
+            // 更新 trigger 文字
+            triggerText.innerText = item.innerText;
+            // 關閉下拉選單
+            dropdown.classList.remove('active');
+            menu.style.display = 'none';
+            // 執行切換紀錄
+            switchActiveRecord(idx);
+          });
+          menu.appendChild(item);
+        });
+        selectorContainer.style.display = 'flex';
+      } else {
+        selectorContainer.style.display = 'none';
+      }
+
+      // 渲染當前選取的紀錄內容
+      renderRecordDetail(activeUserRecords[0]);
+
+      // 顯示 Modal
+      document.getElementById('record-detail-modal').classList.add('active');
+    }
+
+    // 關閉冒險紀錄詳情 Modal
+    function closeRecordModal() {
+      document.getElementById('record-detail-modal').classList.remove('active');
+      activeUserRecords = [];
+    }
+
+    // 切換存檔
+    function switchActiveRecord(index) {
+      const idx = parseInt(index, 10);
+      if (activeUserRecords[idx]) {
+        activeRecordIndex = idx;
+        renderRecordDetail(activeUserRecords[idx]);
+      }
+    }
+
+    // 渲染特定紀錄的詳細內容
+    function renderRecordDetail(record) {
+      const contentEl = document.getElementById('record-detail-content');
+      const pData = record.progress_data || {};
+      const devData = pData.careerRPG_data || {};
+
+      // 定義天秤拉桿的中文數值映射
+      const scaleMappings = {
+        income: ['主計處受雇中位數 (約50萬)', '主計處受雇前10% (約100萬)', '業界中高階主管 (約150~200萬)', '業界高階主管', '業界頂尖'],
+        time: ['固定班表', '每周排班', '每月排班', '彈性工時', '自由接案'],
+        mobility: ['固定地點', '固定為主，偶爾外出', '半外勤', '常態外勤', '全外勤（無固定地點）'],
+        feedback: ['數天內', '一個月內', '三個月內', '半年內', '一年內', '一年以上']
+      };
+
+      // 輔助函式：渲染標籤清單
+      function renderTagsHtml(tags) {
+        if (!tags || !Array.isArray(tags) || tags.length === 0) return '<span style="color:#8c7b72; font-style:italic; font-size:0.8rem;">（無系統分析標籤）</span>';
+        return tags.map(tag => `
+          <span style="display:inline-block; background:rgba(168,180,152,0.2); color:#a8b498; border:1px solid #a8b498; border-radius:12px; padding:2px 8px; font-size:0.75rem; margin-right:5px; margin-bottom:5px; font-weight:bold;">
+            ${tag}
+          </span>
+        `).join('');
+      }
+
+      // 輔助函式：防 HTML 注入
+      function safeText(str) {
+        if (!str) return '<span style="color:#8c7b72; font-style:italic;">（未填寫）</span>';
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
+
+      // 讀取 Wants
+      const wantsHtml = `
+        <div style="margin-bottom: 25px; border: 1px solid var(--s40); border-radius: 10px; background: rgba(242, 223, 211, 0.15); padding: 15px;">
+          <h4 style="margin: 0 0 15px 0; color: var(--s50); border-bottom: 2px solid var(--s40); padding-bottom: 6px; font-family: 'Iansui', serif; font-size: 1.1rem;">💭 Wants (想做的事情) 歷程</h4>
+          
+          <div style="margin-bottom: 12px;">
+            <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q1: 你小時候、或者現在，曾對哪些職業產生過憧憬？</div>
+            <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-q1'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-want-q1'])}</div>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q2: 描述一個你感到非常投入、甚至忘記時間的經驗？</div>
+            <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-q2'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-want-q2'])}</div>
+          </div>
+
+          <div style="margin-bottom: 5px;">
+            <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q3: 如果有源源不絕的預算，你最想用這筆錢做什麼？</div>
+            <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-q3'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-want-q3'])}</div>
+          </div>
+        </div>
+      `;
+
+      // 讀取 Able
+      const ableHtml = `
+        <div style="margin-bottom: 25px; border: 1px solid var(--s40); border-radius: 10px; background: rgba(168, 180, 152, 0.08); padding: 15px;">
+          <h4 style="margin: 0 0 15px 0; color: var(--a20); border-bottom: 2px solid var(--s40); padding-bottom: 6px; font-family: 'Iansui', serif; font-size: 1.1rem;">💪 Able (能做的事情) 歷程</h4>
+          
+          <div style="margin-bottom: 12px;">
+            <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q1: 到目前為止，哪些事情是你常被稱讚、或覺得「這對我來說其實不難」的？</div>
+            <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-can-q1'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-able-q1'])}</div>
+          </div>
+
+          <div style="margin-bottom: 5px;">
+            <div style="font-weight: bold; color: var(--n40); margin-bottom: 4px;">Q2: 當你面對一個全新、從未遇過的問題時，你通常會怎麼開始？</div>
+            <div style="background: var(--s10); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem; margin-bottom: 6px; border: 1px solid var(--s40); white-space: pre-wrap;">${safeText(devData['input-can-q2'])}</div>
+            <div style="padding-left: 5px;">${renderTagsHtml(devData['tags-able-q2'])}</div>
+          </div>
+        </div>
+      `;
+
+      // 讀取 天秤拉桿 (現實篩選)
+      function getScaleText(category, key) {
+        const index = devData[key];
+        if (index === undefined || index === null) return '<span style="color:#8c7b72; font-style:italic;">（未評估）</span>';
+        return scaleMappings[category][index] || `未知數值 (${index})`;
+      }
+
+      const balanceHtml = `
+        <div style="border: 1px solid var(--s40); border-radius: 10px; background: rgba(74, 62, 56, 0.05); padding: 15px;">
+          <h4 style="margin: 0 0 15px 0; color: var(--n40); border-bottom: 2px solid var(--s40); padding-bottom: 6px; font-family: 'Iansui', serif; font-size: 1.1rem;">⚖️ 現實篩選（天秤拉桿評估）</h4>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+            <tr>
+              <td style="width: 100px; font-weight: bold; padding: 6px 0; color: var(--n40);">收入期望：</td>
+              <td style="padding: 6px 0; font-weight: 600;">${getScaleText('income', 'scale-income')}</td>
+            </tr>
+            <tr>
+              <td style="font-weight: bold; padding: 6px 0; color: var(--n40);">時間結構：</td>
+              <td style="padding: 6px 0; font-weight: 600;">${getScaleText('time', 'scale-time')}</td>
+            </tr>
+            <tr>
+              <td style="font-weight: bold; padding: 6px 0; color: var(--n40);">移動彈性：</td>
+              <td style="padding: 6px 0; font-weight: 600;">${getScaleText('mobility', 'scale-mobility')}</td>
+            </tr>
+            <tr>
+              <td style="font-weight: bold; padding: 6px 0; color: var(--n40);">反饋週期：</td>
+              <td style="padding: 6px 0; font-weight: 600;">${getScaleText('feedback', 'scale-feedback')}</td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      contentEl.innerHTML = wantsHtml + ableHtml + balanceHtml;
+    }
+
+    window.addEventListener('load', initAdmin);
+  </script>
+</body>
+
+</html>

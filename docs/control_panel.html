@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>初路 - 開發伺服器主控台</title>
+  <link rel="icon" type="image/png" href="../assets/favicon.png" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap');
+
+    :root {
+      --s10: #FAF6F3;
+      --s30: #F2DFD3;
+      --s40: #E8D5C7;
+      --s50: #D4A898;
+      --n50: #2C2A26;
+      --n40: #4A3E38;
+      --n30: #8C7B72;
+      --a20: #A8B498;
+      --danger: #E07A5F;
+      --card-bg: rgba(250, 246, 243, 0.85);
+    }
+
+    @font-face {
+      font-family: 'Iansui';
+      src: url('../assets/Iansui-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Iansui', 'Noto Serif TC', serif;
+      color: var(--n50);
+      background: linear-gradient(rgba(250, 246, 243, 0.45), rgba(250, 246, 243, 0.45)), url('../assets/abanner.png') center/cover no-repeat fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* 紙張質感卡片 */
+    .container {
+      width: 90%;
+      max-width: 650px;
+      height: 90vh;
+      max-height: 620px;
+      background: var(--card-bg);
+      border: 1px solid var(--s40);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(74, 62, 56, 0.08);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    .noise-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 24px;
+      opacity: 0.04;
+      mix-blend-mode: multiply;
+      background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+    }
+
+    /* 標題與 LOGO */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid var(--s40);
+      padding-bottom: 15px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+
+    /* 狀態區塊 */
+    .status-panel {
+      border: 1px solid var(--s40);
+      background: rgba(250, 246, 243, 0.6);
+      border-radius: 16px;
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-panel h4 {
+      margin: 0 0 5px 0;
+      font-size: 0.95rem;
+      color: var(--n40);
+      letter-spacing: 1px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+
+    .status-label {
+      width: 170px;
+      color: var(--n30);
+    }
+
+    .status-value {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.running { background-color: var(--a20); }
+    .dot.stopped { background-color: var(--danger); }
+    .dot.starting { background-color: var(--s50); animation: pulse 1s infinite alternate; }
+
+    @keyframes pulse {
+      from { opacity: 0.5; }
+      to { opacity: 1; }
+    }
+
+    /* 按鈕操作區 */
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 15px;
+      font-size: 0.95rem;
+      font-family: 'Iansui', serif;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      user-select: none;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(74, 62, 56, 0.05);
+    }
+
+    /* 確保 macOS 觸控板輕按時 100% 反應靈敏 */
+    .btn:active {
+      transform: scale(0.97);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: var(--s30);
+      color: var(--n50);
+      border: 1px solid var(--s40);
+      grid-column: span 2;
+    }
+    .btn-primary:hover {
+      background: var(--s50);
+      color: var(--s10);
+      border-color: var(--s50);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--n40);
+      border: 1px solid var(--s40);
+    }
+    .btn-outline:hover {
+      background: var(--s30);
+      color: var(--n50);
+      border-color: var(--s50);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: var(--s10);
+      border: 1px solid var(--danger);
+    }
+    .btn-danger:hover {
+      background: #C35F45;
+      border-color: #C35F45;
+    }
+
+    .btn:disabled {
+      background: #EAEAEA !important;
+      color: #B5B5B5 !important;
+      border-color: #E2E2E2 !important;
+      cursor: not-allowed !important;
+      box-shadow: none !important;
+      pointer-events: none;
+    }
+
+    /* 日誌主視窗 */
+    .console-frame {
+      border: 1px solid var(--s40);
+      background: rgba(250, 246, 243, 0.75);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      padding: 12px 15px;
+      box-sizing: border-box;
+    }
+
+    .console-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--s50);
+      margin-bottom: 8px;
+    }
+
+    .console-log {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      color: var(--n50);
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      padding: 0;
+      margin: 0;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="noise-overlay"></div>
+    
+    <div class="header">
+      <svg class="logo-icon" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 28,175 L 28,102 Q 28,30 100,30 Q 172,30 172,102 L 172,175" fill="none" stroke="#2C2A26" stroke-width="26" stroke-linecap="round" />
+        <path d="M 68,175 L 68,114 Q 68,74 100,74 Q 132,74 132,114 L 132,175" fill="none" stroke="#2C2A26" stroke-width="22" stroke-linecap="round" />
+      </svg>
+      <h2 class="title">初路 職涯探索開發主控台</h2>
+    </div>
+
+    <div class="status-panel">
+      <h4>■ 運作狀態偵測</h4>
+      <div class="status-item">
+        <span class="status-label">Ollama 語意分析引擎:</span>
+        <span class="status-value" id="ollama-status">
+          <span class="dot stopped"></span> 偵測中...
+        </span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Wrangler 網頁伺服器:</span>
+        <span class="status-value" id="wrangler-status">
+          <span class="dot stopped"></span> 未啟動
+        </span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="btn-start-all">🚀 一鍵啟動所有服務</button>
+      <button class="btn btn-outline" id="btn-open-web" disabled>🌐 在瀏覽器開啟網頁</button>
+      <button class="btn btn-outline" id="btn-stop-server" disabled>🛑 單獨關閉網頁伺服器</button>
+      <button class="btn btn-outline" id="btn-stop-ollama">🧠 單獨關閉 Ollama</button>
+      <button class="btn btn-danger" id="btn-stop-all">💥 一鍵關閉所有服務</button>
+    </div>
+
+    <div class="console-frame">
+      <div class="console-title">■ 伺服器運行日誌 (Console Log)</div>
+      <textarea class="console-log" id="log-output" readonly>[系統提示] 網頁版控制面板已連線。點擊「一鍵啟動所有服務」開始運行本地伺服器。&#10;</textarea>
+    </div>
+  </div>
+
+  <script>
+    const ollamaStatus = document.getElementById('ollama-status');
+    const wranglerStatus = document.getElementById('wrangler-status');
+    const logOutput = document.getElementById('log-output');
+
+    const btnStartAll = document.getElementById('btn-start-all');
+    const btnOpenWeb = document.getElementById('btn-open-web');
+    const btnStopServer = document.getElementById('btn-stop-server');
+    const btnStopOllama = document.getElementById('btn-stop-ollama');
+    const btnStopAll = document.getElementById('btn-stop-all');
+
+    // 向伺服器 API 發送請求的輔助函數
+    async function apiRequest(path) {
+      try {
+        const res = await fetch(path, { method: 'POST' });
+        return await res.json();
+      } catch (err) {
+        appendLog(`[錯誤] 發送 API 請求失敗: ${err.message}\n`);
+      }
+    }
+
+    function appendLog(text) {
+      logOutput.value += text;
+      logOutput.scrollTop = logOutput.scrollHeight;
+    }
+
+    // 狀態更新與 UI 按鈕同步
+    async function updateStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const status = await res.json();
+
+        // 1. Ollama UI
+        if (status.ollama) {
+          ollamaStatus.innerHTML = '<span class="dot running"></span> 運行中 (CORS 已啟用)';
+          ollamaStatus.style.color = 'var(--a20)';
+        } else {
+          ollamaStatus.innerHTML = '<span class="dot stopped"></span> 未啟動';
+          ollamaStatus.style.color = 'var(--danger)';
+        }
+
+        // 2. Wrangler UI
+        if (status.wrangler) {
+          wranglerStatus.innerHTML = '<span class="dot running"></span> 運行中 (Port: 8787)';
+          wranglerStatus.style.color = 'var(--a20)';
+          btnStartAll.disabled = true;
+          btnStopServer.disabled = false;
+          btnOpenWeb.disabled = false;
+        } else {
+          wranglerStatus.innerHTML = '<span class="dot stopped"></span> 未啟動';
+          wranglerStatus.style.color = 'var(--danger)';
+          btnStartAll.disabled = false;
+          btnStopServer.disabled = true;
+          btnOpenWeb.disabled = true;
+        }
+      } catch (err) {
+        // 控制伺服器關閉時的降級處理
+        ollamaStatus.innerHTML = '<span class="dot stopped"></span> 控制伺服器已離線';
+        ollamaStatus.style.color = 'var(--danger)';
+        wranglerStatus.innerHTML = '<span class="dot stopped"></span> 控制伺服器已離線';
+        wranglerStatus.style.color = 'var(--danger)';
+      }
+    }
+
+    // 連線 SSE 接收伺服器日誌
+    function connectSSE() {
+      const eventSource = new EventSource('/api/logs');
+      
+      eventSource.onmessage = (event) => {
+        const decoded = decodeURIComponent(event.data);
+        appendLog(decoded);
+      };
+
+      eventSource.onerror = () => {
+        eventSource.close();
+        setTimeout(connectSSE, 2000); // 斷線重連
+      };
+    }
+
+    // 按鈕點擊綁定 (對 Mac 觸控板輕按 100% 回應靈敏)
+    btnStartAll.addEventListener('click', async () => {
+      appendLog('[系統] 正在發送啟動命令...\n');
+      await apiRequest('/api/start');
+    });
+
+    btnOpenWeb.addEventListener('click', () => {
+      window.open('http://localhost:8787', '_blank');
+    });
+
+    btnStopServer.addEventListener('click', async () => {
+      appendLog('[系統] 正在停止網頁伺服器...\n');
+      await apiRequest('/api/stop-server');
+    });
+
+    btnStopOllama.addEventListener('click', async () => {
+      appendLog('[系統] 正在停止 Ollama...\n');
+      await apiRequest('/api/stop-ollama');
+    });
+
+    btnStopAll.addEventListener('click', async () => {
+      if (confirm('確定要關閉所有開發服務並關閉本主控台嗎？')) {
+        appendLog('[系統] 正在關閉所有服務並退出主控台...\n');
+        await apiRequest('/api/stop-all');
+        setTimeout(() => {
+          window.close();
+        }, 1000);
+      }
+    });
+
+    // 啟動循環與日誌連線
+    setInterval(updateStatus, 1500);
+    updateStatus();
+    connectSSE();
+  </script>
+</body>
+</html>
