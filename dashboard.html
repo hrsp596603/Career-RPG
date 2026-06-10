@@ -1464,7 +1464,10 @@
       }
     }
 
-    // 將雲端紀錄下載並覆寫回本地 localStorage，無縫承接
+    // 將雲端紀錄下載並以「模板」方式載入至本地 localStorage
+    // 【設計原則】載入紀錄 = 以舊紀錄為起點，開啟全新探索；原始紀錄完全保留，不被更新。
+    // 透過不設置 currentRecordId + 導向 ?step=start，確保後續任何 autoSaveToSupabase
+    // 呼叫都會 insert 新紀錄，而非 update 被載入的那筆舊紀錄。
     async function loadRecordToLocal(id) {
       showLoading("載入冒險記憶中...");
       try {
@@ -1478,21 +1481,27 @@
 
         const pData = data.progress_data;
 
-        // 寫入 localStorage
-        localStorage.setItem('careerRPG_currentRecordId', id);
-        localStorage.setItem('careerRPG_currentRecordName', data.record_name);
+        // 將舊紀錄的答題資料寫入 localStorage（作為預填模板）
         localStorage.setItem('careerRPG_data', JSON.stringify(pData.careerRPG_data));
-        localStorage.setItem('careerRPG_page', pData.careerRPG_page);
         localStorage.setItem('careerRPG_hasWantHistory', pData.careerRPG_hasWantHistory ? 'true' : 'false');
         localStorage.setItem('careerRPG_hasAbleHistory', pData.careerRPG_hasAbleHistory ? 'true' : 'false');
-        localStorage.setItem('careerRPG_hasCompletedFirstRun', pData.careerRPG_hasCompletedFirstRun ? 'true' : 'false');
-        localStorage.setItem('careerRPG_adventureContinued', pData.careerRPG_adventureContinued ? 'true' : 'false');
 
-        showGlobalMessage("紀錄載入成功！即將回到探索之旅！");
+        // 【關鍵】不設置 currentRecordId：確保後續儲存都是 insert 新紀錄
+        localStorage.removeItem('careerRPG_currentRecordId');
+        localStorage.removeItem('careerRPG_currentRecordName');
 
-        // 倒數 1.5 秒跳轉
+        // 強制設為「接續冒險」模式，讓 career-flow.html 的 step=start 路徑保留預填資料
+        // 並且不強制跳轉至成果頁，允許使用者從頭重新填寫
+        localStorage.setItem('careerRPG_adventureContinued', 'true');
+        localStorage.setItem('careerRPG_hasCompletedFirstRun', 'false');
+
+        showGlobalMessage("紀錄載入成功！即將進入探索之旅！");
+
+        // 倒數 1.5 秒，導向 ?step=start：
+        // career-flow.html 會設置 isFreshExploration=true，
+        // 防止 autoRestoreLastProgress 把雲端舊 ID 帶回並覆蓋本地預填資料
         setTimeout(() => {
-          window.location.href = `career-flow.html`;
+          window.location.href = `career-flow.html?step=start`;
         }, 1500);
 
       } catch (err) {
