@@ -3860,7 +3860,7 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
           localStorage.removeItem('careerRPG_page');
           localStorage.removeItem('careerRPG_currentRecordId');
           localStorage.removeItem('careerRPG_currentRecordName');
-          
+
           if (step && step !== 'start') {
             goTo(step, true);
           } else {
@@ -3879,7 +3879,7 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
           localStorage.removeItem('careerRPG_adventureContinued');
           userProgressData = {};
           document.querySelectorAll('.text-input, textarea.text-input').forEach(input => input.value = '');
-          
+
           if (step && step !== 'start') {
             goTo(step, true);
           } else {
@@ -3920,10 +3920,10 @@ A01: 專業內容的跨背景轉譯, A02: 模糊情境下的問題核心辨識, 
   <!-- 提交確認彈跳視窗 -->
   <div id="submit-confirm-modal" class="modal-overlay">
     <div class="modal-card" style="max-width: 450px; text-align: center;">
-      <h4 class="modal-title">確定要提交測驗成果嗎？</h4>
+      <h4 class="modal-title">確定要提交成果嗎？</h4>
       <p
         style="font-size: 0.95rem; color: var(--n40); margin: 20px 0 25px 0; line-height: 1.6; text-align: left; padding: 0 10px;">
-        按下此按鈕，本測驗將提交您的測驗成果，並且不可返回。確定要提交嗎？
+        按下此按鈕，將提交您的成果，並且不可返回。確定要提交嗎？
       </p>
       <div class="modal-actions" style="justify-content: center; gap: 15px;">
         <button class="btn-modal-confirm" onclick="executeSubmitConfirm()"
