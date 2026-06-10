@@ -1226,7 +1226,7 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      cursor: pointer;
+      cursor: default;
       backdrop-filter: blur(15px);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
       transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -2282,14 +2282,8 @@
     <div class="history-block" style="width: 100%; max-width: 600px; text-align: center; margin-bottom: 30px;">
       <div class="history-section-title" style="border:none; padding:0; margin-bottom: 20px;">您的媒合結果</div>
       <p style="font-size: 1.15rem; line-height: 1.6; font-weight: 500; color:var(--dark-navy);">
-        系統已為您建立個人職涯地圖，您可以點擊下方按鈕，分別前往查看符合您的職業路徑，或者直接進入整體的「方向選擇」卡片。
+        系統已為您建立個人職涯地圖。您可以選擇接續現有的職業冒險，或是清除進度開始全新的職業探索。
       </p>
-    </div>
-
-    <div class="action-buttons">
-      <button class="action-btn" onclick="window.location.href='subpages.html'"
-        style="background:var(--primary); box-shadow: 0 4px 12px rgba(129, 178, 154, 0.2);">檢視精選職業</button>
-      <button class="action-btn" onclick="goTo('page-menu')">前往方向選擇</button>
     </div>
 
     <!-- 雲端同步儲存區區塊 -->
@@ -2313,25 +2307,25 @@
   <!-- ==================== 方向選擇 (page-menu) ==================== -->
   <div id="page-menu" class="page-container">
     <h2 class="page-title">方向選擇</h2>
-    <div class="sub-title">點擊您有興趣的方向，展開深入分析</div>
+    <div class="sub-title">探索適合您的職涯方向</div>
 
     <div class="grid-options">
-      <div class="grid-card" onclick="window.location.href='subpages.html?type=A'">
+      <div class="grid-card">
         <div class="grid-letter">A</div>
         <div class="grid-title">挑吃 / 微型任務</div>
         <div class="grid-desc">熱門微型職業群，彈性且自主的短期職務推薦。</div>
       </div>
-      <div class="grid-card" onclick="window.location.href='subpages.html?type=B'">
+      <div class="grid-card">
         <div class="grid-letter">B</div>
         <div class="grid-title">特製</div>
         <div class="grid-desc">客製化設計、高度配合個人特質發展之職務。</div>
       </div>
-      <div class="grid-card" onclick="window.location.href='subpages.html?type=C'">
+      <div class="grid-card">
         <div class="grid-letter">C</div>
         <div class="grid-title">私廚</div>
         <div class="grid-desc">以高度專業技能為核心之利基型獨立工作路徑。</div>
       </div>
-      <div class="grid-card" onclick="window.location.href='subpages.html?type=D'">
+      <div class="grid-card">
         <div class="grid-letter">D</div>
         <div class="grid-title">無菜單</div>
         <div class="grid-desc">突破傳統框架之綜合跨界、高自由度開拓型職能。</div>
